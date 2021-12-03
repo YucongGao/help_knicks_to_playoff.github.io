@@ -1,0 +1,15 @@
+name: "Yay internet!"
+output_dir: "."
+navbar:
+  title: "Jessie's Website"
+  right:
+    - text: "Report"
+      href: final_report.html
+    - icon: fa-github fa-lg
+      href: https://github.com/YucongGao/help_knicks_to_playoff.github.io
+
+
+output:
+  html_document:
+    theme: flatly
+    
