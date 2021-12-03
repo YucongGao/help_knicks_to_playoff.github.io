@@ -10,9 +10,40 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Motivation
 
+As Knicks fans, we are witnessing probably the greatest revolution ever on the court, which is called "Small ball era". Teams tend to use small and faster players instead of traditional giants to accelerate moving speed and improve shooting efficiency. 
+
+Last year, the Knicks returned to playoff season after eight years, which brought great joy to the fans. In order to make this performance long-lasting, we feel obligated to research the key variables that contribute to the winning of a game, to help Knicks maintain existing strengths and make up for the disadvantages. The most obvious feature of the "small ball era" is the rise of 3 point shot attempt. In this way, we focus on three-point related variables along with other factors to conduct our analysis. 
+
 # Questions
 
+Our questions are based on data from last 10 NBA regular seasons, from 2011-12 season to 2020-2021 season.
+
+The First analysis is to explore the relationship between wining (number of wining, score in each game) in regular season with potential factors. In addition, we would use our model to predict Knicks' performance in the new season of 2021-22 to see whether it can get into play-off season. And we wanted to visualize Knicks' game data (especially three-point shooting data) to see its strengths and weakness. Our analysis mainly address the following questions:
+
+1. What variables contribute to the wining of NBA teams, how they impact the game result? <br>
+
+2. If using the model we built to predict the ranking of Knicks in new season, will it get into play-off season? 
+
+3. How is the Knicks' three shooting performance different from the league average? Are there any obvious weakness in three point shooting?
+
+4. What Knicks can do to improve its performance in other areas such as assistance, rebound, etc. to secure a place in play-off season?
+
+
+
 # Data Source
+
+As our project is based on data from last 10 seasons NBA regular season, we used scrapping to get data from [NBA Stats](https://www.nba.com/stats/), there are three data sest we mainly used:
+
+1. [Advanced Box Score](https://www.nba.com/stats/teams/boxscores-advanced/): In this data set, each observation represent a game and the specific data in this game, which contains the score, total field goal attempt, three point made and so on. 
+
+2. [Playtype by Team](https://www.nba.com/stats/teams/transition/): this data set contains average data for each team in the aspect of offensive play type, such as isolation, pick and roll, ect. Each observation represent the team average data in a regular season with respect to a specific play type. 
+
+3. [Tracking](https://www.nba.com/stats/teams/drives/): this data set contains detailed information about NBA teams' average movement data in a regular season, for example, passing, touches. 
+
+4. [Knicks Shooting Log](https://www.nba.com/stats/events/?flag=3&CFID=155&CFPARAMS=2021-22&TeamID=1610612752&ContextMeasure=FGA&Season=2021-22&section=team&sct=hex): in this data set, each observation represent a field goal that player in Knicks made, including the player who made the shot, the location they shot, the time remaining when the shot was made. 
+
+As I mentioned above, these data sets were scrapped from NBA website, the code to scrap data can be found at [scrapping data](scrapping_data.Rmd)
+
 
 # Exploratory Analysis
 

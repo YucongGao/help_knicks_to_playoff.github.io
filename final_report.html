@@ -359,12 +359,30 @@ div.tocify {
 
 <div id="motivation" class="section level1">
 <h1>Motivation</h1>
+<p>As Knicks fans, we are witnessing probably the greatest revolution ever on the court, which is called “Small ball era”. Teams tend to use small and faster players instead of traditional giants to accelerate moving speed and improve shooting efficiency.</p>
+<p>Last year, the Knicks returned to playoff season after eight years, which brought great joy to the fans. In order to make this performance long-lasting, we feel obligated to research the key variables that contribute to the winning of a game, to help Knicks maintain existing strengths and make up for the disadvantages. The most obvious feature of the “small ball era” is the rise of 3 point shot attempt. In this way, we focus on three-point related variables along with other factors to conduct our analysis.</p>
 </div>
 <div id="questions" class="section level1">
 <h1>Questions</h1>
+<p>Our questions are based on data from last 10 NBA regular seasons, from 2011-12 season to 2020-2021 season.</p>
+<p>The First analysis is to explore the relationship between wining (number of wining, score in each game) in regular season with potential factors. In addition, we would use our model to predict Knicks’ performance in the new season of 2021-22 to see whether it can get into play-off season. And we wanted to visualize Knicks’ game data (especially three-point shooting data) to see its strengths and weakness. Our analysis mainly address the following questions:</p>
+<ol style="list-style-type: decimal">
+<li><p>What variables contribute to the wining of NBA teams, how they impact the game result? <br></p></li>
+<li><p>If using the model we built to predict the ranking of Knicks in new season, will it get into play-off season?</p></li>
+<li><p>How is the Knicks’ three shooting performance different from the league average? Are there any obvious weakness in three point shooting?</p></li>
+<li><p>What Knicks can do to improve its performance in other areas such as assistance, rebound, etc. to secure a place in play-off season?</p></li>
+</ol>
 </div>
 <div id="data-source" class="section level1">
 <h1>Data Source</h1>
+<p>As our project is based on data from last 10 seasons NBA regular season, we used scrapping to get data from <a href="https://www.nba.com/stats/">NBA Stats</a>, there are three data sest we mainly used:</p>
+<ol style="list-style-type: decimal">
+<li><p><a href="https://www.nba.com/stats/teams/boxscores-advanced/">Advanced Box Score</a>: In this data set, each observation represent a game and the specific data in this game, which contains the score, total field goal attempt, three point made and so on.</p></li>
+<li><p><a href="https://www.nba.com/stats/teams/transition/">Playtype by Team</a>: this data set contains average data for each team in the aspect of offensive play type, such as isolation, pick and roll, ect. Each observation represent the team average data in a regular season with respect to a specific play type.</p></li>
+<li><p><a href="https://www.nba.com/stats/teams/drives/">Tracking</a>: this data set contains detailed information about NBA teams’ average movement data in a regular season, for example, passing, touches.</p></li>
+<li><p><a href="https://www.nba.com/stats/events/?flag=3&amp;CFID=155&amp;CFPARAMS=2021-22&amp;TeamID=1610612752&amp;ContextMeasure=FGA&amp;Season=2021-22&amp;section=team&amp;sct=hex">Knicks Shooting Log</a>: in this data set, each observation represent a field goal that player in Knicks made, including the player who made the shot, the location they shot, the time remaining when the shot was made.</p></li>
+</ol>
+<p>As I mentioned above, these data sets were scrapped from NBA website, the code to scrap data can be found at <a href="scrapping_data.Rmd">scrapping data</a></p>
 </div>
 <div id="exploratory-analysis" class="section level1">
 <h1>Exploratory Analysis</h1>
