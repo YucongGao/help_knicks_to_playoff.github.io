@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>second_regression</title>
+
+<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Go Go Knicks!</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="final_report.html">Report</a>
+</li>
+<li>
+  <a href="https://github.com/YucongGao/help_knicks_to_playoff.github.io">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">second_regression</h1>
+<h4 class="date">2021/11/15</h4>
+
+</div>
+
+
+<div id="section-introduction" class="section level2">
+<h2>Section Introduction</h2>
+<p>In the first regression analysis, we have known that there are some factors significantly contributing to the number of winnings, especially some factors about three-pointer. In this section, we will continue explore the relationships between factors of all aspects and the scores made in every game, by using data from every game in the last 20 years in NBA and using logistic regression to analyze what factors might affect the game’s score to try to find out what New York Knicks needs to improve for achieving higher score.</p>
+<pre class="r"><code>knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = &quot;90%&quot;
+)
+
+theme_set(theme_minimal() + theme(legend.position = &quot;bottom&quot;))
+
+options(
+  ggplot2.continuous.colour = &quot;viridis&quot;,
+  ggplot2.continuous.fill = &quot;viridis&quot;
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d</code></pre>
+</div>
+<div id="data-scrapping-function" class="section level2">
+<h2>Data Scrapping function</h2>
+<p>use function to get data - define a function to scrap data from NBA.stat</p>
+<pre class="r"><code>scrapping_data = function(url) {
+  headers = headers = c(
+  `Connection` = &#39;keep-alive&#39;,
+  `Accept` = &#39;application/json, text/plain, */*&#39;,
+  `x-nba-stats-token` = &#39;true&#39;,
+  `X-NewRelic-ID` = &#39;VQECWF5UChAHUlNTBwgBVw==&#39;,
+  `User-Agent` = &#39;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36&#39;, 
+  `x-nba-stats-origin` = &#39;stats&#39;,
+  `Sec-Fetch-Site` = &#39;same-origin&#39;,
+  `Sec-Fetch-Mode` = &#39;cors&#39;,
+  `Referer` = &#39;https://stats.nba.com/players/leaguedashplayerbiostats/&#39;,
+  `Accept-Encoding` = &#39;gzip, deflate, br&#39;,
+  `Accept-Language` = &#39;en-US,en;q=0.9&#39;)
+  response = GET(url, add_headers(headers))
+  data = fromJSON(content(response, as = &quot;text&quot;))
+  df = data.frame(data$resultSets$rowSet[[1]], stringAsFactors = FALSE)
+  names(df) = tolower(data$resultSets$headers[[1]])
+  return(df)
+}</code></pre>
+<div id="box-scores-dataset" class="section level3">
+<h3>Box scores dataset</h3>
+<p>get data from 2001-02 season to 2020-21 season</p>
+<pre class="r"><code>season_years = c(&quot;2020-21&quot;, &quot;2019-20&quot;, 
+           &quot;2018-19&quot;, &quot;2017-18&quot;, 
+           &quot;2016-17&quot;, &quot;2015-16&quot;, 
+           &quot;2014-15&quot;, &quot;2013-14&quot;, 
+           &quot;2012-13&quot;, &quot;2011-12&quot;, 
+           &quot;2010-11&quot;, &quot;2009-10&quot;, 
+           &quot;2008-09&quot;, &quot;2007-08&quot;, 
+           &quot;2006-07&quot;, &quot;2005-06&quot;, 
+           &quot;2004-05&quot;, &quot;2003-04&quot;, 
+           &quot;2002-03&quot;, &quot;2001-02&quot;)
+
+box_score_all = tibble(season_year = season_years)
+box_score_all = 
+  box_score_all %&gt;% 
+  mutate(url = str_c(&quot;https://stats.nba.com/stats/teamgamelogs?DateFrom=&amp;DateTo=&amp;GameSegment=&amp;LastNGames=0&amp;LeagueID=00&amp;Location=&amp;MeasureType=Base&amp;Month=0&amp;OpponentTeamID=0&amp;Outcome=&amp;PORound=0&amp;PaceAdjust=N&amp;PerMode=Totals&amp;Period=0&amp;PlusMinus=N&amp;Rank=N&amp;Season=&quot;, season_year, &quot;&amp;SeasonSegment=&amp;SeasonType=Regular+Season&amp;ShotClockRange=&amp;VsConference=&amp;VsDivision=&quot;)) %&gt;%
+  mutate(box_score = map(url, scrapping_data))</code></pre>
+<p>As the last column of each box score is NA, so we need to drop this column</p>
+<pre class="r"><code>drop_last_column = function(df) {
+  df = df %&gt;% select(- names(df)[[57]])
+  return(df)
+}
+
+box_score_all = 
+  box_score_all %&gt;% 
+  mutate(box_score = map(box_score, drop_last_column)) 
+
+box_score_all = 
+  box_score_all %&gt;% 
+  select(-season_year, -url) %&gt;% 
+  unnest(cols = box_score)</code></pre>
+<p>The box_score_all dataset contains 47830 games’ data from season 2012-2013 to season 2020-2021, which includes 56 variables. We are going to use some of them in the following exploratory data analysis.</p>
+</div>
+</div>
+<div id="descriptive-statistics" class="section level2">
+<h2>Descriptive Statistics</h2>
+<p>We should delete some variables which are not applicable for regression analysis, like season_year, team_id and some rank variables.Then select the reasonable variables to analyze to create a data set called “regre_df”, and use regre_df to draw boxplots of comparison of winning team and losing team.</p>
+<p>These are some reasonable variables that should be added into the regression model:</p>
+<ul>
+<li>wl: Win/Loss</li>
+<li>min: minutes</li>
+<li>pts: Points</li>
+<li>fgm: Field Goals Made</li>
+<li>fga: Field Goals Attempted</li>
+<li>fg_pct: Field Goal Percentage</li>
+<li>fg3m: 3 Point Field Goals Made</li>
+<li>fg3a: 3 Point Field Goals Attempted</li>
+<li>fg3_pct: 3 Point Field Goals Percentage</li>
+<li>ftm: Free Throws Made</li>
+<li>fta: Free Throws Attempted</li>
+<li>ft_pct: Free Throw Percentage</li>
+<li>oreb: Offensive Rebounds</li>
+<li>dreb: Defensive Rebounds</li>
+<li>reb: Rebounds</li>
+<li>ast: Assists</li>
+<li>stl: STL</li>
+<li>blk: Blocks</li>
+<li>blka: Blocks Attempted</li>
+<li>tov: Turnovers</li>
+<li>pf: Personal Fouls</li>
+<li>pfd: Personal Fouls Drawn</li>
+<li>plus_minus: Plus-Minus</li>
+</ul>
+<p>In order to build logistic regression model, we will replace win/loss with 1/0. Then draw boxplots of every variable to compare the characteristics of winning and losing teams.</p>
+<pre class="r"><code>regre_df = 
+  box_score_all %&gt;%
+  select(-c(1:7)) %&gt;%
+  select(-ends_with(&quot;rank&quot;)) %&gt;%
+  mutate(wl = recode(wl, &quot;W&quot; = 1, &quot;L&quot; = 0),
+         wl = as.factor(wl)) 
+
+
+fgm_box = 
+  regre_df %&gt;%
+  group_by(wl) %&gt;%
+  mutate(fgm = as.numeric(fgm)) %&gt;%
+  ggplot(aes(x = wl, y = fgm, group=wl)) + 
+  geom_boxplot() +
+  theme(axis.text.y = element_text(size=4))
+fga_box = 
+  regre_df %&gt;%
+  group_by(wl) %&gt;%
+  mutate(fga = as.numeric(fga)) %&gt;%
+  ggplot(aes(x = wl, y = fga, group=wl)) + 
+  geom_boxplot() +
+  theme(axis.text.y = element_text(size=4))
+fgpct_box = 
+  regre_df %&gt;%
+  group_by(wl) %&gt;%
+  mutate(fg_pct = as.numeric(fg_pct)) %&gt;%
+  ggplot(aes(x = wl, y = fg_pct, group=wl)) + 
+  geom_boxplot() +
+  theme(axis.text.y = element_text(size=4))
+fg3m_box = 
+  regre_df %&gt;%
+  group_by(wl) %&gt;%
+  mutate(fg3m = as.numeric(fg3m)) %&gt;%
+  ggplot(aes(x = wl, y = fg3m, group=wl)) + 
+  geom_boxplot() +
+  theme(axis.text.y = element_text(size=4))
+fg3a_box = 
+  regre_df %&gt;%
+  group_by(wl) %&gt;%
+  mutate(fg3a = as.numeric(fg3a)) %&gt;%
+  ggplot(aes(x = wl, y = fg3a, group=wl)) + 
+  geom_boxplot() +
+  theme(axis.text.y = element_text(size=4))
+fg3pct_box = 
+  regre_df %&gt;%
+  group_by(wl) %&gt;%
+  mutate(fg3_pct = as.numeric(fg3_pct)) %&gt;%
+  ggplot(aes(x = wl, y = fg3_pct, group=wl)) + 
+  geom_boxplot() +
+  theme(axis.text.y = element_text(size=4))
+ftm_box = 
+  regre_df %&gt;%
+  group_by(wl) %&gt;%
+  mutate(ftm = as.numeric(ftm)) %&gt;%
+  ggplot(aes(x = wl, y = ftm, group=wl)) + 
+  geom_boxplot() +
+  theme(axis.text.y = element_text(size=4))
+fta_box = 
+  regre_df %&gt;%
+  group_by(wl) %&gt;%
+  mutate(ftm = as.numeric(fta)) %&gt;%
+  ggplot(aes(x = wl, y = fta, group=wl)) + 
+  geom_boxplot() +
+  theme(axis.text.y = element_text(size=4))
+ftpct_box = 
+  regre_df %&gt;%
+  group_by(wl) %&gt;%
+  mutate(ft_pct = as.numeric(ft_pct)) %&gt;%
+  ggplot(aes(x = wl, y = ft_pct, group=wl)) + 
+  geom_boxplot() +
+  theme(axis.text.y = element_text(size=4))
+oreb_box = 
+  regre_df %&gt;%
+  group_by(wl) %&gt;%
+  mutate(oreb = as.numeric(oreb)) %&gt;%
+  ggplot(aes(x = wl, y = oreb, group=wl)) + 
+  geom_boxplot() +
+  theme(axis.text.y = element_text(size=4))
+dreb_box = 
+  regre_df %&gt;%
+  group_by(wl) %&gt;%
+  mutate(dreb = as.numeric(dreb)) %&gt;%
+  ggplot(aes(x = wl, y = dreb, group=wl)) + 
+  geom_boxplot() +
+  theme(axis.text.y = element_text(size=4))
+reb_box = 
+  regre_df %&gt;%
+  group_by(wl) %&gt;%
+  mutate(reb = as.numeric(reb)) %&gt;%
+  ggplot(aes(x = wl, y = reb, group=wl)) + 
+  geom_boxplot() +
+  theme(axis.text.y = element_text(size=4))
+ast_box = 
+  regre_df %&gt;%
+  group_by(wl) %&gt;%
+  mutate(ast = as.numeric(ast)) %&gt;%
+  ggplot(aes(x = wl, y = ast, group=wl)) + 
+  geom_boxplot() +
+  theme(axis.text.y = element_text(size=4))
+tov_box = 
+  regre_df %&gt;%
+  group_by(wl) %&gt;%
+  mutate(tov = as.numeric(tov)) %&gt;%
+  ggplot(aes(x = wl, y = tov, group=wl)) + 
+  geom_boxplot() +
+  theme(axis.text.y = element_text(size=4))
+stl_box = 
+  regre_df %&gt;%
+  group_by(wl) %&gt;%
+  mutate(stl = as.numeric(stl)) %&gt;%
+  ggplot(aes(x = wl, y = stl, group=wl)) + 
+  geom_boxplot() +
+  theme(axis.text.y = element_text(size=4))
+blk_box = 
+  regre_df %&gt;%
+  group_by(wl) %&gt;%
+  mutate(blk = as.numeric(blk)) %&gt;%
+  ggplot(aes(x = wl, y = blk, group=wl)) + 
+  geom_boxplot() +
+  theme(axis.text.y = element_text(size=4))
+blka_box = 
+  regre_df %&gt;%
+  group_by(wl) %&gt;%
+  mutate(blka = as.numeric(blka)) %&gt;%
+  ggplot(aes(x = wl, y = blka, group=wl)) + 
+  geom_boxplot() +
+  theme(axis.text.y = element_text(size=4))
+pf_box = 
+  regre_df %&gt;%
+  group_by(wl) %&gt;%
+  mutate(pf = as.numeric(pf)) %&gt;%
+  ggplot(aes(x = wl, y = pf, group=wl)) + 
+  geom_boxplot() +
+  theme(axis.text.y = element_text(size=4))
+pfd_box = 
+  regre_df %&gt;%
+  group_by(wl) %&gt;%
+  mutate(pfd = as.numeric(pfd)) %&gt;%
+  ggplot(aes(x = wl, y = pfd, group=wl)) + 
+  geom_boxplot() +
+  theme(axis.text.y = element_text(size=4))
+pts_box = 
+  regre_df %&gt;%
+  group_by(wl) %&gt;%
+  mutate(pts = as.numeric(pts)) %&gt;%
+  ggplot(aes(x = wl, y = pts, group=wl)) + 
+  geom_boxplot() +
+  theme(axis.text.y = element_text(size=4))
+pm_box = 
+  regre_df %&gt;%
+  group_by(wl) %&gt;%
+  mutate(plus_minus = as.numeric(plus_minus)) %&gt;%
+  ggplot(aes(x = wl, y = plus_minus, group=wl)) + 
+  geom_boxplot() +
+  theme(axis.text.y = element_text(size=4))
+(fgm_box + fga_box + fgpct_box) / (fg3m_box + fg3a_box + fg3pct_box)</code></pre>
+<p><img src="second_regression_files/figure-html/unnamed-chunk-6-1.png" width="90%" /></p>
+<pre class="r"><code>(ftm_box + fta_box + ftpct_box)/(oreb_box + dreb_box + reb_box)</code></pre>
+<p><img src="second_regression_files/figure-html/unnamed-chunk-6-2.png" width="90%" /></p>
+<pre class="r"><code>(ast_box + tov_box + stl_box) /(blk_box + blka_box + pf_box)</code></pre>
+<p><img src="second_regression_files/figure-html/unnamed-chunk-6-3.png" width="90%" /></p>
+<pre class="r"><code>pfd_box + pts_box + pm_box</code></pre>
+<p><img src="second_regression_files/figure-html/unnamed-chunk-6-4.png" width="90%" /> According to boxplots of winning and losing teams, we can find that there are some obvious difference in some aspects, like fg_pct, fg3_pct, pts and etc.</p>
+</div>
+<div id="corralation-map" class="section level2">
+<h2>Corralation Map</h2>
+<p>Further, we can draw a correlation map to exam correlation of variables to help us select variables when building model.</p>
+<pre class="r"><code>regre_df = 
+  regre_df %&gt;%
+  mutate(
+    min = as.numeric(min),
+    fgm = as.numeric(fgm),
+    fga = as.numeric(fga),
+    fg_pct = as.numeric(fg_pct),
+    fg3m = as.numeric(fg3m),
+    fg3a = as.numeric(fg3a),
+    fg3_pct = as.numeric(fg3_pct),
+    ftm = as.numeric(ftm),
+    fta = as.numeric(fta),
+    ft_pct = as.numeric(ft_pct),
+    oreb = as.numeric(oreb),
+    dreb = as.numeric(dreb),
+    reb = as.numeric(reb),
+    ast = as.numeric(ast),
+    tov = as.numeric(tov),
+    stl = as.numeric(stl),
+    blk = as.numeric(blk),
+    blka = as.numeric(blka),
+    pf = as.numeric(pf),
+    pfd = as.numeric(pfd),
+    pts = as.numeric(pts),
+    plus_minus = as.numeric(plus_minus)
+  )
+corr &lt;- cor(regre_df[-1])
+corrplot(corr, method = &quot;square&quot;, order = &quot;FPC&quot;)</code></pre>
+<p><img src="second_regression_files/figure-html/unnamed-chunk-7-1.png" width="90%" /></p>
+<p>Based on this plot, we can see that there are some strong correlation between some variables, like ftm and fta, dreb and reb. We will select one variable from a pair of variables that have correlation score which is more than 0.5. Therefore we can select variables which have no strong correlation with others.</p>
+</div>
+<div id="linear-regression" class="section level2">
+<h2>Linear Regression</h2>
+<div id="variable-description" class="section level3">
+<h3>Variable description</h3>
+<p>After ruling out variables with strong correlation, we include variables as follow: Dependent variable is the score of each game, denoted by pts (points). Independent variables are selected from both <strong>offensive</strong> aspect and <strong>defensive</strong> aspect.</p>
+<p>For the offensive level, variables include:</p>
+<ul>
+<li>fg3_pct: proportion of three points shooting</li>
+<li>fg_pct: proportion of field goals attempted</li>
+<li>fg_pct: proportion of free throw</li>
+<li>oreb: average offensive rebounds per game</li>
+<li>ast: average assists per games</li>
+</ul>
+<p>As for the defensive level, variables include:</p>
+<ul>
+<li>stl: steals of each game</li>
+<li>blk: blocks of each game</li>
+<li>dreb: defensive rebounds of each game</li>
+<li>tov: turnovers of each game</li>
+<li>pf: personal foul of each game</li>
+</ul>
+</div>
+<div id="modelling" class="section level3">
+<h3>Modelling</h3>
+<p>Use step function to choose a model by AIC in a Stepwise algorithm.</p>
+<pre class="r"><code>ln_regre = lm(pts ~fg_pct+fg3_pct+ft_pct+oreb+dreb+ast+stl+blk+tov+pf,data = regre_df)
+summary(ln_regre)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = pts ~ fg_pct + fg3_pct + ft_pct + oreb + dreb + 
+##     ast + stl + blk + tov + pf, data = regre_df)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -25.617  -5.038  -0.342   4.710  46.223 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -25.229423   0.515913  -48.90   &lt;2e-16 ***
+## fg_pct      138.594897   0.803307  172.53   &lt;2e-16 ***
+## fg3_pct      14.564180   0.325892   44.69   &lt;2e-16 ***
+## ft_pct       24.290515   0.331887   73.19   &lt;2e-16 ***
+## oreb          0.802525   0.009228   86.96   &lt;2e-16 ***
+## dreb          0.563889   0.006492   86.86   &lt;2e-16 ***
+## ast           0.487421   0.008136   59.91   &lt;2e-16 ***
+## stl           0.565725   0.011870   47.66   &lt;2e-16 ***
+## blk          -0.152531   0.013351  -11.43   &lt;2e-16 ***
+## tov          -0.682900   0.008899  -76.74   &lt;2e-16 ***
+## pf            0.404912   0.007667   52.81   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 7.334 on 47819 degrees of freedom
+## Multiple R-squared:  0.6916, Adjusted R-squared:  0.6916 
+## F-statistic: 1.072e+04 on 10 and 47819 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>linear.step = step(ln_regre,direction=&quot;both&quot;)</code></pre>
+<pre><code>## Start:  AIC=190616
+## pts ~ fg_pct + fg3_pct + ft_pct + oreb + dreb + ast + stl + blk + 
+##     tov + pf
+## 
+##           Df Sum of Sq     RSS    AIC
+## &lt;none&gt;                 2572088 190616
+## - blk      1      7021 2579109 190744
+## - fg3_pct  1    107426 2679514 192571
+## - stl      1    122170 2694258 192834
+## - pf       1    150024 2722112 193325
+## - ast      1    193050 2765138 194076
+## - ft_pct   1    288123 2860211 195692
+## - tov      1    316762 2888850 196169
+## - dreb     1    405789 2977877 197621
+## - oreb     1    406778 2978867 197637
+## - fg_pct   1   1601094 4173182 213762</code></pre>
+<pre class="r"><code>summary(linear.step)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = pts ~ fg_pct + fg3_pct + ft_pct + oreb + dreb + 
+##     ast + stl + blk + tov + pf, data = regre_df)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -25.617  -5.038  -0.342   4.710  46.223 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -25.229423   0.515913  -48.90   &lt;2e-16 ***
+## fg_pct      138.594897   0.803307  172.53   &lt;2e-16 ***
+## fg3_pct      14.564180   0.325892   44.69   &lt;2e-16 ***
+## ft_pct       24.290515   0.331887   73.19   &lt;2e-16 ***
+## oreb          0.802525   0.009228   86.96   &lt;2e-16 ***
+## dreb          0.563889   0.006492   86.86   &lt;2e-16 ***
+## ast           0.487421   0.008136   59.91   &lt;2e-16 ***
+## stl           0.565725   0.011870   47.66   &lt;2e-16 ***
+## blk          -0.152531   0.013351  -11.43   &lt;2e-16 ***
+## tov          -0.682900   0.008899  -76.74   &lt;2e-16 ***
+## pf            0.404912   0.007667   52.81   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 7.334 on 47819 degrees of freedom
+## Multiple R-squared:  0.6916, Adjusted R-squared:  0.6916 
+## F-statistic: 1.072e+04 on 10 and 47819 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p>The adjusted R square for the full model is 0.6916, that is to say 69.16% of variances in the response variable can be explained by the predictors.</p>
+</div>
+<div id="model-diagnostic" class="section level3">
+<h3>Model diagnostic</h3>
+<p>1). to check if the error term is normally distributed with mean 0.</p>
+<pre class="r"><code>ggplot(data = ln_regre , aes(x = ln_regre$residuals)) + geom_histogram()</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="second_regression_files/figure-html/unnamed-chunk-9-1.png" width="90%" /></p>
+<p>Condition 1 is met.</p>
+<p>2). to check if the error term is independent of the dependent variable.</p>
+<pre class="r"><code>ggplot(data = ln_regre, aes(x = ln_regre$fitted.values, y = ln_regre$residuals)) + geom_point() + geom_smooth(method = &quot;lm&quot;)</code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="second_regression_files/figure-html/unnamed-chunk-10-1.png" width="90%" /></p>
+<p>Condition 2 is met as we cannot see an obvious tendency of errors.</p>
+</div>
+<div id="interpretation-of-model-coefficients" class="section level3">
+<h3>Interpretation of model coefficients</h3>
+<p>According to model ln_regre,the equation will look like this. <img src="image/second_linear_regre.jpeg" /></p>
+<p>All variables selected are significant in this linear regression model.</p>
+<p>For each additional 0.1 of proportion of field goals attempted, the points will increase 13.9.</p>
+<p>For each additional 0.1 of proportion three points shooting, the points will increase 1.45.</p>
+<p>For each additional 0.1 of proportion of free throw, the points will increase 2.43.</p>
+<p>For each additional 1 of offensive rebounds per game, the points will increase 0.8.</p>
+<p>For each additional 1 of defensive rebounds per games, the points will increase 0.56.</p>
+<p>For each additional 1 of steals per game, the points will increase 0.57.</p>
+<p>For each additional 1 of assists per game, the points will increase 0.45.</p>
+<p>For each additional 1 of blocks per game, the points will decrease 0.15.</p>
+<p>For each additional 1 of turnovers per game, the points will decrease 0.68.</p>
+<p>For each additional 1 of personal foul per game, the points will decrease 0.4.</p>
+</div>
+</div>
+<div id="logistic-regression" class="section level2">
+<h2>Logistic Regression</h2>
+<p>Separate data as 80% training data and 20% testing data for prediction.</p>
+<pre class="r"><code>set.seed(22)
+train.index &lt;- sample(x=1:nrow( regre_df), size=ceiling(0.9*nrow(regre_df)))
+
+train = regre_df[train.index, ]
+test =regre_df[-train.index, ]</code></pre>
+<div id="modelling-1" class="section level3">
+<h3>Modelling</h3>
+<p>Build logistic regression model with Step methods in both directions.</p>
+<pre class="r"><code>lg_regre&lt;-glm(wl~fg_pct+fg3_pct+ft_pct+oreb+dreb+ast+stl+blk+tov+pf,data =train, family = &quot;binomial&quot;,control = list(maxit=1000))
+summary(lg_regre)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = wl ~ fg_pct + fg3_pct + ft_pct + oreb + dreb + 
+##     ast + stl + blk + tov + pf, family = &quot;binomial&quot;, data = train, 
+##     control = list(maxit = 1000))
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -3.3302  -0.6406   0.0198   0.6309   3.2524  
+## 
+## Coefficients:
+##               Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -25.150274   0.282380  -89.06   &lt;2e-16 ***
+## fg_pct       30.300719   0.394694   76.77   &lt;2e-16 ***
+## fg3_pct       4.300476   0.132209   32.53   &lt;2e-16 ***
+## ft_pct        3.626952   0.133934   27.08   &lt;2e-16 ***
+## oreb          0.169106   0.003828   44.18   &lt;2e-16 ***
+## dreb          0.237543   0.003153   75.35   &lt;2e-16 ***
+## ast          -0.040846   0.003216  -12.70   &lt;2e-16 ***
+## stl           0.263265   0.005102   51.60   &lt;2e-16 ***
+## blk           0.120397   0.005340   22.55   &lt;2e-16 ***
+## tov          -0.177678   0.003778  -47.03   &lt;2e-16 ***
+## pf           -0.067135   0.003050  -22.01   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 59676  on 43046  degrees of freedom
+## Residual deviance: 35814  on 43036  degrees of freedom
+## AIC: 35836
+## 
+## Number of Fisher Scoring iterations: 5</code></pre>
+<pre class="r"><code>logit.step = step(lg_regre,direction=&quot;both&quot;)</code></pre>
+<pre><code>## Start:  AIC=35835.62
+## wl ~ fg_pct + fg3_pct + ft_pct + oreb + dreb + ast + stl + blk + 
+##     tov + pf
+## 
+##           Df Deviance   AIC
+## &lt;none&gt;          35814 35836
+## - ast      1    35976 35996
+## - pf       1    36310 36330
+## - blk      1    36335 36355
+## - ft_pct   1    36576 36596
+## - fg3_pct  1    36932 36952
+## - oreb     1    37957 37977
+## - tov      1    38287 38307
+## - stl      1    38869 38889
+## - dreb     1    43635 43655
+## - fg_pct   1    44015 44035</code></pre>
+<pre class="r"><code>summary(logit.step)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = wl ~ fg_pct + fg3_pct + ft_pct + oreb + dreb + 
+##     ast + stl + blk + tov + pf, family = &quot;binomial&quot;, data = train, 
+##     control = list(maxit = 1000))
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -3.3302  -0.6406   0.0198   0.6309   3.2524  
+## 
+## Coefficients:
+##               Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -25.150274   0.282380  -89.06   &lt;2e-16 ***
+## fg_pct       30.300719   0.394694   76.77   &lt;2e-16 ***
+## fg3_pct       4.300476   0.132209   32.53   &lt;2e-16 ***
+## ft_pct        3.626952   0.133934   27.08   &lt;2e-16 ***
+## oreb          0.169106   0.003828   44.18   &lt;2e-16 ***
+## dreb          0.237543   0.003153   75.35   &lt;2e-16 ***
+## ast          -0.040846   0.003216  -12.70   &lt;2e-16 ***
+## stl           0.263265   0.005102   51.60   &lt;2e-16 ***
+## blk           0.120397   0.005340   22.55   &lt;2e-16 ***
+## tov          -0.177678   0.003778  -47.03   &lt;2e-16 ***
+## pf           -0.067135   0.003050  -22.01   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 59676  on 43046  degrees of freedom
+## Residual deviance: 35814  on 43036  degrees of freedom
+## AIC: 35836
+## 
+## Number of Fisher Scoring iterations: 5</code></pre>
+</div>
+<div id="interpretation-of-model-coefficients-1" class="section level3">
+<h3>Interpretation of model coefficients</h3>
+<p>For logistic regression, we can explain variables from the perspective of odds.</p>
+<p>All variables selected are significant in this logistic regression model.</p>
+<p>For each additional 1 of proportion of field goals attempted, the odds of win over loss will become e^30.300719 times.</p>
+<p>For each additional 1 of proportion three points shooting, the odds of win over loss will become e^4.300476 times.</p>
+<p>For each additional 1 of proportion of free throw, the odds of win over loss will become e^3.626952 times.</p>
+<p>For each additional 1 of offensive rebounds per game, the odds of win over loss will become e^0.169106 times.</p>
+<p>For each additional 1 of defensive rebounds per games, the odds of win over loss will become e^0.237543 times.</p>
+<p>For each additional 1 of steals per game, the odds of win over loss will become e^0.263265 times.</p>
+<p>For each additional 1 of assists per game, the odds of win over loss will become e^(-0.040846) times.</p>
+<p>For each additional 1 of blocks per game, the odds of win over loss will become e^0.120397 times.</p>
+<p>For each additional 1 of turnovers per game, the odds of win over loss will become e^(-0.177678) times.</p>
+<p>For each additional 1 of personal foul per game, the odds of win over loss will become e^(-0.067135) times.</p>
+</div>
+<div id="calculate-prediction-accuracy." class="section level3">
+<h3>Calculate prediction accuracy.</h3>
+<pre class="r"><code>probabilities &lt;- lg_regre %&gt;% predict(test, type = &quot;response&quot;)
+head(probabilities)</code></pre>
+<pre><code>##         1         2         3         4         5         6 
+## 0.9599067 0.1557291 0.9642265 0.4626808 0.9066939 0.4378931</code></pre>
+<pre class="r"><code>contrasts(test$wl)</code></pre>
+<pre><code>##   1
+## 0 0
+## 1 1</code></pre>
+<pre class="r"><code>predicted.classes &lt;- ifelse(probabilities &gt; 0.5, &quot;1&quot;, &quot;0&quot;)
+head(predicted.classes)</code></pre>
+<pre><code>##   1   2   3   4   5   6 
+## &quot;1&quot; &quot;0&quot; &quot;1&quot; &quot;0&quot; &quot;1&quot; &quot;0&quot;</code></pre>
+<pre class="r"><code>mean(predicted.classes == test$wl)</code></pre>
+<pre><code>## [1] 0.8053523</code></pre>
+<p>Using the logistic model of all variables we selected, the prediction accuracy is 0.8053523.</p>
+</div>
+</div>
+<div id="conclusion" class="section level2">
+<h2>Conclusion</h2>
+<ul>
+<li><p>We have built both linear and logistic regression based on the NBA data. The adjusted R square for the linear regression model is 0.6916, which can explain the game score in a large extent. And the prediction of the logistic regression model is 0.8053523, which can help us to predict the result of a game more accurately.</p></li>
+<li><p>There are some variables that can positively attribute to the winning of a game in both two models, like proportion of field goals attempted, proportion three points shooting and proportion of free throw, which can instruct the Knicks to pay more attention on these aspects in daily training.</p></li>
+<li><p>There is variable that can negatively attribute to the winning of a game in both two models, turnovers, which can instruct the Knicks to avoid this action in games.</p></li>
+</ul>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
