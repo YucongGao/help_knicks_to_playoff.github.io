@@ -1,32 +1,18 @@
 ---
-<<<<<<< HEAD
 title: "proposal"
-output: github_document
-=======
-title: "About"
-output: 
-  html_document:
-    toc: true
-    toc_float: true
->>>>>>> fca1cc5dfa474632c377f330a7eb090619c8ba44
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
 library(tidyverse)
 ```
 
-<<<<<<< HEAD
 ## Group Members
-=======
-Group Members
-================================================================================
->>>>>>> fca1cc5dfa474632c377f330a7eb090619c8ba44
 Xuehan Yang, xy2517 <br>
 Yucong Gao, yg2834 <br>
 Hao Zheng, hz2772 <br>
 Pei Hsin Lin, pl2811 <br>
 
-<<<<<<< HEAD
 ## Tentative Project Title 
 
 Hey Tom Thibodeau, this is exactly what New York has been waiting for.
@@ -40,25 +26,6 @@ As Knicks fans, we are witnessing probably the greatest revolution ever on the c
 Our intended final product is a winning strategy for New York Knicks, based on the analysis of the relation between game winning and some influencing factors like the proportion of three points attempts, location(home or road), the number of fouls per game and so on, .
 
 ## Data Source
-=======
-Tentative Project Title 
-================================================================================
-
-Hey Tom Thibodeau, this is exactly what New York has been waiting for.
-
-Motivation
-================================================================================
-
-As Knicks fans, we are witnessing probably the greatest revolution ever on the court, which is called "Small ball era". Teams tend to use small and faster players instead of traditional giants to accelerate moving speed and improve shooting efficiency. Last year, the Knicks returned to playoff season after eight years, which brought great joy to the fans. In order to make this performance long-lasting, we feel obligated to research the key variables that contribute to the winning of a game, to help Knicks maintain existing strengths and make up for the disadvantages. The most obvious feature of the "small ball era" is the rise of 3 point shot attempt. In this way, we focus on three-point related variables along with other factors to conduct our analysis. Due to the huge volume of data released by NBA, our project seems promising and practical.
-
-Intended Final Product 
-================================================================================
-
-Our intended final product is a winning strategy for New York Knicks, based on the analysis of the relation between game winning and some influencing factors like the proportion of three points attempts, location(home or road), the number of fouls per game and so on, .
-
-Data Source
-================================================================================
->>>>>>> fca1cc5dfa474632c377f330a7eb090619c8ba44
 Our datasets mainly come from the following two website:
 
 https://www.basketball-reference.com/ <br>
@@ -66,17 +33,9 @@ https://www.nba.com/stats/ <br>
 
 These websites contains up-to-date NBA box scores for each team per game and Player shooting data log which we can leverage in our data analysis. As there is no direct API for the datasets we need, we plan to use scrapping to get our data.
 
-<<<<<<< HEAD
 ## Analysis/Visualizations
 
 ### Intended Data Analysis 
-=======
-Analysis/Visualizations
-================================================================================
-
-Intended Data Analysis 
-================================================================================
->>>>>>> fca1cc5dfa474632c377f330a7eb090619c8ba44
 
 Our analysis contains three parts, all of which are based on data from last 5 NBA regular seasons, from 2015-2016 season to 2020-2021 season.
 
@@ -86,24 +45,14 @@ The second analysis is descriptive analysis, focusing on how to improve three po
 
 The third analysis gives suggestions to a specific NBA team, New York Knicks. The advice mainly cover three point shooting strategy on the court and three points training strategy according to the results from the first two analysis.
  
-<<<<<<< HEAD
 ### Intended Data Visualization
-=======
-Intended Data Visualization
-================================================================================
->>>>>>> fca1cc5dfa474632c377f330a7eb090619c8ba44
 
 * A line plot of the average team three point shooting attempts trend over time<br>
 * A parallel coordinates of three point attempt rate trend overtime breakdown by playoff teams and other teams<br>
 * A hex plot that shows the three points shooting rate of a team on different position<br> 
 * A panel plot shows characteristics difference between playoff teams and other teams<br>
 
-<<<<<<< HEAD
 ## Anticipated Challenges
-=======
-Anticipated Challenges
-================================================================================
->>>>>>> fca1cc5dfa474632c377f330a7eb090619c8ba44
 
 * There is no direct API from NBA official website about shooting log data, how to use scrapper to get the data is a big challenge.
 
@@ -112,12 +61,7 @@ Anticipated Challenges
 * Choose a suitable statistical regression model to fit the data, and eliminate possible problems such as multicollinearity, heteroscedasticity, and autocorrelation.
  
 
-<<<<<<< HEAD
 ## Timeline
-=======
-Timeline
-================================================================================
->>>>>>> fca1cc5dfa474632c377f330a7eb090619c8ba44
 ```{r, echo=FALSE}
 work_vec = c("Complete proposal", "Meeting: make analysis plan", "Data collection: scrapping from the Web", "Meeting: work devision", "Tidy and clean data", "Meeting: webpage design", "Data visualization and detailed analysis", "Complete final report", "Complete final webpage")
 

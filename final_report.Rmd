@@ -30,7 +30,9 @@ The First analysis is to explore the relationship between wining (number of wini
 
 
 
-# Data Source
+# Data 
+
+## Data Source
 
 As our project is based on data from last 10 seasons NBA regular season, we used scrapping to get data from [NBA Stats](https://www.nba.com/stats/), there are three data sest we mainly used:
 
@@ -43,6 +45,9 @@ As our project is based on data from last 10 seasons NBA regular season, we used
 4. [Knicks Shooting Log](https://www.nba.com/stats/events/?flag=3&CFID=155&CFPARAMS=2021-22&TeamID=1610612752&ContextMeasure=FGA&Season=2021-22&section=team&sct=hex): in this data set, each observation represent a field goal that player in Knicks made, including the player who made the shot, the location they shot, the time remaining when the shot was made. 
 
 As I mentioned above, these data sets were scrapped from NBA website, the code to scrap data can be found at [scrapping data](scrapping_data.Rmd)
+
+## Data Wrangling
+
 
 
 # Exploratory Analysis
