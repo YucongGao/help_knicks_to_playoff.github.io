@@ -1,7 +1,7 @@
 name: "Yay internet!"
 output_dir: "."
 navbar:
-  title: "Jessie's Website"
+  title: "Go Go Knicks!"
   right:
     - text: "Report"
       href: final_report.html
@@ -12,4 +12,7 @@ navbar:
 output:
   html_document:
     theme: flatly
+    toc : true
+    toc_float: true
+    code_folding: hide
     

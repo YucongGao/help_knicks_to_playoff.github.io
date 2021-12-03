@@ -1,7 +1,5 @@
 ---
-title: "report"
-author: "Yucong Gao"
-date: "12/3/2021"
+title: "Project Report"
 output: html_document
 ---
 
@@ -9,3 +7,17 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
+# Motivation
+
+# Questions
+
+# Data Source
+
+# Exploratory Analysis
+
+# Regression Related
+
+# Shiny App
+
+# Conclusion and Discussion
