@@ -11,7 +11,7 @@
 
 
 
-<title>Project Report</title>
+<title>Proposal</title>
 
 <script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -330,20 +330,8 @@ div.tocify {
   <a href="final_report.html">Report</a>
 </li>
 <li>
-  <a href="second_regression.html">Regression</a>
-</li>
-<li>
-  <a href="proposal.html">About</a>
-</li>
-<li>
   <a href="https://github.com/YucongGao/help_knicks_to_playoff.github.io">
     <span class="fa fa-github fa-lg"></span>
-     
-  </a>
-</li>
-<li>
-  <a href="mailto:&lt;pl2811@cumc.columbia.edu&gt;">
-    <span class="fa fa-envelope fa-lg"></span>
      
   </a>
 </li>
@@ -364,31 +352,118 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Project Report</h1>
+<h1 class="title toc-ignore">Proposal</h1>
 
 </div>
 
 
+<div id="group-members" class="section level1">
+<h1>Group Members</h1>
+<p>Xuehan Yang, xy2517 <br> Yucong Gao, yg2834 <br> Hao Zheng, hz2772 <br> Pei Hsin Lin, pl2811 <br></p>
+</div>
+<div id="tentative-project-title" class="section level1">
+<h1>Tentative Project Title</h1>
+<p>Hey Tom Thibodeau, this is exactly what New York has been waiting for.</p>
+</div>
 <div id="motivation" class="section level1">
 <h1>Motivation</h1>
+<p>As Knicks fans, we are witnessing probably the greatest revolution ever on the court, which is called “Small ball era”. Teams tend to use small and faster players instead of traditional giants to accelerate moving speed and improve shooting efficiency. Last year, the Knicks returned to playoff season after eight years, which brought great joy to the fans. In order to make this performance long-lasting, we feel obligated to research the key variables that contribute to the winning of a game, to help Knicks maintain existing strengths and make up for the disadvantages. The most obvious feature of the “small ball era” is the rise of 3 point shot attempt. In this way, we focus on three-point related variables along with other factors to conduct our analysis. Due to the huge volume of data released by NBA, our project seems promising and practical.</p>
 </div>
-<div id="questions" class="section level1">
-<h1>Questions</h1>
+<div id="intended-final-product" class="section level1">
+<h1>Intended Final Product</h1>
+<p>Our intended final product is a winning strategy for New York Knicks, based on the analysis of the relation between game winning and some influencing factors like the proportion of three points attempts, location(home or road), the number of fouls per game and so on, .</p>
 </div>
 <div id="data-source" class="section level1">
 <h1>Data Source</h1>
+<p>Our datasets mainly come from the following two website:</p>
+<p><a href="https://www.basketball-reference.com/" class="uri">https://www.basketball-reference.com/</a> <br> <a href="https://www.nba.com/stats/" class="uri">https://www.nba.com/stats/</a> <br></p>
+<p>These websites contains up-to-date NBA box scores for each team per game and Player shooting data log which we can leverage in our data analysis. As there is no direct API for the datasets we need, we plan to use scrapping to get our data.</p>
 </div>
-<div id="exploratory-analysis" class="section level1">
-<h1>Exploratory Analysis</h1>
+<div id="analysisvisualizations" class="section level1">
+<h1>Analysis/Visualizations</h1>
 </div>
-<div id="regression-related" class="section level1">
-<h1>Regression Related</h1>
+<div id="intended-data-analysis" class="section level1">
+<h1>Intended Data Analysis</h1>
+<p>Our analysis contains three parts, all of which are based on data from last 5 NBA regular seasons, from 2015-2016 season to 2020-2021 season.</p>
+<p>The First analysis is to develop regression models to quantify the relation between game winning with potential factors. The potential factors selected are related with three points shooting. The dependent variables are expected to be game win or lose, 1 if win and 0 if lose. The potential independent variables are position(home, road), the proportion of three points shooting attempts, three points shooting rate, the number of AST, the number of TOV and possessions.</p>
+<p>The second analysis is descriptive analysis, focusing on how to improve three point shooting. Variables such as Position in the team(PG, SG), position on the court(corner or not), number of dribbles before shot, time on the court and the position of the passers are taken into consideration .</p>
+<p>The third analysis gives suggestions to a specific NBA team, New York Knicks. The advice mainly cover three point shooting strategy on the court and three points training strategy according to the results from the first two analysis.</p>
 </div>
-<div id="shiny-app" class="section level1">
-<h1>Shiny App</h1>
+<div id="intended-data-visualization" class="section level1">
+<h1>Intended Data Visualization</h1>
+<ul>
+<li>A line plot of the average team three point shooting attempts trend over time<br></li>
+<li>A parallel coordinates of three point attempt rate trend overtime breakdown by playoff teams and other teams<br></li>
+<li>A hex plot that shows the three points shooting rate of a team on different position<br></li>
+<li>A panel plot shows characteristics difference between playoff teams and other teams<br></li>
+</ul>
 </div>
-<div id="conclusion-and-discussion" class="section level1">
-<h1>Conclusion and Discussion</h1>
+<div id="anticipated-challenges" class="section level1">
+<h1>Anticipated Challenges</h1>
+<ul>
+<li><p>There is no direct API from NBA official website about shooting log data, how to use scrapper to get the data is a big challenge.</p></li>
+<li><p>Because the research object involves specific players, player status and on-site audience factors may affect player performance and match results, which may result in a decrease in prediction accuracy.</p></li>
+<li><p>Choose a suitable statistical regression model to fit the data, and eliminate possible problems such as multicollinearity, heteroscedasticity, and autocorrelation.</p></li>
+</ul>
+</div>
+<div id="timeline" class="section level1">
+<h1>Timeline</h1>
+<table>
+<thead>
+<tr class="header">
+<th align="left">date</th>
+<th align="center">work</th>
+<th align="center">due</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">11/08 - 11/13</td>
+<td align="center">Complete proposal</td>
+<td align="center">11/13 by 1:00 pm</td>
+</tr>
+<tr class="even">
+<td align="left">11/14</td>
+<td align="center">Meeting: make analysis plan</td>
+<td align="center">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">11/15 - 11/16</td>
+<td align="center">Data collection: scrapping from the Web</td>
+<td align="center">NA</td>
+</tr>
+<tr class="even">
+<td align="left">11/17</td>
+<td align="center">Meeting: work devision</td>
+<td align="center">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">11/18 - 11/24</td>
+<td align="center">Tidy and clean data</td>
+<td align="center">NA</td>
+</tr>
+<tr class="even">
+<td align="left">11/25</td>
+<td align="center">Meeting: webpage design</td>
+<td align="center">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">11/26 - 12/1</td>
+<td align="center">Data visualization and detailed analysis</td>
+<td align="center">NA</td>
+</tr>
+<tr class="even">
+<td align="left">12/2 - 12/9</td>
+<td align="center">Complete final report</td>
+<td align="center">12/11 by 4:00 pm</td>
+</tr>
+<tr class="odd">
+<td align="left">12/7 - 12/10</td>
+<td align="center">Complete final webpage</td>
+<td align="center">12/11 by 4:00 pm</td>
+</tr>
+</tbody>
+</table>
 </div>
 
 
