@@ -1,0 +1,290 @@
+---
+title: "Shiny Dashboard"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+runtime: shiny
+---
+
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+
+library(tidyverse)
+library(viridis)
+library(p8105.datasets)
+library(plotly)
+library(shiny)
+```
+
+```{r, include=FALSE}
+box_score_all = read_csv("./data2/box_score_all.csv")
+
+box_score_all = 
+  box_score_all %>% 
+  janitor::clean_names() %>% 
+  select(-contains("rank")) %>% 
+  select(
+    season_year, 
+    team_abbreviation, 
+    wl, 
+    pts, 
+    ast, 
+    tov, 
+    fgm, 
+    fga, 
+    fg3m, 
+    fg3a
+    ) %>%
+  mutate(
+    win = case_when(wl == "W" ~ 1, TRUE~0),
+    game_num = 1,
+    fg3a_p = round(fg3a/fga, digits = 3),
+    conference = case_when(
+      team_abbreviation %in% c("UTA","PHX","LAC","DEN","DAL","LAL","POR","GSW","SAS","MEM","NOP","SAC","MIN","OKC","HOU","NOH","SEA","NOK","CHH")~"west",
+      team_abbreviation %in% c("PHI","BKN","MIL","ATL","NYK","MIA","BOS","IND","WAS","CHI","TOR","CLE","ORL","DET","NJN","CHA")~"east") # divide into east and west conference
+    ) %>% 
+  group_by(season_year, team_abbreviation, conference) %>% 
+  summarise(
+    wins = sum(win), 
+    games = sum(game_num), 
+    games_should = 82, 
+    pts_avg = round(mean(pts), digits = 1), 
+    ast_avg = round(mean(ast), digits = 1),
+    tov_avg = round(mean(tov), digits = 1),
+    fgm_total = sum(fgm), 
+    fga_total = sum(fga), 
+    fg3m_total = sum(fg3m), 
+    fg3a_total = sum(fg3a)
+    ) %>% 
+  mutate(wins_revised = round(wins/games*games_should,0)) %>% # due to labor negotiation in 2011-12, COVID-19.
+  relocate(season_year, team_abbreviation, conference, wins, wins_revised, everything()) %>% 
+  arrange(desc(season_year),desc(wins)) %>% 
+  mutate(team_abbreviation = str_replace(team_abbreviation, "NOH", "NOP"), 
+         team_abbreviation = str_replace(team_abbreviation, "NJN", "BKN"), 
+         fg3_p = fg3a_total/fga_total, 
+         fg3_r = fg3m_total/fg3a_total) %>% 
+  select(season_year, team_abbreviation, 
+         conference, wins_revised, pts_avg, 
+         ast_avg, tov_avg,fg3_p, fg3_r, 
+         fg3a_total, fg3m_total) %>% 
+  ungroup()
+
+```
+
+
+```{r, include=FALSE}
+add_season = function(seasons_id, seasons_year, file) {
+  nba_stat_df = read_csv(file)
+  nba_stat_df = 
+    nba_stat_df %>% 
+    mutate(season_id = seasons_id, 
+           season_year = seasons_year) %>% 
+    relocate(season_id, season_year)
+  
+  return(nba_stat_df)
+}
+
+seasons_id = 
+  c(replicate(30, "22020"), 
+  replicate(30, "22019"), 
+  replicate(30, "22018"), 
+  replicate(30, "22017"), 
+  replicate(30, "22016"), 
+  replicate(30, "22015"), 
+  replicate(30, "22014"), 
+  replicate(30, "22013"))
+
+seasons_year = 
+  c(replicate(30, "2020-21"), 
+  replicate(30, "2019-20"), 
+  replicate(30, "2018-19"), 
+  replicate(30, "2017-18"), 
+  replicate(30, "2016-17"), 
+  replicate(30, "2015-16"), 
+  replicate(30, "2014-15"), 
+  replicate(30, "2013-14"))
+
+
+defensive_impact_df = add_season(seasons_id, seasons_year, "./data/defensive_impact_12_21.csv")
+
+passing_df = add_season(seasons_id, seasons_year, "./data/passing_12_21.csv") 
+touches_df = add_season(seasons_id, seasons_year, "./data/touches_12_21.csv")
+drive_df = add_season(seasons_id, seasons_year, "./data/drives_12_21.csv")
+
+seasons_id_12_20 = 
+  c(replicate(30, "22020"), 
+  replicate(30, "22019"), 
+  replicate(30, "22018"), 
+  replicate(30, "22017"), 
+  replicate(30, "22016"), 
+  replicate(30, "22015"), 
+  replicate(30, "22014"), 
+  replicate(30, "22013"), 
+  replicate(30, "22012"))
+
+seasons_year_12_20 = 
+  c(replicate(30, "2020-21"), 
+  replicate(30, "2019-20"), 
+  replicate(30, "2018-19"), 
+  replicate(30, "2017-18"), 
+  replicate(30, "2016-17"), 
+  replicate(30, "2015-16"), 
+  replicate(30, "2014-15"), 
+  replicate(30, "2013-14"), 
+  replicate(30, "2012-13"))
+
+pullup_shooting_df = add_season(seasons_id_12_20, seasons_year_12_20, "./data/pullup_shooting_12_21.csv") 
+catch_and_shoot_df = add_season(seasons_id_12_20, seasons_year_12_20, "./data/catch_and_shoot_12_21.csv")
+isolation_df = add_season(seasons_id_12_20, seasons_year_12_20, "./data/isolation_12_21.csv")
+pick_roll_baller_df = add_season(seasons_id_12_20, seasons_year_12_20, "./data/prbh_12_21.csv")
+pick_roll_roller_df = add_season(seasons_id_12_20, seasons_year_12_20, "./data/prrm_12_21.csv")
+transition_df = add_season(seasons_id_12_20, seasons_year_12_20, "./data/transition_12_21.csv")
+
+trans_df = 
+  transition_df %>% 
+  janitor::clean_names() %>% 
+  select(season_year, team_abbreviation, poss) %>% 
+  rename(poss_trans = poss)
+
+pass_df = 
+  passing_df %>% 
+  janitor::clean_names() %>% 
+  select(season_year, team_abbreviation, passes_made)
+
+isol_df = 
+  isolation_df %>% 
+  janitor::clean_names() %>% 
+  select(season_year, team_abbreviation, poss) %>% 
+  rename(poss_iso = poss)
+
+prbh_df = 
+  pick_roll_baller_df %>% 
+  janitor::clean_names() %>% 
+  select(season_year, team_abbreviation, poss) %>% 
+  rename(poss_prb = poss)
+
+prrm_df = 
+  pick_roll_roller_df %>% 
+  janitor::clean_names() %>% 
+  select(season_year, team_abbreviation, poss) %>% 
+  rename(poss_prr = poss)
+
+defend_df = 
+  defensive_impact_df %>% 
+  janitor::clean_names() %>% 
+  select(season_year, team_abbreviation, stl, blk, dreb)
+```
+
+
+```{r, include=FALSE}
+
+avg_df = 
+  box_score_all %>%
+  left_join(defend_df, by = c("season_year","team_abbreviation")) %>% 
+  left_join(prrm_df, by = c("season_year","team_abbreviation")) %>% 
+  left_join(prbh_df, by = c("season_year","team_abbreviation")) %>%
+  left_join(isol_df, by = c("season_year","team_abbreviation")) %>% 
+  left_join(pass_df, by = c("season_year","team_abbreviation")) %>%
+  left_join(trans_df, by = c("season_year","team_abbreviation")) %>% 
+  drop_na(poss_trans, passes_made, poss_iso, poss_prb, poss_prr, stl, blk, dreb) %>% 
+  mutate(
+    poss_pr = poss_prr + poss_prb
+  ) %>% 
+  select(-poss_prr, -poss_prb) %>% 
+  rename(team = team_abbreviation, 
+         wins = wins_revised, 
+         average_score = pts_avg, 
+         assistance = ast_avg, 
+         turnover = tov_avg, 
+         three_field_goal_attempt = fg3_p)
+
+conf_rank = 
+  avg_df %>% 
+  group_by(season_year, conference) %>% 
+  mutate(conf_rank = row_number()) %>% 
+  ungroup() %>% 
+  select(season_year, team, conference, conf_rank) %>% 
+  mutate(play_off_team = case_when(
+           conf_rank <= 8 ~ "playoff", 
+           conf_rank > 8 ~ "non-playoff"
+         ), 
+         play_off_team = fct_relevel(play_off_team, c("playoff", "non-playoff"))) 
+
+regular_season_viz = 
+  avg_df %>% 
+  pivot_longer(wins:poss_pr, 
+               names_to = "parameters", 
+               values_to = "team_value") %>% 
+  left_join(conf_rank, by = c("season_year", "team", "conference"))
+
+
+regular_season_viz %>% 
+  filter(
+    parameters == "wins", 
+    team %in% c("NYK", "GSW")
+  ) %>% 
+  pivot_wider(
+    names_from = parameters, 
+    values_from = team_value
+  ) %>% 
+  rename(selected = "wins") %>% 
+  plot_ly(x = ~season_year, y = ~selected, type = "scatter", mode = "line", alpha = .5, color = ~team)
+```
+
+
+Column {.sidebar} 
+-----------------------------------------------------------------------
+
+```{r}
+parameter_choices = 
+  regular_season_viz %>% 
+  distinct(parameters) %>% 
+  pull()
+
+selectInput(
+  "parameter_choices", 
+  label = h3("Select Parameter(s)"), 
+  choices = parameter_choices, 
+  selected = "wins") #default value
+
+team_choices = 
+  regular_season_viz %>%
+  distinct(team) %>% 
+  pull()
+
+selectInput(
+  "team_choices", 
+  label = h3("Select Team(s)"), 
+  choices = team_choices, 
+  selected = "NYK", 
+  multiple = TRUE)
+
+
+```
+
+Column {data-width=1000}
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r}
+renderPlotly({
+  
+  regular_season_viz %>% 
+    filter(
+      parameters == input[["parameter_choices"]], 
+      team %in% input[["team_choices"]]
+    ) %>% 
+    pivot_wider(
+    names_from = parameters, 
+    values_from = team_value
+  ) %>% 
+    rename(selected_parameter = input[["parameter_choices"]]) %>% 
+    plot_ly(x = ~ season_year, y = ~ selected_parameter, type = "scatter", mode = "line", 
+            color = ~ team, alpha = .5)
+})
+
+```
+

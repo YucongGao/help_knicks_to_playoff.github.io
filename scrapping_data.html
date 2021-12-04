@@ -1,687 +1,224 @@
 <!DOCTYPE html>
 
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
 
-<meta charset="utf-8" />
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
-<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-
-
-
-<title>data_scrapping</title>
-
-<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
-<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
-<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
-<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
-<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
-<style>h1 {font-size: 34px;}
-       h1.title {font-size: 38px;}
-       h2 {font-size: 30px;}
-       h3 {font-size: 24px;}
-       h4 {font-size: 18px;}
-       h5 {font-size: 16px;}
-       h6 {font-size: 12px;}
-       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
-       pre:not([class]) { background-color: white }</style>
-<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
-<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
-<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
-<script src="site_libs/navigation-1.1/tabsets.js"></script>
-<script src="site_libs/navigation-1.1/codefolding.js"></script>
-<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
-<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
-<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
-<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
-
-<style type="text/css">
-  code{white-space: pre-wrap;}
-  span.smallcaps{font-variant: small-caps;}
-  span.underline{text-decoration: underline;}
-  div.column{display: inline-block; vertical-align: top; width: 50%;}
-  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-  ul.task-list{list-style: none;}
-    </style>
-
-<style type="text/css">code{white-space: pre;}</style>
-<script type="text/javascript">
-if (window.hljs) {
-  hljs.configure({languages: []});
-  hljs.initHighlightingOnLoad();
-  if (document.readyState && document.readyState === "complete") {
-    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
-  }
-}
-</script>
-
-
-
-
-
-
-
-
-<style type = "text/css">
-.main-container {
-  max-width: 940px;
-  margin-left: auto;
-  margin-right: auto;
-}
-img {
-  max-width:100%;
-}
-.tabbed-pane {
-  padding-top: 12px;
-}
-.html-widget {
-  margin-bottom: 20px;
-}
-button.code-folding-btn:focus {
-  outline: none;
-}
-summary {
-  display: list-item;
-}
-pre code {
-  padding: 0;
+<link rel="stylesheet" href="data:text/css,%0A%40font%2Dface%20%7B%0Afont%2Dfamily%3A%20octicons%2Dlink%3B%0Asrc%3A%20url%28data%3Afont%2Fwoff%3Bcharset%3Dutf%2D8%3Bbase64%2Cd09GRgABAAAAAAZwABAAAAAACFQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABEU0lHAAAGaAAAAAgAAAAIAAAAAUdTVUIAAAZcAAAACgAAAAoAAQAAT1MvMgAAAyQAAABJAAAAYFYEU3RjbWFwAAADcAAAAEUAAACAAJThvmN2dCAAAATkAAAABAAAAAQAAAAAZnBnbQAAA7gAAACyAAABCUM%2B8IhnYXNwAAAGTAAAABAAAAAQABoAI2dseWYAAAFsAAABPAAAAZwcEq9taGVhZAAAAsgAAAA0AAAANgh4a91oaGVhAAADCAAAABoAAAAkCA8DRGhtdHgAAAL8AAAADAAAAAwGAACfbG9jYQAAAsAAAAAIAAAACABiATBtYXhwAAACqAAAABgAAAAgAA8ASm5hbWUAAAToAAABQgAAAlXu73sOcG9zdAAABiwAAAAeAAAAME3QpOBwcmVwAAAEbAAAAHYAAAB%2FaFGpk3jaTY6xa8JAGMW%2FO62BDi0tJLYQincXEypYIiGJjSgHniQ6umTsUEyLm5BV6NDBP8Tpts6F0v%2Bk%2F0an2i%2BitHDw3v2%2B9%2BDBKTzsJNnWJNTgHEy4BgG3EMI9DCEDOGEXzDADU5hBKMIgNPZqoD3SilVaXZCER3%2FI7AtxEJLtzzuZfI%2BVVkprxTlXShWKb3TBecG11rwoNlmmn1P2WYcJczl32etSpKnziC7lQyWe1smVPy%2FLt7Kc%2B0vWY%2FgAgIIEqAN9we0pwKXreiMasxvabDQMM4riO%2BqxM2ogwDGOZTXxwxDiycQIcoYFBLj5K3EIaSctAq2kTYiw%2Bymhce7vwM9jSqO8JyVd5RH9gyTt2%2BJ%2FyUmYlIR0s04n6%2B7Vm1ozezUeLEaUjhaDSuXHwVRgvLJn1tQ7xiuVv%2FocTRF42mNgZGBgYGbwZOBiAAFGJBIMAAizAFoAAABiAGIAznjaY2BkYGAA4in8zwXi%2BW2%2BMjCzMIDApSwvXzC97Z4Ig8N%2FBxYGZgcgl52BCSQKAA3jCV8CAABfAAAAAAQAAEB42mNgZGBg4f3vACQZQABIMjKgAmYAKEgBXgAAeNpjYGY6wTiBgZWBg2kmUxoDA4MPhGZMYzBi1AHygVLYQUCaawqDA4PChxhmh%2F8ODDEsvAwHgMKMIDnGL0x7gJQCAwMAJd4MFwAAAHjaY2BgYGaA4DAGRgYQkAHyGMF8NgYrIM3JIAGVYYDT%2BAEjAwuDFpBmA9KMDEwMCh9i%2Fv8H8sH0%2F4dQc1iAmAkALaUKLgAAAHjaTY9LDsIgEIbtgqHUPpDi3gPoBVyRTmTddOmqTXThEXqrob2gQ1FjwpDvfwCBdmdXC5AVKFu3e5MfNFJ29KTQT48Ob9%2FlqYwOGZxeUelN2U2R6%2BcArgtCJpauW7UQBqnFkUsjAY%2FkOU1cP%2BDAgvxwn1chZDwUbd6CFimGXwzwF6tPbFIcjEl%2BvvmM%2FbyA48e6tWrKArm4ZJlCbdsrxksL1AwWn%2FyBSJKpYbq8AXaaTb8AAHja28jAwOC00ZrBeQNDQOWO%2F%2FsdBBgYGRiYWYAEELEwMTE4uzo5Zzo5b2BxdnFOcALxNjA6b2ByTswC8jYwg0VlNuoCTWAMqNzMzsoK1rEhNqByEyerg5PMJlYuVueETKcd%2F89uBpnpvIEVomeHLoMsAAe1Id4AAAAAAAB42oWQT07CQBTGv0JBhagk7HQzKxca2sJCE1hDt4QF%2B9JOS0nbaaYDCQfwCJ7Au3AHj%2BLO13FMmm6cl7785vven0kBjHCBhfpYuNa5Ph1c0e2Xu3jEvWG7UdPDLZ4N92nOm%2BEBXuAbHmIMSRMs%2B4aUEd4Nd3CHD8NdvOLTsA2GL8M9PODbcL%2BhD7C1xoaHeLJSEao0FEW14ckxC%2BTU8TxvsY6X0eLPmRhry2WVioLpkrbp84LLQPGI7c6sOiUzpWIWS5GzlSgUzzLBSikOPFTOXqly7rqx0Z1Q5BAIoZBSFihQYQOOBEdkCOgXTOHA07HAGjGWiIjaPZNW13%2F%2Blm6S9FT7rLHFJ6fQbkATOG1j2OFMucKJJsxIVfQORl%2B9Jyda6Sl1dUYhSCm1dyClfoeDve4qMYdLEbfqHf3O%2FAdDumsjAAB42mNgYoAAZQYjBmyAGYQZmdhL8zLdDEydARfoAqIAAAABAAMABwAKABMAB%2F%2F%2FAA8AAQAAAAAAAAAAAAAAAAABAAAAAA%3D%3D%29%20format%28%27woff%27%29%3B%0A%7D%0Abody%20%7B%0A%2Dwebkit%2Dtext%2Dsize%2Dadjust%3A%20100%25%3B%0Atext%2Dsize%2Dadjust%3A%20100%25%3B%0Acolor%3A%20%23333%3B%0Afont%2Dfamily%3A%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20%22Segoe%20UI%22%2C%20Arial%2C%20freesans%2C%20sans%2Dserif%2C%20%22Apple%20Color%20Emoji%22%2C%20%22Segoe%20UI%20Emoji%22%2C%20%22Segoe%20UI%20Symbol%22%3B%0Afont%2Dsize%3A%2016px%3B%0Aline%2Dheight%3A%201%2E6%3B%0Aword%2Dwrap%3A%20break%2Dword%3B%0A%7D%0Aa%20%7B%0Abackground%2Dcolor%3A%20transparent%3B%0A%7D%0Aa%3Aactive%2C%0Aa%3Ahover%20%7B%0Aoutline%3A%200%3B%0A%7D%0Astrong%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Ah1%20%7B%0Afont%2Dsize%3A%202em%3B%0Amargin%3A%200%2E67em%200%3B%0A%7D%0Aimg%20%7B%0Aborder%3A%200%3B%0A%7D%0Ahr%20%7B%0Abox%2Dsizing%3A%20content%2Dbox%3B%0Aheight%3A%200%3B%0A%7D%0Apre%20%7B%0Aoverflow%3A%20auto%3B%0A%7D%0Acode%2C%0Akbd%2C%0Apre%20%7B%0Afont%2Dfamily%3A%20monospace%2C%20monospace%3B%0Afont%2Dsize%3A%201em%3B%0A%7D%0Ainput%20%7B%0Acolor%3A%20inherit%3B%0Afont%3A%20inherit%3B%0Amargin%3A%200%3B%0A%7D%0Ahtml%20input%5Bdisabled%5D%20%7B%0Acursor%3A%20default%3B%0A%7D%0Ainput%20%7B%0Aline%2Dheight%3A%20normal%3B%0A%7D%0Ainput%5Btype%3D%22checkbox%22%5D%20%7B%0Abox%2Dsizing%3A%20border%2Dbox%3B%0Apadding%3A%200%3B%0A%7D%0Atable%20%7B%0Aborder%2Dcollapse%3A%20collapse%3B%0Aborder%2Dspacing%3A%200%3B%0A%7D%0Atd%2C%0Ath%20%7B%0Apadding%3A%200%3B%0A%7D%0A%2A%20%7B%0Abox%2Dsizing%3A%20border%2Dbox%3B%0A%7D%0Ainput%20%7B%0Afont%3A%2013px%20%2F%201%2E4%20Helvetica%2C%20arial%2C%20nimbussansl%2C%20liberationsans%2C%20freesans%2C%20clean%2C%20sans%2Dserif%2C%20%22Apple%20Color%20Emoji%22%2C%20%22Segoe%20UI%20Emoji%22%2C%20%22Segoe%20UI%20Symbol%22%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%234078c0%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%2C%0Aa%3Aactive%20%7B%0Atext%2Ddecoration%3A%20underline%3B%0A%7D%0Ahr%20%7B%0Aheight%3A%200%3B%0Amargin%3A%2015px%200%3B%0Aoverflow%3A%20hidden%3B%0Abackground%3A%20transparent%3B%0Aborder%3A%200%3B%0Aborder%2Dbottom%3A%201px%20solid%20%23ddd%3B%0A%7D%0Ahr%3Abefore%20%7B%0Adisplay%3A%20table%3B%0Acontent%3A%20%22%22%3B%0A%7D%0Ahr%3Aafter%20%7B%0Adisplay%3A%20table%3B%0Aclear%3A%20both%3B%0Acontent%3A%20%22%22%3B%0A%7D%0Ah1%2C%0Ah2%2C%0Ah3%2C%0Ah4%2C%0Ah5%2C%0Ah6%20%7B%0Amargin%2Dtop%3A%2015px%3B%0Amargin%2Dbottom%3A%2015px%3B%0Aline%2Dheight%3A%201%2E1%3B%0A%7D%0Ah1%20%7B%0Afont%2Dsize%3A%2030px%3B%0A%7D%0Ah2%20%7B%0Afont%2Dsize%3A%2021px%3B%0A%7D%0Ah3%20%7B%0Afont%2Dsize%3A%2016px%3B%0A%7D%0Ah4%20%7B%0Afont%2Dsize%3A%2014px%3B%0A%7D%0Ah5%20%7B%0Afont%2Dsize%3A%2012px%3B%0A%7D%0Ah6%20%7B%0Afont%2Dsize%3A%2011px%3B%0A%7D%0Ablockquote%20%7B%0Amargin%3A%200%3B%0A%7D%0Aul%2C%0Aol%20%7B%0Apadding%3A%200%3B%0Amargin%2Dtop%3A%200%3B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Aol%20ol%2C%0Aul%20ol%20%7B%0Alist%2Dstyle%2Dtype%3A%20lower%2Droman%3B%0A%7D%0Aul%20ul%20ol%2C%0Aul%20ol%20ol%2C%0Aol%20ul%20ol%2C%0Aol%20ol%20ol%20%7B%0Alist%2Dstyle%2Dtype%3A%20lower%2Dalpha%3B%0A%7D%0Add%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20%22Liberation%20Mono%22%2C%20Menlo%2C%20Courier%2C%20monospace%3B%0Afont%2Dsize%3A%2012px%3B%0A%7D%0Apre%20%7B%0Amargin%2Dtop%3A%200%3B%0Amargin%2Dbottom%3A%200%3B%0Afont%3A%2012px%20Consolas%2C%20%22Liberation%20Mono%22%2C%20Menlo%2C%20Courier%2C%20monospace%3B%0A%7D%0A%2Eselect%3A%3A%2Dms%2Dexpand%20%7B%0Aopacity%3A%200%3B%0A%7D%0A%2Eocticon%20%7B%0Afont%3A%20normal%20normal%20normal%2016px%2F1%20octicons%2Dlink%3B%0Adisplay%3A%20inline%2Dblock%3B%0Atext%2Ddecoration%3A%20none%3B%0Atext%2Drendering%3A%20auto%3B%0A%2Dwebkit%2Dfont%2Dsmoothing%3A%20antialiased%3B%0A%2Dmoz%2Dosx%2Dfont%2Dsmoothing%3A%20grayscale%3B%0A%2Dwebkit%2Duser%2Dselect%3A%20none%3B%0A%2Dmoz%2Duser%2Dselect%3A%20none%3B%0A%2Dms%2Duser%2Dselect%3A%20none%3B%0Auser%2Dselect%3A%20none%3B%0A%7D%0A%2Eocticon%2Dlink%3Abefore%20%7B%0Acontent%3A%20%27%5Cf05c%27%3B%0A%7D%0A%2Emarkdown%2Dbody%3Abefore%20%7B%0Adisplay%3A%20table%3B%0Acontent%3A%20%22%22%3B%0A%7D%0A%2Emarkdown%2Dbody%3Aafter%20%7B%0Adisplay%3A%20table%3B%0Aclear%3A%20both%3B%0Acontent%3A%20%22%22%3B%0A%7D%0A%2Emarkdown%2Dbody%3E%2A%3Afirst%2Dchild%20%7B%0Amargin%2Dtop%3A%200%20%21important%3B%0A%7D%0A%2Emarkdown%2Dbody%3E%2A%3Alast%2Dchild%20%7B%0Amargin%2Dbottom%3A%200%20%21important%3B%0A%7D%0Aa%3Anot%28%5Bhref%5D%29%20%7B%0Acolor%3A%20inherit%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0A%2Eanchor%20%7B%0Adisplay%3A%20inline%2Dblock%3B%0Apadding%2Dright%3A%202px%3B%0Amargin%2Dleft%3A%20%2D18px%3B%0A%7D%0A%2Eanchor%3Afocus%20%7B%0Aoutline%3A%20none%3B%0A%7D%0Ah1%2C%0Ah2%2C%0Ah3%2C%0Ah4%2C%0Ah5%2C%0Ah6%20%7B%0Amargin%2Dtop%3A%201em%3B%0Amargin%2Dbottom%3A%2016px%3B%0Afont%2Dweight%3A%20bold%3B%0Aline%2Dheight%3A%201%2E4%3B%0A%7D%0Ah1%20%2Eocticon%2Dlink%2C%0Ah2%20%2Eocticon%2Dlink%2C%0Ah3%20%2Eocticon%2Dlink%2C%0Ah4%20%2Eocticon%2Dlink%2C%0Ah5%20%2Eocticon%2Dlink%2C%0Ah6%20%2Eocticon%2Dlink%20%7B%0Acolor%3A%20%23000%3B%0Avertical%2Dalign%3A%20middle%3B%0Avisibility%3A%20hidden%3B%0A%7D%0Ah1%3Ahover%20%2Eanchor%2C%0Ah2%3Ahover%20%2Eanchor%2C%0Ah3%3Ahover%20%2Eanchor%2C%0Ah4%3Ahover%20%2Eanchor%2C%0Ah5%3Ahover%20%2Eanchor%2C%0Ah6%3Ahover%20%2Eanchor%20%7B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Ah1%3Ahover%20%2Eanchor%20%2Eocticon%2Dlink%2C%0Ah2%3Ahover%20%2Eanchor%20%2Eocticon%2Dlink%2C%0Ah3%3Ahover%20%2Eanchor%20%2Eocticon%2Dlink%2C%0Ah4%3Ahover%20%2Eanchor%20%2Eocticon%2Dlink%2C%0Ah5%3Ahover%20%2Eanchor%20%2Eocticon%2Dlink%2C%0Ah6%3Ahover%20%2Eanchor%20%2Eocticon%2Dlink%20%7B%0Avisibility%3A%20visible%3B%0A%7D%0Ah1%20%7B%0Apadding%2Dbottom%3A%200%2E3em%3B%0Afont%2Dsize%3A%202%2E25em%3B%0Aline%2Dheight%3A%201%2E2%3B%0Aborder%2Dbottom%3A%201px%20solid%20%23eee%3B%0A%7D%0Ah1%20%2Eanchor%20%7B%0Aline%2Dheight%3A%201%3B%0A%7D%0Ah2%20%7B%0Apadding%2Dbottom%3A%200%2E3em%3B%0Afont%2Dsize%3A%201%2E75em%3B%0Aline%2Dheight%3A%201%2E225%3B%0Aborder%2Dbottom%3A%201px%20solid%20%23eee%3B%0A%7D%0Ah2%20%2Eanchor%20%7B%0Aline%2Dheight%3A%201%3B%0A%7D%0Ah3%20%7B%0Afont%2Dsize%3A%201%2E5em%3B%0Aline%2Dheight%3A%201%2E43%3B%0A%7D%0Ah3%20%2Eanchor%20%7B%0Aline%2Dheight%3A%201%2E2%3B%0A%7D%0Ah4%20%7B%0Afont%2Dsize%3A%201%2E25em%3B%0A%7D%0Ah4%20%2Eanchor%20%7B%0Aline%2Dheight%3A%201%2E2%3B%0A%7D%0Ah5%20%7B%0Afont%2Dsize%3A%201em%3B%0A%7D%0Ah5%20%2Eanchor%20%7B%0Aline%2Dheight%3A%201%2E1%3B%0A%7D%0Ah6%20%7B%0Afont%2Dsize%3A%201em%3B%0Acolor%3A%20%23777%3B%0A%7D%0Ah6%20%2Eanchor%20%7B%0Aline%2Dheight%3A%201%2E1%3B%0A%7D%0Ap%2C%0Ablockquote%2C%0Aul%2C%0Aol%2C%0Adl%2C%0Atable%2C%0Apre%20%7B%0Amargin%2Dtop%3A%200%3B%0Amargin%2Dbottom%3A%2016px%3B%0A%7D%0Ahr%20%7B%0Aheight%3A%204px%3B%0Apadding%3A%200%3B%0Amargin%3A%2016px%200%3B%0Abackground%2Dcolor%3A%20%23e7e7e7%3B%0Aborder%3A%200%20none%3B%0A%7D%0Aul%2C%0Aol%20%7B%0Apadding%2Dleft%3A%202em%3B%0A%7D%0Aul%20ul%2C%0Aul%20ol%2C%0Aol%20ol%2C%0Aol%20ul%20%7B%0Amargin%2Dtop%3A%200%3B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Ali%3Ep%20%7B%0Amargin%2Dtop%3A%2016px%3B%0A%7D%0Adl%20%7B%0Apadding%3A%200%3B%0A%7D%0Adl%20dt%20%7B%0Apadding%3A%200%3B%0Amargin%2Dtop%3A%2016px%3B%0Afont%2Dsize%3A%201em%3B%0Afont%2Dstyle%3A%20italic%3B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Adl%20dd%20%7B%0Apadding%3A%200%2016px%3B%0Amargin%2Dbottom%3A%2016px%3B%0A%7D%0Ablockquote%20%7B%0Apadding%3A%200%2015px%3B%0Acolor%3A%20%23777%3B%0Aborder%2Dleft%3A%204px%20solid%20%23ddd%3B%0A%7D%0Ablockquote%3E%3Afirst%2Dchild%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Ablockquote%3E%3Alast%2Dchild%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Atable%20%7B%0Adisplay%3A%20block%3B%0Awidth%3A%20100%25%3B%0Aoverflow%3A%20auto%3B%0Aword%2Dbreak%3A%20normal%3B%0Aword%2Dbreak%3A%20keep%2Dall%3B%0A%7D%0Atable%20th%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Atable%20th%2C%0Atable%20td%20%7B%0Apadding%3A%206px%2013px%3B%0Aborder%3A%201px%20solid%20%23ddd%3B%0A%7D%0Atable%20tr%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Aborder%2Dtop%3A%201px%20solid%20%23ccc%3B%0A%7D%0Atable%20tr%3Anth%2Dchild%282n%29%20%7B%0Abackground%2Dcolor%3A%20%23f8f8f8%3B%0A%7D%0Aimg%20%7B%0Amax%2Dwidth%3A%20100%25%3B%0Abox%2Dsizing%3A%20content%2Dbox%3B%0Abackground%2Dcolor%3A%20%23fff%3B%0A%7D%0Acode%20%7B%0Apadding%3A%200%3B%0Apadding%2Dtop%3A%200%2E2em%3B%0Apadding%2Dbottom%3A%200%2E2em%3B%0Amargin%3A%200%3B%0Afont%2Dsize%3A%2085%25%3B%0Abackground%2Dcolor%3A%20rgba%280%2C0%2C0%2C0%2E04%29%3B%0Aborder%2Dradius%3A%203px%3B%0A%7D%0Acode%3Abefore%2C%0Acode%3Aafter%20%7B%0Aletter%2Dspacing%3A%20%2D0%2E2em%3B%0Acontent%3A%20%22%5C00a0%22%3B%0A%7D%0Apre%3Ecode%20%7B%0Apadding%3A%200%3B%0Amargin%3A%200%3B%0Afont%2Dsize%3A%20100%25%3B%0Aword%2Dbreak%3A%20normal%3B%0Awhite%2Dspace%3A%20pre%3B%0Abackground%3A%20transparent%3B%0Aborder%3A%200%3B%0A%7D%0A%2Ehighlight%20%7B%0Amargin%2Dbottom%3A%2016px%3B%0A%7D%0A%2Ehighlight%20pre%2C%0Apre%20%7B%0Apadding%3A%2016px%3B%0Aoverflow%3A%20auto%3B%0Afont%2Dsize%3A%2085%25%3B%0Aline%2Dheight%3A%201%2E45%3B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0A%7D%0A%2Ehighlight%20pre%20%7B%0Amargin%2Dbottom%3A%200%3B%0Aword%2Dbreak%3A%20normal%3B%0A%7D%0Apre%20%7B%0Aword%2Dwrap%3A%20normal%3B%0A%7D%0Apre%20code%20%7B%0Adisplay%3A%20inline%3B%0Amax%2Dwidth%3A%20initial%3B%0Apadding%3A%200%3B%0Amargin%3A%200%3B%0Aoverflow%3A%20initial%3B%0Aline%2Dheight%3A%20inherit%3B%0Aword%2Dwrap%3A%20normal%3B%0Abackground%2Dcolor%3A%20transparent%3B%0Aborder%3A%200%3B%0A%7D%0Apre%20code%3Abefore%2C%0Apre%20code%3Aafter%20%7B%0Acontent%3A%20normal%3B%0A%7D%0Akbd%20%7B%0Adisplay%3A%20inline%2Dblock%3B%0Apadding%3A%203px%205px%3B%0Afont%2Dsize%3A%2011px%3B%0Aline%2Dheight%3A%2010px%3B%0Acolor%3A%20%23555%3B%0Avertical%2Dalign%3A%20middle%3B%0Abackground%2Dcolor%3A%20%23fcfcfc%3B%0Aborder%3A%20solid%201px%20%23ccc%3B%0Aborder%2Dbottom%2Dcolor%3A%20%23bbb%3B%0Aborder%2Dradius%3A%203px%3B%0Abox%2Dshadow%3A%20inset%200%20%2D1px%200%20%23bbb%3B%0A%7D%0A%2Epl%2Dc%20%7B%0Acolor%3A%20%23969896%3B%0A%7D%0A%2Epl%2Dc1%2C%0A%2Epl%2Ds%20%2Epl%2Dv%20%7B%0Acolor%3A%20%230086b3%3B%0A%7D%0A%2Epl%2De%2C%0A%2Epl%2Den%20%7B%0Acolor%3A%20%23795da3%3B%0A%7D%0A%2Epl%2Ds%20%2Epl%2Ds1%2C%0A%2Epl%2Dsmi%20%7B%0Acolor%3A%20%23333%3B%0A%7D%0A%2Epl%2Dent%20%7B%0Acolor%3A%20%2363a35c%3B%0A%7D%0A%2Epl%2Dk%20%7B%0Acolor%3A%20%23a71d5d%3B%0A%7D%0A%2Epl%2Dpds%2C%0A%2Epl%2Ds%2C%0A%2Epl%2Ds%20%2Epl%2Dpse%20%2Epl%2Ds1%2C%0A%2Epl%2Dsr%2C%0A%2Epl%2Dsr%20%2Epl%2Dcce%2C%0A%2Epl%2Dsr%20%2Epl%2Dsra%2C%0A%2Epl%2Dsr%20%2Epl%2Dsre%20%7B%0Acolor%3A%20%23183691%3B%0A%7D%0A%2Epl%2Dv%20%7B%0Acolor%3A%20%23ed6a43%3B%0A%7D%0A%2Epl%2Did%20%7B%0Acolor%3A%20%23b52a1d%3B%0A%7D%0A%2Epl%2Dii%20%7B%0Abackground%2Dcolor%3A%20%23b52a1d%3B%0Acolor%3A%20%23f8f8f8%3B%0A%7D%0A%2Epl%2Dsr%20%2Epl%2Dcce%20%7B%0Acolor%3A%20%2363a35c%3B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0A%2Epl%2Dml%20%7B%0Acolor%3A%20%23693a17%3B%0A%7D%0A%2Epl%2Dmh%2C%0A%2Epl%2Dmh%20%2Epl%2Den%2C%0A%2Epl%2Dms%20%7B%0Acolor%3A%20%231d3e81%3B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0A%2Epl%2Dmq%20%7B%0Acolor%3A%20%23008080%3B%0A%7D%0A%2Epl%2Dmi%20%7B%0Acolor%3A%20%23333%3B%0Afont%2Dstyle%3A%20italic%3B%0A%7D%0A%2Epl%2Dmb%20%7B%0Acolor%3A%20%23333%3B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0A%2Epl%2Dmd%20%7B%0Abackground%2Dcolor%3A%20%23ffecec%3B%0Acolor%3A%20%23bd2c00%3B%0A%7D%0A%2Epl%2Dmi1%20%7B%0Abackground%2Dcolor%3A%20%23eaffea%3B%0Acolor%3A%20%2355a532%3B%0A%7D%0A%2Epl%2Dmdr%20%7B%0Acolor%3A%20%23795da3%3B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0A%2Epl%2Dmo%20%7B%0Acolor%3A%20%231d3e81%3B%0A%7D%0Akbd%20%7B%0Adisplay%3A%20inline%2Dblock%3B%0Apadding%3A%203px%205px%3B%0Afont%3A%2011px%20Consolas%2C%20%22Liberation%20Mono%22%2C%20Menlo%2C%20Courier%2C%20monospace%3B%0Aline%2Dheight%3A%2010px%3B%0Acolor%3A%20%23555%3B%0Avertical%2Dalign%3A%20middle%3B%0Abackground%2Dcolor%3A%20%23fcfcfc%3B%0Aborder%3A%20solid%201px%20%23ccc%3B%0Aborder%2Dbottom%2Dcolor%3A%20%23bbb%3B%0Aborder%2Dradius%3A%203px%3B%0Abox%2Dshadow%3A%20inset%200%20%2D1px%200%20%23bbb%3B%0A%7D%0A%2Etask%2Dlist%2Ditem%20%7B%0Alist%2Dstyle%2Dtype%3A%20none%3B%0A%7D%0A%2Etask%2Dlist%2Ditem%2B%2Etask%2Dlist%2Ditem%20%7B%0Amargin%2Dtop%3A%203px%3B%0A%7D%0A%2Etask%2Dlist%2Ditem%20input%20%7B%0Amargin%3A%200%200%2E35em%200%2E25em%20%2D1%2E6em%3B%0Avertical%2Dalign%3A%20middle%3B%0A%7D%0A%3Achecked%2B%2Eradio%2Dlabel%20%7B%0Az%2Dindex%3A%201%3B%0Aposition%3A%20relative%3B%0Aborder%2Dcolor%3A%20%234078c0%3B%0A%7D%0A%2EsourceLine%20%7B%0Adisplay%3A%20inline%2Dblock%3B%0A%7D%0Acode%20%2Ekw%20%7B%20color%3A%20%23000000%3B%20%7D%0Acode%20%2Edt%20%7B%20color%3A%20%23ed6a43%3B%20%7D%0Acode%20%2Edv%20%7B%20color%3A%20%23009999%3B%20%7D%0Acode%20%2Ebn%20%7B%20color%3A%20%23009999%3B%20%7D%0Acode%20%2Efl%20%7B%20color%3A%20%23009999%3B%20%7D%0Acode%20%2Ech%20%7B%20color%3A%20%23009999%3B%20%7D%0Acode%20%2Est%20%7B%20color%3A%20%23183691%3B%20%7D%0Acode%20%2Eco%20%7B%20color%3A%20%23969896%3B%20%7D%0Acode%20%2Eot%20%7B%20color%3A%20%230086b3%3B%20%7D%0Acode%20%2Eal%20%7B%20color%3A%20%23a61717%3B%20%7D%0Acode%20%2Efu%20%7B%20color%3A%20%2363a35c%3B%20%7D%0Acode%20%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%0Acode%20%2Ewa%20%7B%20color%3A%20%23000000%3B%20%7D%0Acode%20%2Ecn%20%7B%20color%3A%20%23008080%3B%20%7D%0Acode%20%2Esc%20%7B%20color%3A%20%23008080%3B%20%7D%0Acode%20%2Evs%20%7B%20color%3A%20%23183691%3B%20%7D%0Acode%20%2Ess%20%7B%20color%3A%20%23183691%3B%20%7D%0Acode%20%2Eim%20%7B%20color%3A%20%23000000%3B%20%7D%0Acode%20%2Eva%20%7Bcolor%3A%20%23008080%3B%20%7D%0Acode%20%2Ecf%20%7B%20color%3A%20%23000000%3B%20%7D%0Acode%20%2Eop%20%7B%20color%3A%20%23000000%3B%20%7D%0Acode%20%2Ebu%20%7B%20color%3A%20%23000000%3B%20%7D%0Acode%20%2Eex%20%7B%20color%3A%20%23000000%3B%20%7D%0Acode%20%2Epp%20%7B%20color%3A%20%23999999%3B%20%7D%0Acode%20%2Eat%20%7B%20color%3A%20%23008080%3B%20%7D%0Acode%20%2Edo%20%7B%20color%3A%20%23969896%3B%20%7D%0Acode%20%2Ean%20%7B%20color%3A%20%23008080%3B%20%7D%0Acode%20%2Ecv%20%7B%20color%3A%20%23008080%3B%20%7D%0Acode%20%2Ein%20%7B%20color%3A%20%23008080%3B%20%7D%0A">
+<style>
+body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+  padding-top: 0px;
 }
 </style>
-
-
-<style type="text/css">
-.dropdown-submenu {
-  position: relative;
-}
-.dropdown-submenu>.dropdown-menu {
-  top: 0;
-  left: 100%;
-  margin-top: -6px;
-  margin-left: -1px;
-  border-radius: 0 6px 6px 6px;
-}
-.dropdown-submenu:hover>.dropdown-menu {
-  display: block;
-}
-.dropdown-submenu>a:after {
-  display: block;
-  content: " ";
-  float: right;
-  width: 0;
-  height: 0;
-  border-color: transparent;
-  border-style: solid;
-  border-width: 5px 0 5px 5px;
-  border-left-color: #cccccc;
-  margin-top: 5px;
-  margin-right: -10px;
-}
-.dropdown-submenu:hover>a:after {
-  border-left-color: #adb5bd;
-}
-.dropdown-submenu.pull-left {
-  float: none;
-}
-.dropdown-submenu.pull-left>.dropdown-menu {
-  left: -100%;
-  margin-left: 10px;
-  border-radius: 6px 0 6px 6px;
-}
-</style>
-
-<script type="text/javascript">
-// manage active state of menu based on current page
-$(document).ready(function () {
-  // active menu anchor
-  href = window.location.pathname
-  href = href.substr(href.lastIndexOf('/') + 1)
-  if (href === "")
-    href = "index.html";
-  var menuAnchor = $('a[href="' + href + '"]');
-
-  // mark it active
-  menuAnchor.tab('show');
-
-  // if it's got a parent navbar menu mark it active as well
-  menuAnchor.closest('li.dropdown').addClass('active');
-
-  // Navbar adjustments
-  var navHeight = $(".navbar").first().height() + 15;
-  var style = document.createElement('style');
-  var pt = "padding-top: " + navHeight + "px; ";
-  var mt = "margin-top: -" + navHeight + "px; ";
-  var css = "";
-  // offset scroll position for anchor links (for fixed navbar)
-  for (var i = 1; i <= 6; i++) {
-    css += ".section h" + i + "{ " + pt + mt + "}\n";
-  }
-  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
-  document.head.appendChild(style);
-});
-</script>
-
-<!-- tabsets -->
-
-<style type="text/css">
-.tabset-dropdown > .nav-tabs {
-  display: inline-table;
-  max-height: 500px;
-  min-height: 44px;
-  overflow-y: auto;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.tabset-dropdown > .nav-tabs > li.active:before {
-  content: "";
-  font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-  content: "&#xe258;";
-  border: none;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-  content: "";
-  font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
-}
-
-.tabset-dropdown > .nav-tabs > li.active {
-  display: block;
-}
-
-.tabset-dropdown > .nav-tabs > li > a,
-.tabset-dropdown > .nav-tabs > li > a:focus,
-.tabset-dropdown > .nav-tabs > li > a:hover {
-  border: none;
-  display: inline-block;
-  border-radius: 4px;
-  background-color: transparent;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
-  display: block;
-  float: none;
-}
-
-.tabset-dropdown > .nav-tabs > li {
-  display: none;
-}
-</style>
-
-<!-- code folding -->
-<style type="text/css">
-.code-folding-btn { margin-bottom: 4px; }
-</style>
-
-
-
-<style type="text/css">
-
-#TOC {
-  margin: 25px 0px 20px 0px;
-}
-@media (max-width: 768px) {
-#TOC {
-  position: relative;
-  width: 100%;
-}
-}
-
-@media print {
-.toc-content {
-  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
-  float: right;
-}
-}
-
-.toc-content {
-  padding-left: 30px;
-  padding-right: 40px;
-}
-
-div.main-container {
-  max-width: 1200px;
-}
-
-div.tocify {
-  width: 20%;
-  max-width: 260px;
-  max-height: 85%;
-}
-
-@media (min-width: 768px) and (max-width: 991px) {
-  div.tocify {
-    width: 25%;
-  }
-}
-
-@media (max-width: 767px) {
-  div.tocify {
-    width: 100%;
-    max-width: none;
-  }
-}
-
-.tocify ul, .tocify li {
-  line-height: 20px;
-}
-
-.tocify-subheader .tocify-item {
-  font-size: 0.90em;
-}
-
-.tocify .list-group-item {
-  border-radius: 0px;
-}
-
-
-</style>
-
-
 
 </head>
 
 <body>
 
-
-<div class="container-fluid main-container">
-
-
-<!-- setup 3col/9col grid for toc_float and main content  -->
-<div class="row">
-<div class="col-xs-12 col-sm-4 col-md-3">
-<div id="TOC" class="tocify">
-</div>
-</div>
-
-<div class="toc-content col-xs-12 col-sm-8 col-md-9">
-
-
-
-
-<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="index.html">Go Go Knicks!</a>
-    </div>
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-        
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <li>
-  <a href="final_report.html">Report</a>
-</li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Regression
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="test_here.html">Regression for playoff</a>
-    </li>
-    <li>
-      <a href="second_regression.html">Regression for win or lose</a>
-    </li>
-    <li>
-      <a href="second_regression.html">Regression for score</a>
-    </li>
-  </ul>
-</li>
-<li>
-  <a href="proposal.html">About</a>
-</li>
-<li>
-  <a href="https://github.com/YucongGao/help_knicks_to_playoff.github.io">
-    <span class="fa fa-github fa-lg"></span>
-     
-  </a>
-</li>
-<li>
-  <a href="mailto:&lt;pl2811@cumc.columbia.edu&gt;">
-    <span class="fa fa-envelope fa-lg"></span>
-     
-  </a>
-</li>
-      </ul>
-    </div><!--/.nav-collapse -->
-  </div><!--/.container -->
-</div><!--/.navbar -->
-
-<div id="header">
-
-<div class="btn-group pull-right float-right">
-<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
-<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
-<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
-<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
-</ul>
-</div>
-
-
-
-<h1 class="title toc-ignore">data_scrapping</h1>
-
-</div>
-
-
-<div id="using-function-to-scrap-data-from-nba.stats" class="section level1">
-<h1>Using function to scrap data from NBA.stats</h1>
-<div id="scrapping-function" class="section level2">
-<h2>Scrapping function</h2>
+<h1 id="data_scrapping">data_scrapping</h1>
+<h1 id="using-function-to-scrap-data-from-nbastats">Using function to scrap data from NBA.stats</h1>
+<h2 id="scrapping-function">Scrapping function</h2>
 <p>use function to get data - define a function to scrap data from NBA.stat</p>
-<pre class="r"><code>scrapping_data = function(url) {
-  headers = headers = c(
-  `Connection` = &#39;keep-alive&#39;,
-  `Accept` = &#39;application/json, text/plain, */*&#39;,
-  `x-nba-stats-token` = &#39;true&#39;,
-  `X-NewRelic-ID` = &#39;VQECWF5UChAHUlNTBwgBVw==&#39;,
-  `User-Agent` = &#39;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36&#39;, 
-  `x-nba-stats-origin` = &#39;stats&#39;,
-  `Sec-Fetch-Site` = &#39;same-origin&#39;,
-  `Sec-Fetch-Mode` = &#39;cors&#39;,
-  `Referer` = &#39;https://stats.nba.com/players/leaguedashplayerbiostats/&#39;,
-  `Accept-Encoding` = &#39;gzip, deflate, br&#39;,
-  `Accept-Language` = &#39;en-US,en;q=0.9&#39;)
-  response = GET(url, add_headers(headers))
-  data = fromJSON(content(response, as = &quot;text&quot;))
-  df = data.frame(data$resultSets$rowSet[[1]], stringAsFactors = FALSE)
-  names(df) = tolower(data$resultSets$headers[[1]])
-  return(df)
-}
-
-drop_last_column = function(df) {
-  df = df %&gt;% select(-names(df)[[length(names(df))]])
-  return(df)
-}</code></pre>
-</div>
-<div id="box-scores" class="section level2">
-<h2>Box scores</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>scrapping_data <span class="ot">=</span> <span class="cf">function</span>(url) {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  headers <span class="ot">=</span> headers <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Connection</span><span class="st">`</span> <span class="ot">=</span> <span class="st">&#39;keep-alive&#39;</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Accept</span><span class="st">`</span> <span class="ot">=</span> <span class="st">&#39;application/json, text/plain, */*&#39;</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">x-nba-stats-token</span><span class="st">`</span> <span class="ot">=</span> <span class="st">&#39;true&#39;</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">X-NewRelic-ID</span><span class="st">`</span> <span class="ot">=</span> <span class="st">&#39;VQECWF5UChAHUlNTBwgBVw==&#39;</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">User-Agent</span><span class="st">`</span> <span class="ot">=</span> <span class="st">&#39;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36&#39;</span>, </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">x-nba-stats-origin</span><span class="st">`</span> <span class="ot">=</span> <span class="st">&#39;stats&#39;</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Sec-Fetch-Site</span><span class="st">`</span> <span class="ot">=</span> <span class="st">&#39;same-origin&#39;</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Sec-Fetch-Mode</span><span class="st">`</span> <span class="ot">=</span> <span class="st">&#39;cors&#39;</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Referer</span><span class="st">`</span> <span class="ot">=</span> <span class="st">&#39;https://stats.nba.com/players/leaguedashplayerbiostats/&#39;</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Accept-Encoding</span><span class="st">`</span> <span class="ot">=</span> <span class="st">&#39;gzip, deflate, br&#39;</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Accept-Language</span><span class="st">`</span> <span class="ot">=</span> <span class="st">&#39;en-US,en;q=0.9&#39;</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  response <span class="ot">=</span> <span class="fu">GET</span>(url, <span class="fu">add_headers</span>(headers))</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">=</span> <span class="fu">fromJSON</span>(<span class="fu">content</span>(response, <span class="at">as =</span> <span class="st">&quot;text&quot;</span>))</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">=</span> <span class="fu">data.frame</span>(data<span class="sc">$</span>resultSets<span class="sc">$</span>rowSet[[<span class="dv">1</span>]], <span class="at">stringAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>(df) <span class="ot">=</span> <span class="fu">tolower</span>(data<span class="sc">$</span>resultSets<span class="sc">$</span>headers[[<span class="dv">1</span>]])</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>drop_last_column <span class="ot">=</span> <span class="cf">function</span>(df) {</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">=</span> df <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span><span class="fu">names</span>(df)[[<span class="fu">length</span>(<span class="fu">names</span>(df))]])</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<h2 id="box-scores">Box scores</h2>
 <p>Get individual game statistics data from 2001-02 season to 2020-21 season</p>
-<pre class="r"><code>season_years = c(&quot;2020-21&quot;, &quot;2019-20&quot;, 
-           &quot;2018-19&quot;, &quot;2017-18&quot;, 
-           &quot;2016-17&quot;, &quot;2015-16&quot;, 
-           &quot;2014-15&quot;, &quot;2013-14&quot;, 
-           &quot;2012-13&quot;, &quot;2011-12&quot;, 
-           &quot;2010-11&quot;, &quot;2009-10&quot;, 
-           &quot;2008-09&quot;, &quot;2007-08&quot;, 
-           &quot;2006-07&quot;, &quot;2005-06&quot;, 
-           &quot;2004-05&quot;, &quot;2003-04&quot;, 
-           &quot;2002-03&quot;, &quot;2001-02&quot;)
-
-box_score_all = tibble(
-  season_year = season_years,
-  url = str_c(&quot;https://stats.nba.com/stats/teamgamelogs?DateFrom=&amp;DateTo=&amp;GameSegment=&amp;LastNGames=0&amp;LeagueID=00&amp;Location=&amp;MeasureType=Base&amp;Month=0&amp;OpponentTeamID=0&amp;Outcome=&amp;PORound=0&amp;PaceAdjust=N&amp;PerMode=Totals&amp;Period=0&amp;PlusMinus=N&amp;Rank=N&amp;Season=&quot;, season_year, &quot;&amp;SeasonSegment=&amp;SeasonType=Regular+Season&amp;ShotClockRange=&amp;VsConference=&amp;VsDivision=&quot;),
-  box_score = map(url, scrapping_data)) %&gt;% 
-  mutate(box_score = map(box_score, drop_last_column)) %&gt;% # last column of each box score is NA
-  select(-season_year, -url) %&gt;% 
-  unnest(cols = box_score)</code></pre>
-</div>
-<div id="transition-data" class="section level2">
-<h2>Transition data</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>season_years <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;2020-21&quot;</span>, <span class="st">&quot;2019-20&quot;</span>, </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;2018-19&quot;</span>, <span class="st">&quot;2017-18&quot;</span>, </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;2016-17&quot;</span>, <span class="st">&quot;2015-16&quot;</span>, </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;2014-15&quot;</span>, <span class="st">&quot;2013-14&quot;</span>, </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;2012-13&quot;</span>, <span class="st">&quot;2011-12&quot;</span>, </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;2010-11&quot;</span>, <span class="st">&quot;2009-10&quot;</span>, </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;2008-09&quot;</span>, <span class="st">&quot;2007-08&quot;</span>, </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;2006-07&quot;</span>, <span class="st">&quot;2005-06&quot;</span>, </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;2004-05&quot;</span>, <span class="st">&quot;2003-04&quot;</span>, </span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;2002-03&quot;</span>, <span class="st">&quot;2001-02&quot;</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>box_score_all <span class="ot">=</span> <span class="fu">tibble</span>(</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">season_year =</span> season_years,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">url =</span> <span class="fu">str_c</span>(<span class="st">&quot;https://stats.nba.com/stats/teamgamelogs?DateFrom=&amp;DateTo=&amp;GameSegment=&amp;LastNGames=0&amp;LeagueID=00&amp;Location=&amp;MeasureType=Base&amp;Month=0&amp;OpponentTeamID=0&amp;Outcome=&amp;PORound=0&amp;PaceAdjust=N&amp;PerMode=Totals&amp;Period=0&amp;PlusMinus=N&amp;Rank=N&amp;Season=&quot;</span>, season_year, <span class="st">&quot;&amp;SeasonSegment=&amp;SeasonType=Regular+Season&amp;ShotClockRange=&amp;VsConference=&amp;VsDivision=&quot;</span>),</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">box_score =</span> <span class="fu">map</span>(url, scrapping_data)) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">box_score =</span> <span class="fu">map</span>(box_score, drop_last_column)) <span class="sc">%&gt;%</span> <span class="co"># last column of each box score is NA</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>season_year, <span class="sc">-</span>url) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> box_score)</span></code></pre></div>
+<h2 id="transition-data">Transition data</h2>
 <p>Get average transition data of every team in the last 9 seasons.</p>
-<pre class="r"><code>season_years = c(
-  &quot;2020-21&quot;, &quot;2019-20&quot;, 
-  &quot;2018-19&quot;, &quot;2017-18&quot;, 
-  &quot;2016-17&quot;, &quot;2015-16&quot;, 
-  &quot;2014-15&quot;, &quot;2013-14&quot;, &quot;2012-13&quot;)
-
-transition_df = tibble(
-  season_year = season_years,
-  url = str_c(&quot;https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&amp;PerMode=PerGame&amp;PlayType=Transition&amp;PlayerOrTeam=T&amp;SeasonType=Regular+Season&amp;SeasonYear=&quot;, season_year, &quot;&amp;TypeGrouping=offensive&quot;),
-  transition = map(url, scrapping_data)) %&gt;% 
-  mutate(transition = map(transition, drop_last_column)) %&gt;% 
-  select(-season_year, -url) %&gt;% 
-  unnest(cols = transition)</code></pre>
-</div>
-<div id="isolation-data" class="section level2">
-<h2>Isolation data</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>season_years <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2020-21&quot;</span>, <span class="st">&quot;2019-20&quot;</span>, </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2018-19&quot;</span>, <span class="st">&quot;2017-18&quot;</span>, </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2016-17&quot;</span>, <span class="st">&quot;2015-16&quot;</span>, </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2014-15&quot;</span>, <span class="st">&quot;2013-14&quot;</span>, <span class="st">&quot;2012-13&quot;</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>transition_df <span class="ot">=</span> <span class="fu">tibble</span>(</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">season_year =</span> season_years,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">url =</span> <span class="fu">str_c</span>(<span class="st">&quot;https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&amp;PerMode=PerGame&amp;PlayType=Transition&amp;PlayerOrTeam=T&amp;SeasonType=Regular+Season&amp;SeasonYear=&quot;</span>, season_year, <span class="st">&quot;&amp;TypeGrouping=offensive&quot;</span>),</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">transition =</span> <span class="fu">map</span>(url, scrapping_data)) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">transition =</span> <span class="fu">map</span>(transition, drop_last_column)) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>season_year, <span class="sc">-</span>url) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> transition)</span></code></pre></div>
+<h2 id="isolation-data">Isolation data</h2>
 <p>Get average Isolation data of every team in the last 9 seasons.</p>
-<pre class="r"><code>season_years = c(
-  &quot;2020-21&quot;, &quot;2019-20&quot;, 
-  &quot;2018-19&quot;, &quot;2017-18&quot;, 
-  &quot;2016-17&quot;, &quot;2015-16&quot;, 
-  &quot;2014-15&quot;, &quot;2013-14&quot;, &quot;2012-13&quot;)
-
-isol_df = 
-  tibble(
-  season_year = season_years,
-  url = str_c(&quot;https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&amp;PerMode=PerGame&amp;PlayType=Isolation&amp;PlayerOrTeam=T&amp;SeasonType=Regular+Season&amp;SeasonYear=&quot;, season_year, &quot;&amp;TypeGrouping=offensive&quot;),
-  isol = map(url, scrapping_data)) %&gt;% 
-  mutate(isol = map(isol, drop_last_column)) %&gt;% 
-  select(-season_year, -url) %&gt;% 
-  unnest(cols = isol)</code></pre>
-</div>
-<div id="pick-and-roll-ball-handler-data" class="section level2">
-<h2>pick and roll ball handler data</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>season_years <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2020-21&quot;</span>, <span class="st">&quot;2019-20&quot;</span>, </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2018-19&quot;</span>, <span class="st">&quot;2017-18&quot;</span>, </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2016-17&quot;</span>, <span class="st">&quot;2015-16&quot;</span>, </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2014-15&quot;</span>, <span class="st">&quot;2013-14&quot;</span>, <span class="st">&quot;2012-13&quot;</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>isol_df <span class="ot">=</span> </span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">season_year =</span> season_years,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">url =</span> <span class="fu">str_c</span>(<span class="st">&quot;https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&amp;PerMode=PerGame&amp;PlayType=Isolation&amp;PlayerOrTeam=T&amp;SeasonType=Regular+Season&amp;SeasonYear=&quot;</span>, season_year, <span class="st">&quot;&amp;TypeGrouping=offensive&quot;</span>),</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">isol =</span> <span class="fu">map</span>(url, scrapping_data)) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">isol =</span> <span class="fu">map</span>(isol, drop_last_column)) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>season_year, <span class="sc">-</span>url) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> isol)</span></code></pre></div>
+<h2 id="pick-and-roll-ball-handler-data">pick and roll ball handler data</h2>
 <p>Get average pick and roll ball handler data of every team in the last 9 seasons.</p>
-<pre class="r"><code>season_years = c(
-  &quot;2020-21&quot;, &quot;2019-20&quot;, 
-  &quot;2018-19&quot;, &quot;2017-18&quot;, 
-  &quot;2016-17&quot;, &quot;2015-16&quot;, 
-  &quot;2014-15&quot;, &quot;2013-14&quot;, &quot;2012-13&quot;)
-
-prbh_df = 
-  tibble(
-  season_year = season_years) %&gt;% 
-  mutate(url = str_c(&quot;https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&amp;PerMode=PerGame&amp;PlayType=PRBallHandler&amp;PlayerOrTeam=T&amp;SeasonType=Regular+Season&amp;SeasonYear=&quot;, season_year, &quot;&amp;TypeGrouping=offensive&quot;)) %&gt;% 
-  mutate(prbh = map(url, scrapping_data)) %&gt;% 
-  mutate(prbh = map(prbh, drop_last_column)) %&gt;% 
-  select(-season_year, -url) %&gt;% 
-  unnest(cols = prbh)</code></pre>
-</div>
-<div id="pick-and-roll-roll-man" class="section level2">
-<h2>pick and roll roll man</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>season_years <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2020-21&quot;</span>, <span class="st">&quot;2019-20&quot;</span>, </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2018-19&quot;</span>, <span class="st">&quot;2017-18&quot;</span>, </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2016-17&quot;</span>, <span class="st">&quot;2015-16&quot;</span>, </span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2014-15&quot;</span>, <span class="st">&quot;2013-14&quot;</span>, <span class="st">&quot;2012-13&quot;</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>prbh_df <span class="ot">=</span> </span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">season_year =</span> season_years) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">url =</span> <span class="fu">str_c</span>(<span class="st">&quot;https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&amp;PerMode=PerGame&amp;PlayType=PRBallHandler&amp;PlayerOrTeam=T&amp;SeasonType=Regular+Season&amp;SeasonYear=&quot;</span>, season_year, <span class="st">&quot;&amp;TypeGrouping=offensive&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">prbh =</span> <span class="fu">map</span>(url, scrapping_data)) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">prbh =</span> <span class="fu">map</span>(prbh, drop_last_column)) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>season_year, <span class="sc">-</span>url) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> prbh)</span></code></pre></div>
+<h2 id="pick-and-roll-roll-man">pick and roll roll man</h2>
 <p>Get average pick and roll roll man data of every team in the last 9 seasons.</p>
-<pre class="r"><code>season_years = c(
-  &quot;2020-21&quot;, &quot;2019-20&quot;, 
-  &quot;2018-19&quot;, &quot;2017-18&quot;, 
-  &quot;2016-17&quot;, &quot;2015-16&quot;, 
-  &quot;2014-15&quot;, &quot;2013-14&quot;, &quot;2012-13&quot;)
-
-prrm_df = 
-  tibble(
-  season_year = season_years) %&gt;% 
-  mutate(url = str_c(&quot;https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&amp;PerMode=PerGame&amp;PlayType=PRRollman&amp;PlayerOrTeam=T&amp;SeasonType=Regular+Season&amp;SeasonYear=&quot;, season_year, &quot;&amp;TypeGrouping=offensive&quot;)) %&gt;% 
-  mutate(prrm = map(url, scrapping_data)) %&gt;% 
-  mutate(prrm = map(prrm, drop_last_column)) %&gt;% 
-  select(-season_year, -url) %&gt;% 
-  unnest(cols = prrm)</code></pre>
-</div>
-<div id="passing-data" class="section level2">
-<h2>Passing data</h2>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>season_years <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2020-21&quot;</span>, <span class="st">&quot;2019-20&quot;</span>, </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2018-19&quot;</span>, <span class="st">&quot;2017-18&quot;</span>, </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2016-17&quot;</span>, <span class="st">&quot;2015-16&quot;</span>, </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2014-15&quot;</span>, <span class="st">&quot;2013-14&quot;</span>, <span class="st">&quot;2012-13&quot;</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>prrm_df <span class="ot">=</span> </span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">season_year =</span> season_years) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">url =</span> <span class="fu">str_c</span>(<span class="st">&quot;https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&amp;PerMode=PerGame&amp;PlayType=PRRollman&amp;PlayerOrTeam=T&amp;SeasonType=Regular+Season&amp;SeasonYear=&quot;</span>, season_year, <span class="st">&quot;&amp;TypeGrouping=offensive&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">prrm =</span> <span class="fu">map</span>(url, scrapping_data)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">prrm =</span> <span class="fu">map</span>(prrm, drop_last_column)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>season_year, <span class="sc">-</span>url) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> prrm)</span></code></pre></div>
+<h2 id="passing-data">Passing data</h2>
 <p>Get average passing data of every team in the last 8 seasons.</p>
-<pre class="r"><code>season_years = c(
-  &quot;2020-21&quot;, &quot;2019-20&quot;, 
-  &quot;2018-19&quot;, &quot;2017-18&quot;, 
-  &quot;2016-17&quot;, &quot;2015-16&quot;, 
-  &quot;2014-15&quot;, &quot;2013-14&quot;)
-
-pass_df = 
-  tibble(
-  season_year = season_years) %&gt;% 
-  mutate(url = str_c(&quot;https://stats.nba.com/stats/leaguedashptstats?College=&amp;Conference=&amp;Country=&amp;DateFrom=&amp;DateTo=&amp;Division=&amp;DraftPick=&amp;DraftYear=&amp;GameScope=&amp;GameSegment=&amp;Height=&amp;LastNGames=0&amp;LeagueID=00&amp;Location=&amp;Month=0&amp;OpponentTeamID=0&amp;Outcome=&amp;PORound=0&amp;PerMode=PerGame&amp;Period=0&amp;PlayerExperience=&amp;PlayerOrTeam=Team&amp;PlayerPosition=&amp;PtMeasureType=Passing&amp;Season=&quot;, season_year, &quot;&amp;SeasonSegment=&amp;SeasonType=Regular+Season&amp;StarterBench=&amp;TeamID=0&amp;VsConference=&amp;VsDivision=&amp;Weight=&quot;)) %&gt;%
-  mutate(passing = map(url, scrapping_data)) %&gt;% 
-  mutate(passing = map(passing, drop_last_column)) %&gt;% 
-  select(-season_year, -url) %&gt;% 
-  unnest(cols = passing)</code></pre>
-</div>
-<div id="defensive-impact" class="section level2">
-<h2>Defensive impact</h2>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>season_years <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2020-21&quot;</span>, <span class="st">&quot;2019-20&quot;</span>, </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2018-19&quot;</span>, <span class="st">&quot;2017-18&quot;</span>, </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2016-17&quot;</span>, <span class="st">&quot;2015-16&quot;</span>, </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2014-15&quot;</span>, <span class="st">&quot;2013-14&quot;</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>pass_df <span class="ot">=</span> </span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">season_year =</span> season_years) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">url =</span> <span class="fu">str_c</span>(<span class="st">&quot;https://stats.nba.com/stats/leaguedashptstats?College=&amp;Conference=&amp;Country=&amp;DateFrom=&amp;DateTo=&amp;Division=&amp;DraftPick=&amp;DraftYear=&amp;GameScope=&amp;GameSegment=&amp;Height=&amp;LastNGames=0&amp;LeagueID=00&amp;Location=&amp;Month=0&amp;OpponentTeamID=0&amp;Outcome=&amp;PORound=0&amp;PerMode=PerGame&amp;Period=0&amp;PlayerExperience=&amp;PlayerOrTeam=Team&amp;PlayerPosition=&amp;PtMeasureType=Passing&amp;Season=&quot;</span>, season_year, <span class="st">&quot;&amp;SeasonSegment=&amp;SeasonType=Regular+Season&amp;StarterBench=&amp;TeamID=0&amp;VsConference=&amp;VsDivision=&amp;Weight=&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">passing =</span> <span class="fu">map</span>(url, scrapping_data)) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">passing =</span> <span class="fu">map</span>(passing, drop_last_column)) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>season_year, <span class="sc">-</span>url) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> passing)</span></code></pre></div>
+<h2 id="defensive-impact">Defensive impact</h2>
 <p>Get average defensive data of every team in the last 8 seasons.</p>
-<pre class="r"><code>season_years = c(
-  &quot;2020-21&quot;, &quot;2019-20&quot;, 
-  &quot;2018-19&quot;, &quot;2017-18&quot;, 
-  &quot;2016-17&quot;, &quot;2015-16&quot;, 
-  &quot;2014-15&quot;, &quot;2013-14&quot;)
-
-defensive_impact_df = 
-  tibble(
-  season_year = season_years) %&gt;% 
-  mutate(url = str_c(&quot;https://stats.nba.com/stats/leaguedashptstats?College=&amp;Conference=&amp;Country=&amp;DateFrom=&amp;DateTo=&amp;Division=&amp;DraftPick=&amp;DraftYear=&amp;GameScope=&amp;GameSegment=&amp;Height=&amp;LastNGames=0&amp;LeagueID=00&amp;Location=&amp;Month=0&amp;OpponentTeamID=0&amp;Outcome=&amp;PORound=0&amp;PerMode=PerGame&amp;Period=0&amp;PlayerExperience=&amp;PlayerOrTeam=Team&amp;PlayerPosition=&amp;PtMeasureType=Defense&amp;Season=&quot;, season_year, &quot;&amp;SeasonSegment=&amp;SeasonType=Regular+Season&amp;StarterBench=&amp;TeamID=0&amp;VsConference=&amp;VsDivision=&amp;Weight=&quot;)) %&gt;%
-  mutate(defend = map(url, scrapping_data)) %&gt;% 
-  mutate(defend = map(defend, drop_last_column)) %&gt;% 
-  select(-season_year, -url) %&gt;% 
-  unnest(cols = defend)</code></pre>
-</div>
-<div id="shooting-log-data-of-knicks" class="section level2">
-<h2>Shooting Log Data of Knicks</h2>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>season_years <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2020-21&quot;</span>, <span class="st">&quot;2019-20&quot;</span>, </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2018-19&quot;</span>, <span class="st">&quot;2017-18&quot;</span>, </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2016-17&quot;</span>, <span class="st">&quot;2015-16&quot;</span>, </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2014-15&quot;</span>, <span class="st">&quot;2013-14&quot;</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>defensive_impact_df <span class="ot">=</span> </span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">season_year =</span> season_years) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">url =</span> <span class="fu">str_c</span>(<span class="st">&quot;https://stats.nba.com/stats/leaguedashptstats?College=&amp;Conference=&amp;Country=&amp;DateFrom=&amp;DateTo=&amp;Division=&amp;DraftPick=&amp;DraftYear=&amp;GameScope=&amp;GameSegment=&amp;Height=&amp;LastNGames=0&amp;LeagueID=00&amp;Location=&amp;Month=0&amp;OpponentTeamID=0&amp;Outcome=&amp;PORound=0&amp;PerMode=PerGame&amp;Period=0&amp;PlayerExperience=&amp;PlayerOrTeam=Team&amp;PlayerPosition=&amp;PtMeasureType=Defense&amp;Season=&quot;</span>, season_year, <span class="st">&quot;&amp;SeasonSegment=&amp;SeasonType=Regular+Season&amp;StarterBench=&amp;TeamID=0&amp;VsConference=&amp;VsDivision=&amp;Weight=&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">defend =</span> <span class="fu">map</span>(url, scrapping_data)) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">defend =</span> <span class="fu">map</span>(defend, drop_last_column)) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>season_year, <span class="sc">-</span>url) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> defend)</span></code></pre></div>
+<h2 id="shooting-log-data-of-knicks">Shooting Log Data of Knicks</h2>
 <p>Get the current up to date shooting location data of Knicks.</p>
-<pre class="r"><code>url = &quot;https://stats.nba.com/stats/shotchartdetail?AheadBehind=&amp;CFID=155&amp;CFPARAMS=2020-21&amp;ClutchTime=&amp;Conference=&amp;ContextFilter=&amp;ContextMeasure=FGA&amp;DateFrom=&amp;DateTo=&amp;Division=&amp;EndPeriod=10&amp;EndRange=28800&amp;GROUP_ID=&amp;GameEventID=&amp;GameID=&amp;GameSegment=&amp;GroupID=&amp;GroupMode=&amp;GroupQuantity=5&amp;LastNGames=0&amp;LeagueID=00&amp;Location=&amp;Month=0&amp;OnOff=&amp;OpponentTeamID=0&amp;Outcome=&amp;PORound=0&amp;Period=0&amp;PlayerID=0&amp;PlayerID1=&amp;PlayerID2=&amp;PlayerID3=&amp;PlayerID4=&amp;PlayerID5=&amp;PlayerPosition=&amp;PointDiff=&amp;Position=&amp;RangeType=0&amp;RookieYear=&amp;Season=2020-21&amp;SeasonSegment=&amp;SeasonType=Regular+Season&amp;ShotClockRange=&amp;StartPeriod=1&amp;StartRange=0&amp;StarterBench=&amp;TeamID=1610612752&amp;VsConference=&amp;VsDivision=&amp;VsPlayerID1=&amp;VsPlayerID2=&amp;VsPlayerID3=&amp;VsPlayerID4=&amp;VsPlayerID5=&amp;VsTeamID=&quot;
-
-shooting_log_df = 
-  scrapping_data(url) %&gt;% 
-  drop_last_column()</code></pre>
-</div>
-<div id="some-data-cleaning" class="section level2">
-<h2>Some data cleaning</h2>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>url <span class="ot">=</span> <span class="st">&quot;https://stats.nba.com/stats/shotchartdetail?AheadBehind=&amp;CFID=155&amp;CFPARAMS=2020-21&amp;ClutchTime=&amp;Conference=&amp;ContextFilter=&amp;ContextMeasure=FGA&amp;DateFrom=&amp;DateTo=&amp;Division=&amp;EndPeriod=10&amp;EndRange=28800&amp;GROUP_ID=&amp;GameEventID=&amp;GameID=&amp;GameSegment=&amp;GroupID=&amp;GroupMode=&amp;GroupQuantity=5&amp;LastNGames=0&amp;LeagueID=00&amp;Location=&amp;Month=0&amp;OnOff=&amp;OpponentTeamID=0&amp;Outcome=&amp;PORound=0&amp;Period=0&amp;PlayerID=0&amp;PlayerID1=&amp;PlayerID2=&amp;PlayerID3=&amp;PlayerID4=&amp;PlayerID5=&amp;PlayerPosition=&amp;PointDiff=&amp;Position=&amp;RangeType=0&amp;RookieYear=&amp;Season=2020-21&amp;SeasonSegment=&amp;SeasonType=Regular+Season&amp;ShotClockRange=&amp;StartPeriod=1&amp;StartRange=0&amp;StarterBench=&amp;TeamID=1610612752&amp;VsConference=&amp;VsDivision=&amp;VsPlayerID1=&amp;VsPlayerID2=&amp;VsPlayerID3=&amp;VsPlayerID4=&amp;VsPlayerID5=&amp;VsTeamID=&quot;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>shooting_log_df <span class="ot">=</span> </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scrapping_data</span>(url) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_last_column</span>()</span></code></pre></div>
+<h2 id="some-data-cleaning">Some data cleaning</h2>
 <p>some datasets are without the column - season_year, for later analysis, we need to add this column</p>
-<pre class="r"><code>add_season_year = function(season_years, df) {
-  df = df %&gt;% 
-    mutate(season_year = season_years) %&gt;% 
-    relocate(season_year) 
-  
-  return(df)
-}</code></pre>
-<pre class="r"><code>season_years =  c(replicate(30, &quot;2020-21&quot;), 
-  replicate(30, &quot;2019-20&quot;), 
-  replicate(30, &quot;2018-19&quot;), 
-  replicate(30, &quot;2017-18&quot;), 
-  replicate(30, &quot;2016-17&quot;), 
-  replicate(30, &quot;2015-16&quot;), 
-  replicate(30, &quot;2014-15&quot;), 
-  replicate(30, &quot;2013-14&quot;), 
-  replicate(30, &quot;2012-13&quot;))
-
-isol_df = add_season_year(season_years, isol_df)
-transition_df = add_season_year(season_years, transition_df)
-prbh_df = add_season_year(season_years, prbh_df)
-prrm_df = add_season_year(season_years, prrm_df)
-
-season_years_pass =  c(replicate(30, &quot;2020-21&quot;), 
-  replicate(30, &quot;2019-20&quot;), 
-  replicate(30, &quot;2018-19&quot;), 
-  replicate(30, &quot;2017-18&quot;), 
-  replicate(30, &quot;2016-17&quot;), 
-  replicate(30, &quot;2015-16&quot;), 
-  replicate(30, &quot;2014-15&quot;), 
-  replicate(30, &quot;2013-14&quot;))
-
-pass_df = add_season_year(season_years_pass, pass_df)
-defensive_impact_df = add_season_year(season_years_pass, defensive_impact_df)</code></pre>
-</div>
-<div id="save-to-the-local-for-further-use" class="section level2">
-<h2>Save to the local for further use</h2>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>add_season_year <span class="ot">=</span> <span class="cf">function</span>(season_years, df) {</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">=</span> df <span class="sc">%&gt;%</span> </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">season_year =</span> season_years) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">relocate</span>(season_year) </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>season_years <span class="ot">=</span>  <span class="fu">c</span>(<span class="fu">replicate</span>(<span class="dv">30</span>, <span class="st">&quot;2020-21&quot;</span>), </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replicate</span>(<span class="dv">30</span>, <span class="st">&quot;2019-20&quot;</span>), </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replicate</span>(<span class="dv">30</span>, <span class="st">&quot;2018-19&quot;</span>), </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replicate</span>(<span class="dv">30</span>, <span class="st">&quot;2017-18&quot;</span>), </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replicate</span>(<span class="dv">30</span>, <span class="st">&quot;2016-17&quot;</span>), </span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replicate</span>(<span class="dv">30</span>, <span class="st">&quot;2015-16&quot;</span>), </span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replicate</span>(<span class="dv">30</span>, <span class="st">&quot;2014-15&quot;</span>), </span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replicate</span>(<span class="dv">30</span>, <span class="st">&quot;2013-14&quot;</span>), </span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replicate</span>(<span class="dv">30</span>, <span class="st">&quot;2012-13&quot;</span>))</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>isol_df <span class="ot">=</span> <span class="fu">add_season_year</span>(season_years, isol_df)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>transition_df <span class="ot">=</span> <span class="fu">add_season_year</span>(season_years, transition_df)</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>prbh_df <span class="ot">=</span> <span class="fu">add_season_year</span>(season_years, prbh_df)</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>prrm_df <span class="ot">=</span> <span class="fu">add_season_year</span>(season_years, prrm_df)</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>season_years_pass <span class="ot">=</span>  <span class="fu">c</span>(<span class="fu">replicate</span>(<span class="dv">30</span>, <span class="st">&quot;2020-21&quot;</span>), </span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replicate</span>(<span class="dv">30</span>, <span class="st">&quot;2019-20&quot;</span>), </span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replicate</span>(<span class="dv">30</span>, <span class="st">&quot;2018-19&quot;</span>), </span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replicate</span>(<span class="dv">30</span>, <span class="st">&quot;2017-18&quot;</span>), </span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replicate</span>(<span class="dv">30</span>, <span class="st">&quot;2016-17&quot;</span>), </span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replicate</span>(<span class="dv">30</span>, <span class="st">&quot;2015-16&quot;</span>), </span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replicate</span>(<span class="dv">30</span>, <span class="st">&quot;2014-15&quot;</span>), </span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replicate</span>(<span class="dv">30</span>, <span class="st">&quot;2013-14&quot;</span>))</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>pass_df <span class="ot">=</span> <span class="fu">add_season_year</span>(season_years_pass, pass_df)</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>defensive_impact_df <span class="ot">=</span> <span class="fu">add_season_year</span>(season_years_pass, defensive_impact_df)</span></code></pre></div>
+<h2 id="save-to-the-local-for-further-use">Save to the local for further use</h2>
 <p>Save dataset for further use.</p>
-<pre class="r"><code>write_csv(box_score_all, &quot;./data2/box_score_all.csv&quot;)
-write_csv(transition_df, &quot;./data2/transition_df.csv&quot;)
-write_csv(isol_df, &quot;./data2/isol_df.csv&quot;)
-write_csv(prbh_df, &quot;./data2/prbh_df.csv&quot;)
-write_csv(prrm_df, &quot;./data2/prrm_df.csv&quot;)
-write_csv(pass_df, &quot;./data2/pass_df.csv&quot;)
-write_csv(defensive_impact_df, &quot;./data2/defensive_impact_df.csv&quot;)</code></pre>
-</div>
-</div>
-
-
-
-</div>
-</div>
-
-</div>
-
-<script>
-
-// add bootstrap table styles to pandoc tables
-function bootstrapStylePandocTables() {
-  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
-}
-$(document).ready(function () {
-  bootstrapStylePandocTables();
-});
-
-
-</script>
-
-<!-- tabsets -->
-
-<script>
-$(document).ready(function () {
-  window.buildTabsets("TOC");
-});
-
-$(document).ready(function () {
-  $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open');
-  });
-});
-</script>
-
-<!-- code folding -->
-<script>
-$(document).ready(function () {
-  window.initializeCodeFolding("hide" === "show");
-});
-</script>
-
-<script>
-$(document).ready(function ()  {
-
-    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
-    $('.unlisted.unnumbered').addClass('toc-ignore')
-
-    // move toc-ignore selectors from section div to header
-    $('div.section.toc-ignore')
-        .removeClass('toc-ignore')
-        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
-
-    // establish options
-    var options = {
-      selectors: "h1,h2,h3",
-      theme: "bootstrap3",
-      context: '.toc-content',
-      hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
-      },
-      ignoreSelector: ".toc-ignore",
-      scrollTo: 0
-    };
-    options.showAndHide = true;
-    options.smoothScroll = true;
-
-    // tocify
-    var toc = $("#TOC").tocify(options).data("toc-tocify");
-});
-</script>
-
-<!-- dynamically load mathjax for compatibility with self-contained -->
-<script>
-  (function () {
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
-    document.getElementsByTagName("head")[0].appendChild(script);
-  })();
-</script>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(box_score_all, <span class="st">&quot;./data2/box_score_all.csv&quot;</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(transition_df, <span class="st">&quot;./data2/transition_df.csv&quot;</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(isol_df, <span class="st">&quot;./data2/isol_df.csv&quot;</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(prbh_df, <span class="st">&quot;./data2/prbh_df.csv&quot;</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(prrm_df, <span class="st">&quot;./data2/prrm_df.csv&quot;</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(pass_df, <span class="st">&quot;./data2/pass_df.csv&quot;</span>)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(defensive_impact_df, <span class="st">&quot;./data2/defensive_impact_df.csv&quot;</span>)</span></code></pre></div>
 
 </body>
 </html>
