@@ -4,7 +4,23 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
 ```
 
 
@@ -48,9 +64,14 @@ As I mentioned above, these data sets were scrapped from NBA website, the code t
 
 ## Data Wrangling
 
+## Data Description
 
 
 # Exploratory Analysis
+In this part, we explore that on which variables, there would be difference between teams that get into play-off season and teams that not. In this way, we can get some insight on choosing potential parameters for model building. Specifically, we identify the trend in three point attempt by time in the past 10 seasons
+
+
+
 
 # Regression Related
 
