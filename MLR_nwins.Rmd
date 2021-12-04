@@ -45,8 +45,6 @@ Read the box_score dataset.
 box_score_all = read_csv("./data2/box_score_all.csv") %>% 
   janitor::clean_names() %>% 
   select(-contains("rank"))
-
-head(box_score_all) %>% knitr::kable()
 ```
 
 The box_score_all dataset contains statistics in individual games. Totally `r nrow(box_score_all)` games' statistics from season 2012-2013 to season 2020-2021 were documented, which includes `r ncol(box_score_all)` variables. We are going to use some of them in the following exploratory data analysis.
@@ -54,6 +52,10 @@ The box_score_all dataset contains statistics in individual games. Totally `r nr
 ### Other dataset
 
 ```{r}
+box_score_all = read_csv("./data2/box_score_all.csv") %>% 
+  janitor::clean_names() %>% 
+  select(-contains("rank"))
+
 pass_df = 
   read_csv("./data2/pass_df.csv") %>% 
   select(season_year, team_abbreviation, passes_made)
@@ -90,7 +92,7 @@ trans_df =
 * pick_roll_baller_df: average pick and roll for ball handler by team and season
 * pick_roll_roller_df: average pick and roll for roll man by team and season
 
-### Huge wrangling to get prediction_df, predict_df
+### Huge wrangling to get avg_df, predict_df
 
 ```{r,message=FALSE, warning=FALSE}
 avg_df = 

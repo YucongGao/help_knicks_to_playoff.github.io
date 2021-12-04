@@ -384,37 +384,100 @@ div.tocify {
 </div>
 
 
-<div id="motivation" class="section level1">
-<h1>Motivation</h1>
-<p>As Knicks fans, we are witnessing probably the greatest revolution ever on the court, which is called “Small ball era”. Teams tend to use small and faster players instead of traditional giants to accelerate moving speed and improve shooting efficiency.</p>
-<p>Last year, the Knicks returned to playoff season after eight years, which brought great joy to the fans. In order to make this performance long-lasting, we feel obligated to research the key variables that contribute to the winning of a game, to help Knicks maintain existing strengths and make up for the disadvantages. The most obvious feature of the “small ball era” is the rise of 3 point shot attempt. In this way, we focus on three-point related variables along with other factors to conduct our analysis.</p>
+<div id="motivationpictures-links-and-words-refinement" class="section level1">
+<h1>Motivation(Pictures, links and words refinement)</h1>
+<p>As NBA fans, we are witnessing probably the greatest revolution ever on the court, which is called “Small ball era”. Teams tend to use small and faster players instead of traditional giants to accelerate moving speed and improve shooting efficiency.</p>
+<p>Last year, our favorite team Knicks returned to playoff season after eight years, which brought great joy to the fans. In order to make this performance long-lasting, we feel obligated to research the key variables that contribute to the winning so that help Knicks maintain existing strengths and make up for the disadvantages. The most obvious feature of the “small ball era” is the lifting of speed and the rise of 3 point shot attempt. In this way, we focus on offensive playtype and three-point related variables along with other factors to conduct our analysis.</p>
 </div>
 <div id="questions" class="section level1">
 <h1>Questions</h1>
-<p>Our questions are based on data from last 10 NBA regular seasons, from 2011-12 season to 2020-2021 season.</p>
-<p>The First analysis is to explore the relationship between wining (number of wining, score in each game) in regular season with potential factors. In addition, we would use our model to predict Knicks’ performance in the new season of 2021-22 to see whether it can get into play-off season. And we wanted to visualize Knicks’ game data (especially three-point shooting data) to see its strengths and weakness. Our analysis mainly address the following questions:</p>
+<p>To ensure themselves into the playoff game, Knicks need to win enough games to become top eight in east conference. So at the very beginning, we are interested in exploring the distribution of the number of games won by NBA playoff teams to find the threshold number of wins to enter into the playoff. Then We want to figure out the contributors to total wins of a season and single win of a game. With the assumption that total wins are independent between each team and each year, and the result of a single game is independent of another, we used linear regression model to fit total wins with average performance predictors in both offensive and defensive parts. In addition, we would use our model to predict Knicks’ performance in the new season of 2021-22 to see whether it can get into play-off season. Then according to the models we build, we analyzed the performance of Knicks on key predictors to see the gap between knicks and super teams. What’s more, we deep dived these gaps from team level into player level and found how leading players should improve to get more wins. Finally, a detailed game and training strategy is proposed.</p>
 <ol style="list-style-type: decimal">
-<li><p>What variables contribute to the wining of NBA teams, how they impact the game result? <br></p></li>
-<li><p>If using the model we built to predict the ranking of Knicks in new season, will it get into play-off season?</p></li>
-<li><p>How is the Knicks’ three shooting performance different from the league average? Are there any obvious weakness in three point shooting?</p></li>
-<li><p>What Knicks can do to improve its performance in other areas such as assistance, rebound, etc. to secure a place in play-off season?</p></li>
+<li><p>What is the threshold number of wins to enter playoff?</p></li>
+<li><p>What variables contribute to the total wins of a season, how they impact a single game result? <br></p></li>
+<li><p>If using the model we built to predict the ranking of Knicks with data in this new season, will it get into play-off?</p></li>
+<li><p>What is the difference in performance between Knicks and league average?</p></li>
+</ol>
+<p>1).How is the Knicks’ three shooting performance different from the league average? 2).Are there any obvious weakness in three point shooting?</p>
+<ol start="5" style="list-style-type: decimal">
+<li>What Knicks can do to improve its performance in other areas such as assistance, rebound, etc. to secure a place in play-off season?</li>
 </ol>
 </div>
 <div id="data" class="section level1">
 <h1>Data</h1>
 <div id="data-source" class="section level2">
 <h2>Data Source</h2>
-<p>As our project is based on data from last 10 seasons NBA regular season, we used scrapping to get data from <a href="https://www.nba.com/stats/">NBA Stats</a>, there are three data sest we mainly used:</p>
+<p>As our project needs detailed stats about NBA teams and players from last 10 seasons NBA regular season, we used scrapping to get official advanced data from <a href="https://www.nba.com/stats/">NBA Stats</a>. There are four datasets we mainly used:</p>
 <ol style="list-style-type: decimal">
 <li><p><a href="https://www.nba.com/stats/teams/boxscores-advanced/">Advanced Box Score</a>: In this data set, each observation represent a game and the specific data in this game, which contains the score, total field goal attempt, three point made and so on.</p></li>
-<li><p><a href="https://www.nba.com/stats/teams/transition/">Playtype by Team</a>: this data set contains average data for each team in the aspect of offensive play type, such as isolation, pick and roll, ect. Each observation represent the team average data in a regular season with respect to a specific play type.</p></li>
+<li><p><a href="https://www.nba.com/stats/teams/transition/">Playtype by Team</a>: this data set contains average data for each team of a season in the aspect of offensive play type, such as isolation, pick and roll, ect. Each observation represent the team average data in a regular season with respect to a specific play type.</p></li>
 <li><p><a href="https://www.nba.com/stats/teams/drives/">Tracking</a>: this data set contains detailed information about NBA teams’ average movement data in a regular season, for example, passing, touches.</p></li>
 <li><p><a href="https://www.nba.com/stats/events/?flag=3&amp;CFID=155&amp;CFPARAMS=2021-22&amp;TeamID=1610612752&amp;ContextMeasure=FGA&amp;Season=2021-22&amp;section=team&amp;sct=hex">Knicks Shooting Log</a>: in this data set, each observation represent a field goal that player in Knicks made, including the player who made the shot, the location they shot, the time remaining when the shot was made.</p></li>
 </ol>
 <p>As I mentioned above, these data sets were scrapped from NBA website, the code to scrap data can be found at <a href="scrapping_data.Rmd">scrapping data</a></p>
 </div>
-<div id="data-wrangling" class="section level2">
-<h2>Data Wrangling</h2>
+<div id="data-wranglingref-for-scrapping" class="section level2">
+<h2>Data Wrangling(ref for scrapping)</h2>
+<p>First, the datasets in <a href="https://www.nba.com/stats/">NBA Stats</a> don’t have API, so we write a function to extract them using devtools.</p>
+<pre class="r"><code>scrapping_data = function(url) {
+  headers = headers = c(
+  `Connection` = &#39;keep-alive&#39;,
+  `Accept` = &#39;application/json, text/plain, */*&#39;,
+  `x-nba-stats-token` = &#39;true&#39;,
+  `X-NewRelic-ID` = &#39;VQECWF5UChAHUlNTBwgBVw==&#39;,
+  `User-Agent` = &#39;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36&#39;, 
+  `x-nba-stats-origin` = &#39;stats&#39;,
+  `Sec-Fetch-Site` = &#39;same-origin&#39;,
+  `Sec-Fetch-Mode` = &#39;cors&#39;,
+  `Referer` = &#39;https://stats.nba.com/players/leaguedashplayerbiostats/&#39;,
+  `Accept-Encoding` = &#39;gzip, deflate, br&#39;,
+  `Accept-Language` = &#39;en-US,en;q=0.9&#39;)
+  response = GET(url, add_headers(headers))
+  data = fromJSON(content(response, as = &quot;text&quot;))
+  df = data.frame(data$resultSets$rowSet[[1]], stringAsFactors = FALSE)
+  names(df) = tolower(data$resultSets$headers[[1]])
+  return(df)
+}
+
+drop_last_column = function(df) {
+  df = df %&gt;% select(-names(df)[[length(names(df))]])
+  return(df)}</code></pre>
+<p>Then, apply the function to each dataset we want, select the variables we want and save all of them to local. Here is one example, box_score_all.</p>
+<pre class="r"><code>season_years = c(&quot;2020-21&quot;, &quot;2019-20&quot;, 
+           &quot;2018-19&quot;, &quot;2017-18&quot;, 
+           &quot;2016-17&quot;, &quot;2015-16&quot;, 
+           &quot;2014-15&quot;, &quot;2013-14&quot;, 
+           &quot;2012-13&quot;, &quot;2011-12&quot;, 
+           &quot;2010-11&quot;, &quot;2009-10&quot;, 
+           &quot;2008-09&quot;, &quot;2007-08&quot;, 
+           &quot;2006-07&quot;, &quot;2005-06&quot;, 
+           &quot;2004-05&quot;, &quot;2003-04&quot;, 
+           &quot;2002-03&quot;, &quot;2001-02&quot;)
+
+box_score_all = tibble(
+  season_year = season_years,
+  url = str_c(&quot;https://stats.nba.com/stats/teamgamelogs?DateFrom=&amp;DateTo=&amp;GameSegment=&amp;LastNGames=0&amp;LeagueID=00&amp;Location=&amp;MeasureType=Base&amp;Month=0&amp;OpponentTeamID=0&amp;Outcome=&amp;PORound=0&amp;PaceAdjust=N&amp;PerMode=Totals&amp;Period=0&amp;PlusMinus=N&amp;Rank=N&amp;Season=&quot;, season_year, &quot;&amp;SeasonSegment=&amp;SeasonType=Regular+Season&amp;ShotClockRange=&amp;VsConference=&amp;VsDivision=&quot;),
+  box_score = map(url, scrapping_data)) %&gt;% 
+  mutate(box_score = map(box_score, drop_last_column)) %&gt;% # last column of each box score is NA
+  select(-season_year, -url) %&gt;% 
+  unnest(cols = box_score)
+
+write_csv(box_score_all, &quot;./data2/box_score_all.csv&quot;)</code></pre>
+<p>All the raw datasets are as following:</p>
+<ul>
+<li>box_score_all: contains statistics in individual games. Totally 47830 observations in the last 20 years, Variables include win or lose, rebound, assist, three point shooting attempt and so on.</li>
+<li>passing_df: average of passes each game.</li>
+<li>defensive_impact_df: contain average defensive variables each game by team and season.</li>
+<li>isolation_df: average isolation times each game by team and season.</li>
+<li>transition_df: average transition times each game by team and season.</li>
+<li>pick_roll_baller_df: average pick and roll for ball handler by team and season.</li>
+<li>pick_roll_roller_df: average pick and roll for roll man by team and season.</li>
+</ul>
+<p>After download these half raw dataset, we need to prepare four dataframe for exploring data analysis, fit regression model.</p>
+<p>1.avg_df As data in box_score_all is documented per game, we need to summarise it into total and average stats. Detailed wrangling process:</p>
+<p>1).select the variables we are interested from box_score_all.</p>
+<p>2).define four new variables. * <code>win</code>: 1 means winning and 0 means lost. * <code>game_num</code>: constant 1 used to sum the number of games. * <code>fg3a_p</code>: the percentage of 3 point field goal attempt. * <code>conference</code>: west or east</p>
+<p>3).exploratory data analysis. * calculate total number of wins, total number of games, total number of field goal attempt, total number of field goal made, total number of 3 points field goal attempt and total number of 3 points field goal made by team and season. * calculate average number of points, average number of assists and average number of turnovers by team and season. * revised the number of wins in strike season and COVID-19 season. * locate key variables at the first. * arrange all data by season year and number of wins.</p>
 </div>
 <div id="data-description" class="section level2">
 <h2>Data Description</h2>
