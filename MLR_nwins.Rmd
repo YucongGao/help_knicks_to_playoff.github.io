@@ -92,9 +92,8 @@ trans_df =
 
 ### Huge wrangling to get prediction_df, predict_df
 
-prediction_df for generating predict_df and EDA for thresholds winning
 ```{r,message=FALSE, warning=FALSE}
-prediction_df = 
+avg_df = 
   box_score_all %>% 
   select(season_year, team_abbreviation, wl, pts, ast, tov, fgm, fga, fg3m, fg3a) %>%
   mutate(
@@ -136,7 +135,7 @@ prediction_df =
 
 ```{r,message=FALSE, warning=FALSE}
 predict_df = 
-  prediction_df %>%
+  avg_df %>%
   left_join(defend_df, by = c("season_year","team_abbreviation")) %>% 
   left_join(prrm_df, by = c("season_year","team_abbreviation")) %>% 
   left_join(prbh_df, by = c("season_year","team_abbreviation")) %>%
@@ -200,7 +199,7 @@ Recall “threshold”: the number of games won by the 8th team in both west and
 Plot the threshold over last 20 years.
 ```{r,message=FALSE, warning=FALSE}
 eighth_wins =
-  prediction_df %>% 
+  avg_df %>% 
   group_by(season_year,conference) %>% 
   mutate(conf_rank = row_number()) %>% 
   filter(conf_rank == 8)
@@ -241,7 +240,7 @@ box_score_viz =
   relocate(season_year, team_abbreviation, conference)
 
 conf_rank = 
-  prediction_df %>% 
+  avg_df %>% 
   filter(season_year %in% c("2011-12", "2012-13", "2013-14", "2014-15", "2015-16", "2016-17", "2017-18", "2018-19", "2019-20", "2020-21")) %>% 
   ungroup() %>% 
   select(season_year, team_abbreviation, conference, conf_rank)
