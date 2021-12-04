@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>data_scrapping</title>
+
+<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Go Go Knicks!</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="final_report.html">Report</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Regression
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="test_here.html">Regression for playoff</a>
+    </li>
+    <li>
+      <a href="second_regression.html">Regression for win or lose</a>
+    </li>
+    <li>
+      <a href="second_regression.html">Regression for score</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="proposal.html">About</a>
+</li>
+<li>
+  <a href="https://github.com/YucongGao/help_knicks_to_playoff.github.io">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="mailto:&lt;pl2811@cumc.columbia.edu&gt;">
+    <span class="fa fa-envelope fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">data_scrapping</h1>
+
+</div>
+
+
+<div id="using-function-to-scrap-data-from-nba.stats" class="section level1">
+<h1>Using function to scrap data from NBA.stats</h1>
+<div id="scrapping-function" class="section level2">
+<h2>Scrapping function</h2>
+<p>use function to get data - define a function to scrap data from NBA.stat</p>
+<pre class="r"><code>scrapping_data = function(url) {
+  headers = headers = c(
+  `Connection` = &#39;keep-alive&#39;,
+  `Accept` = &#39;application/json, text/plain, */*&#39;,
+  `x-nba-stats-token` = &#39;true&#39;,
+  `X-NewRelic-ID` = &#39;VQECWF5UChAHUlNTBwgBVw==&#39;,
+  `User-Agent` = &#39;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36&#39;, 
+  `x-nba-stats-origin` = &#39;stats&#39;,
+  `Sec-Fetch-Site` = &#39;same-origin&#39;,
+  `Sec-Fetch-Mode` = &#39;cors&#39;,
+  `Referer` = &#39;https://stats.nba.com/players/leaguedashplayerbiostats/&#39;,
+  `Accept-Encoding` = &#39;gzip, deflate, br&#39;,
+  `Accept-Language` = &#39;en-US,en;q=0.9&#39;)
+  response = GET(url, add_headers(headers))
+  data = fromJSON(content(response, as = &quot;text&quot;))
+  df = data.frame(data$resultSets$rowSet[[1]], stringAsFactors = FALSE)
+  names(df) = tolower(data$resultSets$headers[[1]])
+  return(df)
+}
+
+drop_last_column = function(df) {
+  df = df %&gt;% select(- names(df)[[length(names(df))]])
+  return(df)
+}</code></pre>
+</div>
+<div id="box-scores" class="section level2">
+<h2>Box scores</h2>
+<p>get data from 2001-02 season to 2020-21 season</p>
+<pre class="r"><code>season_years = c(&quot;2020-21&quot;, &quot;2019-20&quot;, 
+           &quot;2018-19&quot;, &quot;2017-18&quot;, 
+           &quot;2016-17&quot;, &quot;2015-16&quot;, 
+           &quot;2014-15&quot;, &quot;2013-14&quot;, 
+           &quot;2012-13&quot;, &quot;2011-12&quot;, 
+           &quot;2010-11&quot;, &quot;2009-10&quot;, 
+           &quot;2008-09&quot;, &quot;2007-08&quot;, 
+           &quot;2006-07&quot;, &quot;2005-06&quot;, 
+           &quot;2004-05&quot;, &quot;2003-04&quot;, 
+           &quot;2002-03&quot;, &quot;2001-02&quot;)
+
+box_score_all = tibble(season_year = season_years)
+box_score_all = 
+  box_score_all %&gt;% 
+  mutate(url = str_c(&quot;https://stats.nba.com/stats/teamgamelogs?DateFrom=&amp;DateTo=&amp;GameSegment=&amp;LastNGames=0&amp;LeagueID=00&amp;Location=&amp;MeasureType=Base&amp;Month=0&amp;OpponentTeamID=0&amp;Outcome=&amp;PORound=0&amp;PaceAdjust=N&amp;PerMode=Totals&amp;Period=0&amp;PlusMinus=N&amp;Rank=N&amp;Season=&quot;, season_year, &quot;&amp;SeasonSegment=&amp;SeasonType=Regular+Season&amp;ShotClockRange=&amp;VsConference=&amp;VsDivision=&quot;)) %&gt;%
+  mutate(box_score = map(url, scrapping_data))</code></pre>
+<p>As the last column of each box score is NA, so we need to drop this column</p>
+<pre class="r"><code>box_score_all = 
+  box_score_all %&gt;% 
+  mutate(box_score = map(box_score, drop_last_column)) 
+
+box_score_all = 
+  box_score_all %&gt;% 
+  select(-season_year, -url) %&gt;% 
+  unnest(cols = box_score)</code></pre>
+</div>
+<div id="transition-data" class="section level2">
+<h2>Transition data</h2>
+<pre class="r"><code>season_years = c(
+  &quot;2020-21&quot;, &quot;2019-20&quot;, 
+  &quot;2018-19&quot;, &quot;2017-18&quot;, 
+  &quot;2016-17&quot;, &quot;2015-16&quot;, 
+  &quot;2014-15&quot;, &quot;2013-14&quot;, &quot;2012-13&quot;)
+
+transition_df = 
+  tibble(
+  season_year = season_years) %&gt;% 
+  mutate(url = str_c(&quot;https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&amp;PerMode=PerGame&amp;PlayType=Transition&amp;PlayerOrTeam=T&amp;SeasonType=Regular+Season&amp;SeasonYear=&quot;, season_year, &quot;&amp;TypeGrouping=offensive&quot;)) %&gt;% 
+  mutate(transition = map(url, scrapping_data))</code></pre>
+<pre class="r"><code>transition_df = 
+  transition_df %&gt;% 
+  mutate(transition = map(transition, drop_last_column)) %&gt;% 
+  select(-season_year, -url) %&gt;% 
+  unnest(cols = transition)</code></pre>
+</div>
+<div id="isolation-data" class="section level2">
+<h2>Isolation data</h2>
+<pre class="r"><code>season_years = c(
+  &quot;2020-21&quot;, &quot;2019-20&quot;, 
+  &quot;2018-19&quot;, &quot;2017-18&quot;, 
+  &quot;2016-17&quot;, &quot;2015-16&quot;, 
+  &quot;2014-15&quot;, &quot;2013-14&quot;, &quot;2012-13&quot;)
+
+isol_df = 
+  tibble(
+  season_year = season_years) %&gt;% 
+  mutate(url = str_c(&quot;https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&amp;PerMode=PerGame&amp;PlayType=Isolation&amp;PlayerOrTeam=T&amp;SeasonType=Regular+Season&amp;SeasonYear=&quot;, season_year, &quot;&amp;TypeGrouping=offensive&quot;)) %&gt;% 
+  mutate(isol = map(url, scrapping_data)) %&gt;% 
+  mutate(isol = map(isol, drop_last_column)) %&gt;% 
+  select(-season_year, -url) %&gt;% 
+  unnest(cols = isol)</code></pre>
+</div>
+<div id="pick-and-roll-ball-handler-data" class="section level2">
+<h2>pick and roll ball handler data</h2>
+<pre class="r"><code>season_years = c(
+  &quot;2020-21&quot;, &quot;2019-20&quot;, 
+  &quot;2018-19&quot;, &quot;2017-18&quot;, 
+  &quot;2016-17&quot;, &quot;2015-16&quot;, 
+  &quot;2014-15&quot;, &quot;2013-14&quot;, &quot;2012-13&quot;)
+
+prbh_df = 
+  tibble(
+  season_year = season_years) %&gt;% 
+  mutate(url = str_c(&quot;https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&amp;PerMode=PerGame&amp;PlayType=PRBallHandler&amp;PlayerOrTeam=T&amp;SeasonType=Regular+Season&amp;SeasonYear=&quot;, season_year, &quot;&amp;TypeGrouping=offensive&quot;)) %&gt;% 
+  mutate(prbh = map(url, scrapping_data)) %&gt;% 
+  mutate(prbh = map(prbh, drop_last_column)) %&gt;% 
+  select(-season_year, -url) %&gt;% 
+  unnest(cols = prbh)</code></pre>
+</div>
+<div id="pick-and-roll-roll-man" class="section level2">
+<h2>pick and roll roll man</h2>
+<pre class="r"><code>season_years = c(
+  &quot;2020-21&quot;, &quot;2019-20&quot;, 
+  &quot;2018-19&quot;, &quot;2017-18&quot;, 
+  &quot;2016-17&quot;, &quot;2015-16&quot;, 
+  &quot;2014-15&quot;, &quot;2013-14&quot;, &quot;2012-13&quot;)
+
+prrm_df = 
+  tibble(
+  season_year = season_years) %&gt;% 
+  mutate(url = str_c(&quot;https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&amp;PerMode=PerGame&amp;PlayType=PRRollman&amp;PlayerOrTeam=T&amp;SeasonType=Regular+Season&amp;SeasonYear=&quot;, season_year, &quot;&amp;TypeGrouping=offensive&quot;)) %&gt;% 
+  mutate(prrm = map(url, scrapping_data)) %&gt;% 
+  mutate(prrm = map(prrm, drop_last_column)) %&gt;% 
+  select(-season_year, -url) %&gt;% 
+  unnest(cols = prrm)</code></pre>
+</div>
+<div id="passing-data" class="section level2">
+<h2>Passing data</h2>
+<pre class="r"><code>season_years = c(
+  &quot;2020-21&quot;, &quot;2019-20&quot;, 
+  &quot;2018-19&quot;, &quot;2017-18&quot;, 
+  &quot;2016-17&quot;, &quot;2015-16&quot;, 
+  &quot;2014-15&quot;, &quot;2013-14&quot;)
+
+pass_df = 
+  tibble(
+  season_year = season_years) %&gt;% 
+  mutate(url = str_c(&quot;https://stats.nba.com/stats/leaguedashptstats?College=&amp;Conference=&amp;Country=&amp;DateFrom=&amp;DateTo=&amp;Division=&amp;DraftPick=&amp;DraftYear=&amp;GameScope=&amp;GameSegment=&amp;Height=&amp;LastNGames=0&amp;LeagueID=00&amp;Location=&amp;Month=0&amp;OpponentTeamID=0&amp;Outcome=&amp;PORound=0&amp;PerMode=PerGame&amp;Period=0&amp;PlayerExperience=&amp;PlayerOrTeam=Team&amp;PlayerPosition=&amp;PtMeasureType=Passing&amp;Season=&quot;, season_year, &quot;&amp;SeasonSegment=&amp;SeasonType=Regular+Season&amp;StarterBench=&amp;TeamID=0&amp;VsConference=&amp;VsDivision=&amp;Weight=&quot;)) %&gt;%
+  mutate(passing = map(url, scrapping_data)) %&gt;% 
+  mutate(passing = map(passing, drop_last_column)) %&gt;% 
+  select(-season_year, -url) %&gt;% 
+  unnest(cols = passing)</code></pre>
+</div>
+<div id="defensive-impact" class="section level2">
+<h2>Defensive impact</h2>
+<pre class="r"><code>season_years = c(
+  &quot;2020-21&quot;, &quot;2019-20&quot;, 
+  &quot;2018-19&quot;, &quot;2017-18&quot;, 
+  &quot;2016-17&quot;, &quot;2015-16&quot;, 
+  &quot;2014-15&quot;, &quot;2013-14&quot;)
+
+defensive_impact_df = 
+  tibble(
+  season_year = season_years) %&gt;% 
+  mutate(url = str_c(&quot;https://stats.nba.com/stats/leaguedashptstats?College=&amp;Conference=&amp;Country=&amp;DateFrom=&amp;DateTo=&amp;Division=&amp;DraftPick=&amp;DraftYear=&amp;GameScope=&amp;GameSegment=&amp;Height=&amp;LastNGames=0&amp;LeagueID=00&amp;Location=&amp;Month=0&amp;OpponentTeamID=0&amp;Outcome=&amp;PORound=0&amp;PerMode=PerGame&amp;Period=0&amp;PlayerExperience=&amp;PlayerOrTeam=Team&amp;PlayerPosition=&amp;PtMeasureType=Defense&amp;Season=&quot;, season_year, &quot;&amp;SeasonSegment=&amp;SeasonType=Regular+Season&amp;StarterBench=&amp;TeamID=0&amp;VsConference=&amp;VsDivision=&amp;Weight=&quot;)) %&gt;%
+  mutate(defend = map(url, scrapping_data)) %&gt;% 
+  mutate(defend = map(defend, drop_last_column)) %&gt;% 
+  select(-season_year, -url) %&gt;% 
+  unnest(cols = defend)</code></pre>
+</div>
+<div id="shooting-log-data-of-knicks" class="section level2">
+<h2>Shooting Log Data of Knicks</h2>
+<pre class="r"><code>url = &quot;https://stats.nba.com/stats/shotchartdetail?AheadBehind=&amp;CFID=155&amp;CFPARAMS=2020-21&amp;ClutchTime=&amp;Conference=&amp;ContextFilter=&amp;ContextMeasure=FGA&amp;DateFrom=&amp;DateTo=&amp;Division=&amp;EndPeriod=10&amp;EndRange=28800&amp;GROUP_ID=&amp;GameEventID=&amp;GameID=&amp;GameSegment=&amp;GroupID=&amp;GroupMode=&amp;GroupQuantity=5&amp;LastNGames=0&amp;LeagueID=00&amp;Location=&amp;Month=0&amp;OnOff=&amp;OpponentTeamID=0&amp;Outcome=&amp;PORound=0&amp;Period=0&amp;PlayerID=0&amp;PlayerID1=&amp;PlayerID2=&amp;PlayerID3=&amp;PlayerID4=&amp;PlayerID5=&amp;PlayerPosition=&amp;PointDiff=&amp;Position=&amp;RangeType=0&amp;RookieYear=&amp;Season=2020-21&amp;SeasonSegment=&amp;SeasonType=Regular+Season&amp;ShotClockRange=&amp;StartPeriod=1&amp;StartRange=0&amp;StarterBench=&amp;TeamID=1610612752&amp;VsConference=&amp;VsDivision=&amp;VsPlayerID1=&amp;VsPlayerID2=&amp;VsPlayerID3=&amp;VsPlayerID4=&amp;VsPlayerID5=&amp;VsTeamID=&quot;
+
+shooting_log_df = 
+  scrapping_data(url) %&gt;% 
+  drop_last_column()</code></pre>
+</div>
+<div id="some-data-cleaning" class="section level2">
+<h2>Some data cleaning</h2>
+<p>some datasets are without the column - season_year, for later analysis, we need to add this column</p>
+<pre class="r"><code>add_season_year = function(season_years, df) {
+  df = df %&gt;% 
+    mutate(season_year = season_years) %&gt;% 
+    relocate(season_year) 
+  
+  return(df)
+}</code></pre>
+<pre class="r"><code>season_years =  c(replicate(30, &quot;2020-21&quot;), 
+  replicate(30, &quot;2019-20&quot;), 
+  replicate(30, &quot;2018-19&quot;), 
+  replicate(30, &quot;2017-18&quot;), 
+  replicate(30, &quot;2016-17&quot;), 
+  replicate(30, &quot;2015-16&quot;), 
+  replicate(30, &quot;2014-15&quot;), 
+  replicate(30, &quot;2013-14&quot;), 
+  replicate(30, &quot;2012-13&quot;))
+
+isol_df = add_season_year(season_years, isol_df)
+transition_df = add_season_year(season_years, transition_df)
+prbh_df = add_season_year(season_years, prbh_df)
+prrm_df = add_season_year(season_years, prrm_df)
+
+season_years_pass =  c(replicate(30, &quot;2020-21&quot;), 
+  replicate(30, &quot;2019-20&quot;), 
+  replicate(30, &quot;2018-19&quot;), 
+  replicate(30, &quot;2017-18&quot;), 
+  replicate(30, &quot;2016-17&quot;), 
+  replicate(30, &quot;2015-16&quot;), 
+  replicate(30, &quot;2014-15&quot;), 
+  replicate(30, &quot;2013-14&quot;))
+pass_df = add_season_year(season_years_pass, pass_df)
+
+defensive_impact_df = add_season_year(season_years_pass, defensive_impact_df)</code></pre>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

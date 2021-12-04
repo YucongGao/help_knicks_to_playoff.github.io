@@ -44,7 +44,7 @@ drop_last_column = function(df) {
 
 ## Box scores
 get data from 2001-02 season to 2020-21 season
-```{r}
+```{r, eval=FALSE}
 season_years = c("2020-21", "2019-20", 
            "2018-19", "2017-18", 
            "2016-17", "2015-16", 
@@ -66,7 +66,7 @@ box_score_all =
 
 
 As the last column of each box score is NA, so we need to drop this column
-```{r}
+```{r, eval=FALSE}
 box_score_all = 
   box_score_all %>% 
   mutate(box_score = map(box_score, drop_last_column)) 
@@ -80,7 +80,7 @@ box_score_all =
 
 
 ## Transition data
-```{r}
+```{r, eval=FALSE}
 season_years = c(
   "2020-21", "2019-20", 
   "2018-19", "2017-18", 
@@ -95,7 +95,7 @@ transition_df =
 
 ```
 
-```{r}
+```{r, eval=FALSE}
 transition_df = 
   transition_df %>% 
   mutate(transition = map(transition, drop_last_column)) %>% 
@@ -106,7 +106,7 @@ transition_df =
 
 ## Isolation data
 
-```{r}
+```{r, eval=FALSE}
 season_years = c(
   "2020-21", "2019-20", 
   "2018-19", "2017-18", 
@@ -127,7 +127,7 @@ isol_df =
 
 ## pick and roll ball handler data
 
-```{r}
+```{r, eval=FALSE}
 season_years = c(
   "2020-21", "2019-20", 
   "2018-19", "2017-18", 
@@ -145,7 +145,7 @@ prbh_df =
 ```
 
 ## pick and roll roll man
-```{r}
+```{r, eval=FALSE}
 season_years = c(
   "2020-21", "2019-20", 
   "2018-19", "2017-18", 
@@ -165,7 +165,7 @@ prrm_df =
 
 ## Passing data
 
-```{r}
+```{r, eval=FALSE}
 season_years = c(
   "2020-21", "2019-20", 
   "2018-19", "2017-18", 
@@ -184,7 +184,7 @@ pass_df =
 ```
 
 ## Defensive impact
-```{r}
+```{r, eval=FALSE}
 season_years = c(
   "2020-21", "2019-20", 
   "2018-19", "2017-18", 
@@ -205,7 +205,7 @@ defensive_impact_df =
 
 
 ## Shooting Log Data of Knicks
-```{r}
+```{r, eval=FALSE}
 url = "https://stats.nba.com/stats/shotchartdetail?AheadBehind=&CFID=155&CFPARAMS=2020-21&ClutchTime=&Conference=&ContextFilter=&ContextMeasure=FGA&DateFrom=&DateTo=&Division=&EndPeriod=10&EndRange=28800&GROUP_ID=&GameEventID=&GameID=&GameSegment=&GroupID=&GroupMode=&GroupQuantity=5&LastNGames=0&LeagueID=00&Location=&Month=0&OnOff=&OpponentTeamID=0&Outcome=&PORound=0&Period=0&PlayerID=0&PlayerID1=&PlayerID2=&PlayerID3=&PlayerID4=&PlayerID5=&PlayerPosition=&PointDiff=&Position=&RangeType=0&RookieYear=&Season=2020-21&SeasonSegment=&SeasonType=Regular+Season&ShotClockRange=&StartPeriod=1&StartRange=0&StarterBench=&TeamID=1610612752&VsConference=&VsDivision=&VsPlayerID1=&VsPlayerID2=&VsPlayerID3=&VsPlayerID4=&VsPlayerID5=&VsTeamID="
 
 shooting_log_df = 
@@ -219,7 +219,7 @@ shooting_log_df =
 ## Some data cleaning
 
 some datasets are without the column - season_year, for later analysis, we need to add this column
-```{r}
+```{r, eval=FALSE}
 add_season_year = function(season_years, df) {
   df = df %>% 
     mutate(season_year = season_years) %>% 
@@ -229,7 +229,7 @@ add_season_year = function(season_years, df) {
 }
 ```
 
-```{r}
+```{r, eval=FALSE}
 season_years =  c(replicate(30, "2020-21"), 
   replicate(30, "2019-20"), 
   replicate(30, "2018-19"), 
