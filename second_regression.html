@@ -329,9 +329,36 @@ div.tocify {
         <li>
   <a href="final_report.html">Report</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Regression
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="test_here.html">Regression for playoff</a>
+    </li>
+    <li>
+      <a href="second_regression.html">Regression for win or lose</a>
+    </li>
+    <li>
+      <a href="second_regression.html">Regression for score</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="proposal.html">About</a>
+</li>
 <li>
   <a href="https://github.com/YucongGao/help_knicks_to_playoff.github.io">
     <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="mailto:&lt;pl2811@cumc.columbia.edu&gt;">
+    <span class="fa fa-envelope fa-lg"></span>
      
   </a>
 </li>
@@ -377,63 +404,19 @@ options(
 scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d</code></pre>
 </div>
-<div id="data-scrapping-function" class="section level2">
-<h2>Data Scrapping function</h2>
-<p>use function to get data - define a function to scrap data from NBA.stat</p>
-<pre class="r"><code>scrapping_data = function(url) {
-  headers = headers = c(
-  `Connection` = &#39;keep-alive&#39;,
-  `Accept` = &#39;application/json, text/plain, */*&#39;,
-  `x-nba-stats-token` = &#39;true&#39;,
-  `X-NewRelic-ID` = &#39;VQECWF5UChAHUlNTBwgBVw==&#39;,
-  `User-Agent` = &#39;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36&#39;, 
-  `x-nba-stats-origin` = &#39;stats&#39;,
-  `Sec-Fetch-Site` = &#39;same-origin&#39;,
-  `Sec-Fetch-Mode` = &#39;cors&#39;,
-  `Referer` = &#39;https://stats.nba.com/players/leaguedashplayerbiostats/&#39;,
-  `Accept-Encoding` = &#39;gzip, deflate, br&#39;,
-  `Accept-Language` = &#39;en-US,en;q=0.9&#39;)
-  response = GET(url, add_headers(headers))
-  data = fromJSON(content(response, as = &quot;text&quot;))
-  df = data.frame(data$resultSets$rowSet[[1]], stringAsFactors = FALSE)
-  names(df) = tolower(data$resultSets$headers[[1]])
-  return(df)
-}</code></pre>
-<div id="box-scores-dataset" class="section level3">
-<h3>Box scores dataset</h3>
-<p>get data from 2001-02 season to 2020-21 season</p>
-<pre class="r"><code>season_years = c(&quot;2020-21&quot;, &quot;2019-20&quot;, 
-           &quot;2018-19&quot;, &quot;2017-18&quot;, 
-           &quot;2016-17&quot;, &quot;2015-16&quot;, 
-           &quot;2014-15&quot;, &quot;2013-14&quot;, 
-           &quot;2012-13&quot;, &quot;2011-12&quot;, 
-           &quot;2010-11&quot;, &quot;2009-10&quot;, 
-           &quot;2008-09&quot;, &quot;2007-08&quot;, 
-           &quot;2006-07&quot;, &quot;2005-06&quot;, 
-           &quot;2004-05&quot;, &quot;2003-04&quot;, 
-           &quot;2002-03&quot;, &quot;2001-02&quot;)
-
-box_score_all = tibble(season_year = season_years)
-box_score_all = 
-  box_score_all %&gt;% 
-  mutate(url = str_c(&quot;https://stats.nba.com/stats/teamgamelogs?DateFrom=&amp;DateTo=&amp;GameSegment=&amp;LastNGames=0&amp;LeagueID=00&amp;Location=&amp;MeasureType=Base&amp;Month=0&amp;OpponentTeamID=0&amp;Outcome=&amp;PORound=0&amp;PaceAdjust=N&amp;PerMode=Totals&amp;Period=0&amp;PlusMinus=N&amp;Rank=N&amp;Season=&quot;, season_year, &quot;&amp;SeasonSegment=&amp;SeasonType=Regular+Season&amp;ShotClockRange=&amp;VsConference=&amp;VsDivision=&quot;)) %&gt;%
-  mutate(box_score = map(url, scrapping_data))</code></pre>
-<p>As the last column of each box score is NA, so we need to drop this column</p>
-<pre class="r"><code>drop_last_column = function(df) {
-  df = df %&gt;% select(- names(df)[[57]])
-  return(df)
-}
-
-box_score_all = 
-  box_score_all %&gt;% 
-  mutate(box_score = map(box_score, drop_last_column)) 
-
-box_score_all = 
-  box_score_all %&gt;% 
-  select(-season_year, -url) %&gt;% 
-  unnest(cols = box_score)</code></pre>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<pre class="r"><code>box_score_all = read_csv(&quot;./data2/box_score_all.csv&quot;)</code></pre>
+<pre><code>## Rows: 47830 Columns: 56</code></pre>
+<pre><code>## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## chr   (6): season_year, team_abbreviation, team_name, game_id, matchup, wl
+## dbl  (49): team_id, min, fgm, fga, fg_pct, fg3m, fg3a, fg3_pct, ftm, fta, ft...
+## dttm  (1): game_date</code></pre>
+<pre><code>## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 <p>The box_score_all dataset contains 47830 games’ data from season 2012-2013 to season 2020-2021, which includes 56 variables. We are going to use some of them in the following exploratory data analysis.</p>
-</div>
 </div>
 <div id="descriptive-statistics" class="section level2">
 <h2>Descriptive Statistics</h2>
@@ -621,13 +604,13 @@ pm_box =
   geom_boxplot() +
   theme(axis.text.y = element_text(size=4))
 (fgm_box + fga_box + fgpct_box) / (fg3m_box + fg3a_box + fg3pct_box)</code></pre>
-<p><img src="second_regression_files/figure-html/unnamed-chunk-6-1.png" width="90%" /></p>
+<p><img src="second_regression_files/figure-html/unnamed-chunk-4-1.png" width="90%" /></p>
 <pre class="r"><code>(ftm_box + fta_box + ftpct_box)/(oreb_box + dreb_box + reb_box)</code></pre>
-<p><img src="second_regression_files/figure-html/unnamed-chunk-6-2.png" width="90%" /></p>
+<p><img src="second_regression_files/figure-html/unnamed-chunk-4-2.png" width="90%" /></p>
 <pre class="r"><code>(ast_box + tov_box + stl_box) /(blk_box + blka_box + pf_box)</code></pre>
-<p><img src="second_regression_files/figure-html/unnamed-chunk-6-3.png" width="90%" /></p>
+<p><img src="second_regression_files/figure-html/unnamed-chunk-4-3.png" width="90%" /></p>
 <pre class="r"><code>pfd_box + pts_box + pm_box</code></pre>
-<p><img src="second_regression_files/figure-html/unnamed-chunk-6-4.png" width="90%" /> According to boxplots of winning and losing teams, we can find that there are some obvious difference in some aspects, like fg_pct, fg3_pct, pts and etc.</p>
+<p><img src="second_regression_files/figure-html/unnamed-chunk-4-4.png" width="90%" /> According to boxplots of winning and losing teams, we can find that there are some obvious difference in some aspects, like fg_pct, fg3_pct, pts and etc.</p>
 </div>
 <div id="corralation-map" class="section level2">
 <h2>Corralation Map</h2>
@@ -660,7 +643,7 @@ pm_box =
   )
 corr &lt;- cor(regre_df[-1])
 corrplot(corr, method = &quot;square&quot;, order = &quot;FPC&quot;)</code></pre>
-<p><img src="second_regression_files/figure-html/unnamed-chunk-7-1.png" width="90%" /></p>
+<p><img src="second_regression_files/figure-html/unnamed-chunk-5-1.png" width="90%" /></p>
 <p>Based on this plot, we can see that there are some strong correlation between some variables, like ftm and fta, dreb and reb. We will select one variable from a pair of variables that have correlation score which is more than 0.5. Therefore we can select variables which have no strong correlation with others.</p>
 </div>
 <div id="linear-regression" class="section level2">
@@ -771,12 +754,12 @@ summary(ln_regre)</code></pre>
 <p>1). to check if the error term is normally distributed with mean 0.</p>
 <pre class="r"><code>ggplot(data = ln_regre , aes(x = ln_regre$residuals)) + geom_histogram()</code></pre>
 <pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-<p><img src="second_regression_files/figure-html/unnamed-chunk-9-1.png" width="90%" /></p>
+<p><img src="second_regression_files/figure-html/unnamed-chunk-7-1.png" width="90%" /></p>
 <p>Condition 1 is met.</p>
 <p>2). to check if the error term is independent of the dependent variable.</p>
 <pre class="r"><code>ggplot(data = ln_regre, aes(x = ln_regre$fitted.values, y = ln_regre$residuals)) + geom_point() + geom_smooth(method = &quot;lm&quot;)</code></pre>
 <pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="second_regression_files/figure-html/unnamed-chunk-10-1.png" width="90%" /></p>
+<p><img src="second_regression_files/figure-html/unnamed-chunk-8-1.png" width="90%" /></p>
 <p>Condition 2 is met as we cannot see an obvious tendency of errors.</p>
 </div>
 <div id="interpretation-of-model-coefficients" class="section level3">

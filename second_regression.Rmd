@@ -38,69 +38,10 @@ scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
 
-## Data Scrapping function
+## Data
 
-use function to get data  - define a function to scrap data from NBA.stat
 ```{r}
-scrapping_data = function(url) {
-  headers = headers = c(
-  `Connection` = 'keep-alive',
-  `Accept` = 'application/json, text/plain, */*',
-  `x-nba-stats-token` = 'true',
-  `X-NewRelic-ID` = 'VQECWF5UChAHUlNTBwgBVw==',
-  `User-Agent` = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36', 
-  `x-nba-stats-origin` = 'stats',
-  `Sec-Fetch-Site` = 'same-origin',
-  `Sec-Fetch-Mode` = 'cors',
-  `Referer` = 'https://stats.nba.com/players/leaguedashplayerbiostats/',
-  `Accept-Encoding` = 'gzip, deflate, br',
-  `Accept-Language` = 'en-US,en;q=0.9')
-  response = GET(url, add_headers(headers))
-  data = fromJSON(content(response, as = "text"))
-  df = data.frame(data$resultSets$rowSet[[1]], stringAsFactors = FALSE)
-  names(df) = tolower(data$resultSets$headers[[1]])
-  return(df)
-}
-```
-
-### Box scores dataset
-
-get data from 2001-02 season to 2020-21 season
-```{r}
-season_years = c("2020-21", "2019-20", 
-           "2018-19", "2017-18", 
-           "2016-17", "2015-16", 
-           "2014-15", "2013-14", 
-           "2012-13", "2011-12", 
-           "2010-11", "2009-10", 
-           "2008-09", "2007-08", 
-           "2006-07", "2005-06", 
-           "2004-05", "2003-04", 
-           "2002-03", "2001-02")
-
-box_score_all = tibble(season_year = season_years)
-box_score_all = 
-  box_score_all %>% 
-  mutate(url = str_c("https://stats.nba.com/stats/teamgamelogs?DateFrom=&DateTo=&GameSegment=&LastNGames=0&LeagueID=00&Location=&MeasureType=Base&Month=0&OpponentTeamID=0&Outcome=&PORound=0&PaceAdjust=N&PerMode=Totals&Period=0&PlusMinus=N&Rank=N&Season=", season_year, "&SeasonSegment=&SeasonType=Regular+Season&ShotClockRange=&VsConference=&VsDivision=")) %>%
-  mutate(box_score = map(url, scrapping_data))
-
-```
-
-As the last column of each box score is NA, so we need to drop this column
-```{r}
-drop_last_column = function(df) {
-  df = df %>% select(- names(df)[[57]])
-  return(df)
-}
-
-box_score_all = 
-  box_score_all %>% 
-  mutate(box_score = map(box_score, drop_last_column)) 
-
-box_score_all = 
-  box_score_all %>% 
-  select(-season_year, -url) %>% 
-  unnest(cols = box_score)
+box_score_all = read_csv("./data2/box_score_all.csv")
 ```
 The box_score_all dataset contains `r nrow(box_score_all)` games' data from season 2012-2013 to season 2020-2021, which includes `r ncol(box_score_all)` variables. We are going to use some of them in the following exploratory data analysis.
 
