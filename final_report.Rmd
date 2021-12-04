@@ -64,10 +64,10 @@ As our project needs detailed stats about NBA teams and players from last 10 sea
 
 As I mentioned above, these data sets were scrapped from NBA website, the code to scrap data can be found at [scrapping data](scrapping_data.Rmd)
 
-## Data Wrangling(ref for scrapping)
+## Data Wrangling(ref for scrapping) 
 
 First, the datasets in [NBA Stats](https://www.nba.com/stats/) don't have API, so we write a function to extract them using devtools.
-```{r, eval=FALSE}
+```{r, eval=FALSE,message=FALSE,warning=FALSE}
 scrapping_data = function(url) {
   headers = headers = c(
   `Connection` = 'keep-alive',
@@ -93,8 +93,8 @@ drop_last_column = function(df) {
   return(df)}
 ```
 
-Then, apply the function to each dataset we want, select the variables we want and save all of them to local. Here is one example, box_score_all.
-```{r, eval=FALSE}
+Then, apply the function to each dataset we want, select the variables we want and save all of them to local for tfurther use. Here is one example, box_score_all.
+```{r, eval=FALSE, message=FALSE, warning=FALSE}
 season_years = c("2020-21", "2019-20", 
            "2018-19", "2017-18", 
            "2016-17", "2015-16", 
@@ -119,7 +119,7 @@ write_csv(box_score_all, "./data2/box_score_all.csv")
 
 Then, read them and select related variables. All the raw datasets are as following:
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 box_score_all = read_csv("./data2/box_score_all.csv") %>% 
   janitor::clean_names() %>% 
   select(-contains("rank"))
@@ -164,7 +164,7 @@ trans_df =
 
 After read these half raw dataset, we need to prepare four dataframes for exploring data analysis, fit regression model.
 
-1.avg_df
+**1.avg_df**
 ```{r,message=FALSE, warning=FALSE}
 avg_df = 
   box_score_all %>% 
@@ -205,8 +205,8 @@ avg_df =
          ), 
          play_off_team = fct_relevel(play_off_team, c("playoff", "non-playoff")))
 ```
-
-As data in box_score_all is documented per game, we need to summarise it into total and average stats. Detailed wrangling process:
+The avg_df contains the number of wins by team and year in the last 20 years, which is used to analyse the distribution of threshold wins, and to further generate predict_df for regression.
+As data in box_score_all is documented by game, we need to summarise it into total and average stats. Detailed wrangling process:
 
 1).select the variables we are interested from box_score_all.
 
@@ -216,15 +216,17 @@ As data in box_score_all is documented per game, we need to summarise it into to
 * `fg3a_p`: the percentage of 3 point field goal attempt.
 * `conference`: west or east
 
-3).exploratory data analysis.
+3).
 * calculate total number of wins, total number of games, total number of field goal attempt, total number of field goal made, total number of 3 points field goal attempt and total number of 3 points field goal made by team and season.
 * calculate average number of points, average number of assists and average number of turnovers by team and season.
 * revised the number of wins in strike season and COVID-19 season.
 * locate key variables at the first.
 * arrange all data by season year and number of wins.
+* calculate the rank in east or west conference by team and year
+* marked whether or not a team entered into the playoff in that year
 
-2.predict_df
-```{r}
+**2.predict_df**
+```{r,message=FALSE, warning=FALSE}
 predict_df = 
   avg_df %>%
   left_join(defend_df, by = c("season_year","team_abbreviation")) %>% 
@@ -239,10 +241,11 @@ predict_df =
   ) %>% 
   select(-poss_prr, -poss_prb, -wins, -games, -games_should, -fgm_total, -fga_total)
 ```
+The predict_df contain the average performance data with total number of games won in the last 8 years, which is used to build models and predict the number of winnings.
+Not only do we include the fundamental average stats like points, steals, blocks and turnovers from avg_df, but also we want to include playtype data and denfensive data in the model. Thus, we combine the avg_df with 6 other dataframes.
 
-
-3.box_score_viz
-```{r}
+**3.box_score_viz*
+```{r,message=FALSE, warning=FALSE}
 box_score_viz = 
   box_score_all %>% 
   filter(season_year %in% c("2011-12", "2012-13", "2013-14", "2014-15", "2015-16", "2016-17", "2017-18", "2018-19", "2019-20", "2020-21")) %>% 
@@ -279,8 +282,20 @@ box_score_viz =
          fg3p = fg3m / fg3a) %>% 
   relocate(season_year, team_abbreviation, conference, play_off_team)
 ```
+This dataframe contains 23476 observations in the last 8 years which is mainly used for analyzing the tendency of different stats between palyoff teams and non-playoff teams.
 
+To add the rank of a team, we joined it with the conf_rank in avg_df.
 
+**4,regre_df**
+```{r,message=FALSE, warning=FALSE}
+regre_df = 
+  box_score_all %>%
+  select(-c(1:7)) %>%
+  select(-ends_with("rank")) %>%
+  mutate(wl = recode(wl, "W" = 1, "L" = 0),
+         wl = as.factor(wl)) 
+```
+This dataframe contains stats per game, which is used for logistic regression. We exclude useless variables here and change win or lose to a factor variable.
 
 ## Data Description
 

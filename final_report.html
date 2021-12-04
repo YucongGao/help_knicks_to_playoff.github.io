@@ -442,7 +442,7 @@ div.tocify {
 drop_last_column = function(df) {
   df = df %&gt;% select(-names(df)[[length(names(df))]])
   return(df)}</code></pre>
-<p>Then, apply the function to each dataset we want, select the variables we want and save all of them to local. Here is one example, box_score_all.</p>
+<p>Then, apply the function to each dataset we want, select the variables we want and save all of them to local for tfurther use. Here is one example, box_score_all.</p>
 <pre class="r"><code>season_years = c(&quot;2020-21&quot;, &quot;2019-20&quot;, 
            &quot;2018-19&quot;, &quot;2017-18&quot;, 
            &quot;2016-17&quot;, &quot;2015-16&quot;, 
@@ -463,7 +463,38 @@ box_score_all = tibble(
   unnest(cols = box_score)
 
 write_csv(box_score_all, &quot;./data2/box_score_all.csv&quot;)</code></pre>
-<p>All the raw datasets are as following:</p>
+<p>Then, read them and select related variables. All the raw datasets are as following:</p>
+<pre class="r"><code>box_score_all = read_csv(&quot;./data2/box_score_all.csv&quot;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  select(-contains(&quot;rank&quot;))
+
+pass_df = 
+  read_csv(&quot;./data2/pass_df.csv&quot;) %&gt;% 
+  select(season_year, team_abbreviation, passes_made)
+
+isol_df = 
+  read_csv(&quot;./data2/isol_df.csv&quot;) %&gt;% 
+  select(season_year, team_abbreviation, poss) %&gt;% 
+  rename(poss_iso = poss)
+
+prbh_df = 
+  read_csv(&quot;./data2/prbh_df.csv&quot;) %&gt;% 
+  select(season_year, team_abbreviation, poss) %&gt;% 
+  rename(poss_prb = poss)
+
+prrm_df = 
+  read_csv(&quot;./data2/prrm_df.csv&quot;) %&gt;% 
+  select(season_year, team_abbreviation, poss) %&gt;% 
+  rename(poss_prr = poss)
+
+defend_df = 
+  read_csv(&quot;./data2/defensive_impact_df.csv&quot;) %&gt;% 
+  select(season_year, team_abbreviation, stl, blk, dreb)
+
+trans_df = 
+  read_csv(&quot;./data2/transition_df.csv&quot;) %&gt;% 
+  select(season_year, team_abbreviation, poss) %&gt;% 
+  rename(poss_trans = poss)</code></pre>
 <ul>
 <li>box_score_all: contains statistics in individual games. Totally 47830 observations in the last 20 years, Variables include win or lose, rebound, assist, three point shooting attempt and so on.</li>
 <li>passing_df: average of passes each game.</li>
@@ -473,11 +504,111 @@ write_csv(box_score_all, &quot;./data2/box_score_all.csv&quot;)</code></pre>
 <li>pick_roll_baller_df: average pick and roll for ball handler by team and season.</li>
 <li>pick_roll_roller_df: average pick and roll for roll man by team and season.</li>
 </ul>
-<p>After download these half raw dataset, we need to prepare four dataframe for exploring data analysis, fit regression model.</p>
-<p>1.avg_df As data in box_score_all is documented per game, we need to summarise it into total and average stats. Detailed wrangling process:</p>
+<p>After read these half raw dataset, we need to prepare four dataframes for exploring data analysis, fit regression model.</p>
+<p><strong>1.avg_df</strong></p>
+<pre class="r"><code>avg_df = 
+  box_score_all %&gt;% 
+  select(season_year, team_abbreviation, wl, pts, ast, tov, fgm, fga, fg3m, fg3a) %&gt;%
+  mutate(
+    win = case_when(wl == &quot;W&quot; ~ 1, TRUE~0),
+    game_num = 1,
+    fg3a_p = round(fg3a/fga, digits = 3),
+    team_abbreviation = str_replace(team_abbreviation, &quot;NOH&quot;, &quot;NOP&quot;), 
+    team_abbreviation = str_replace(team_abbreviation, &quot;NJN&quot;, &quot;BKN&quot;),
+    conference = case_when(
+      team_abbreviation %in% c(&quot;UTA&quot;,&quot;PHX&quot;,&quot;LAC&quot;,&quot;DEN&quot;,&quot;DAL&quot;,&quot;LAL&quot;,&quot;POR&quot;,&quot;GSW&quot;,&quot;SAS&quot;,&quot;MEM&quot;,&quot;NOP&quot;,&quot;SAC&quot;,&quot;MIN&quot;,&quot;OKC&quot;,&quot;HOU&quot;,&quot;SEA&quot;,&quot;NOK&quot;,&quot;CHH&quot;)~&quot;west&quot;,
+      team_abbreviation %in% c(&quot;PHI&quot;,&quot;BKN&quot;,&quot;MIL&quot;,&quot;ATL&quot;,&quot;NYK&quot;,&quot;MIA&quot;,&quot;BOS&quot;,&quot;IND&quot;,&quot;WAS&quot;,&quot;CHI&quot;,&quot;TOR&quot;,&quot;CLE&quot;,&quot;ORL&quot;,&quot;DET&quot;,&quot;CHA&quot;)~&quot;east&quot;) # divide into east and west conference
+    ) %&gt;% 
+  group_by(season_year, team_abbreviation, conference) %&gt;% 
+  summarise(
+    wins = sum(win), 
+    games = sum(game_num), 
+    games_should = 82, 
+    pts_avg = round(mean(pts), digits = 1), 
+    ast_avg = round(mean(ast), digits = 1),
+    tov_avg = round(mean(tov), digits = 1),
+    fgm_total = sum(fgm), 
+    fga_total = sum(fga), 
+    fg3m_total = sum(fg3m), 
+    fg3a_total = sum(fg3a)
+    ) %&gt;% 
+  mutate(wins_revised = round(wins/games*games_should,0)) %&gt;% # due to labor negotiation in 2011-12, COVID-19.
+  relocate(season_year, team_abbreviation, conference, wins, wins_revised, everything()) %&gt;% 
+  arrange(desc(season_year),desc(wins)) %&gt;% 
+  mutate(fg3_p = fg3a_total/fga_total, fg3_r = fg3m_total/fg3a_total) %&gt;% 
+  group_by(season_year,conference) %&gt;% 
+  mutate(
+    conf_rank = row_number(),
+    play_off_team = case_when(
+           conf_rank &lt;= 8 ~ &quot;playoff&quot;, 
+           conf_rank &gt; 8 ~ &quot;non-playoff&quot;
+         ), 
+         play_off_team = fct_relevel(play_off_team, c(&quot;playoff&quot;, &quot;non-playoff&quot;)))</code></pre>
+<p>The avg_df contains the number of wins by team and year in the last 20 years, which is used to analyse the distribution of threshold wins, and to further generate predict_df for regression. As data in box_score_all is documented by game, we need to summarise it into total and average stats. Detailed wrangling process:</p>
 <p>1).select the variables we are interested from box_score_all.</p>
 <p>2).define four new variables. * <code>win</code>: 1 means winning and 0 means lost. * <code>game_num</code>: constant 1 used to sum the number of games. * <code>fg3a_p</code>: the percentage of 3 point field goal attempt. * <code>conference</code>: west or east</p>
-<p>3).exploratory data analysis. * calculate total number of wins, total number of games, total number of field goal attempt, total number of field goal made, total number of 3 points field goal attempt and total number of 3 points field goal made by team and season. * calculate average number of points, average number of assists and average number of turnovers by team and season. * revised the number of wins in strike season and COVID-19 season. * locate key variables at the first. * arrange all data by season year and number of wins.</p>
+<p>3). * calculate total number of wins, total number of games, total number of field goal attempt, total number of field goal made, total number of 3 points field goal attempt and total number of 3 points field goal made by team and season. * calculate average number of points, average number of assists and average number of turnovers by team and season. * revised the number of wins in strike season and COVID-19 season. * locate key variables at the first. * arrange all data by season year and number of wins. * calculate the rank in east or west conference by team and year * marked whether or not a team entered into the playoff in that year</p>
+<p><strong>2.predict_df</strong></p>
+<pre class="r"><code>predict_df = 
+  avg_df %&gt;%
+  left_join(defend_df, by = c(&quot;season_year&quot;,&quot;team_abbreviation&quot;)) %&gt;% 
+  left_join(prrm_df, by = c(&quot;season_year&quot;,&quot;team_abbreviation&quot;)) %&gt;% 
+  left_join(prbh_df, by = c(&quot;season_year&quot;,&quot;team_abbreviation&quot;)) %&gt;%
+  left_join(isol_df, by = c(&quot;season_year&quot;,&quot;team_abbreviation&quot;)) %&gt;% 
+  left_join(pass_df, by = c(&quot;season_year&quot;,&quot;team_abbreviation&quot;)) %&gt;%
+  left_join(trans_df, by = c(&quot;season_year&quot;,&quot;team_abbreviation&quot;)) %&gt;% 
+  drop_na(poss_trans, passes_made, poss_iso, poss_prb, poss_prr, stl, blk, dreb) %&gt;% 
+  mutate(
+    poss_pr = poss_prr + poss_prb
+  ) %&gt;% 
+  select(-poss_prr, -poss_prb, -wins, -games, -games_should, -fgm_total, -fga_total)</code></pre>
+<p>The predict_df contain the average performance data with total number of games won in the last 8 years, which is used to build models and predict the number of winnings. Not only do we include the fundamental average stats like points, steals, blocks and turnovers from avg_df, but also we want to include playtype data and denfensive data in the model. Thus, we combine the avg_df with 6 other dataframes.</p>
+<p>**3.box_score_viz*</p>
+<pre class="r"><code>box_score_viz = 
+  box_score_all %&gt;% 
+  filter(season_year %in% c(&quot;2011-12&quot;, &quot;2012-13&quot;, &quot;2013-14&quot;, &quot;2014-15&quot;, &quot;2015-16&quot;, &quot;2016-17&quot;, &quot;2017-18&quot;, &quot;2018-19&quot;, &quot;2019-20&quot;, &quot;2020-21&quot;)) %&gt;% 
+  mutate(team_abbreviation = str_replace(team_abbreviation, &quot;NOH&quot;, &quot;NOP&quot;), 
+    team_abbreviation = str_replace(team_abbreviation, &quot;NJN&quot;, &quot;BKN&quot;)) %&gt;% 
+  select(season_year, team_abbreviation, wl, pts, ast, tov, fgm, fga, fg3m, fg3a, stl, blk, dreb) %&gt;%
+  mutate(
+    win = case_when(wl == &quot;W&quot; ~ 1, TRUE~0),
+    game_num = 1, 
+    conference = case_when(
+      team_abbreviation %in% c(&quot;UTA&quot;,&quot;PHX&quot;,&quot;LAC&quot;,&quot;DEN&quot;,&quot;DAL&quot;,&quot;LAL&quot;,&quot;POR&quot;,&quot;GSW&quot;,&quot;SAS&quot;,&quot;MEM&quot;,&quot;NOP&quot;,&quot;SAC&quot;,&quot;MIN&quot;,&quot;OKC&quot;,&quot;HOU&quot;,&quot;SEA&quot;,&quot;NOK&quot;,&quot;CHH&quot;)~&quot;west&quot;,
+      team_abbreviation %in% c(&quot;PHI&quot;,&quot;BKN&quot;,&quot;MIL&quot;,&quot;ATL&quot;,&quot;NYK&quot;,&quot;MIA&quot;,&quot;BOS&quot;,&quot;IND&quot;,&quot;WAS&quot;,&quot;CHI&quot;,&quot;TOR&quot;,&quot;CLE&quot;,&quot;ORL&quot;,&quot;DET&quot;,&quot;CHA&quot;)~&quot;east&quot;), # divide into east and west conference
+    fg3a_p = round(fg3a/fga, digits = 3),
+    fg3_r = round(fg3m/fg3a, digits = 3)
+    ) %&gt;% 
+  relocate(season_year, team_abbreviation, conference)
+
+conf_rank = 
+  avg_df %&gt;% 
+  filter(season_year %in% c(&quot;2011-12&quot;, &quot;2012-13&quot;, &quot;2013-14&quot;, &quot;2014-15&quot;, &quot;2015-16&quot;, &quot;2016-17&quot;, &quot;2017-18&quot;, &quot;2018-19&quot;, &quot;2019-20&quot;, &quot;2020-21&quot;)) %&gt;% 
+  ungroup() %&gt;% 
+  select(season_year, team_abbreviation, conference, conf_rank)
+
+
+#join the two table together
+box_score_viz = 
+  box_score_viz %&gt;% 
+  left_join(conf_rank, by = c(&quot;season_year&quot;, &quot;team_abbreviation&quot;, &quot;conference&quot;)) %&gt;% 
+  mutate(play_off_team = case_when(
+           conf_rank &lt;= 8 ~ &quot;playoff&quot;, 
+           conf_rank &gt; 8 ~ &quot;non-playoff&quot;
+         ), 
+         play_off_team = fct_relevel(play_off_team, c(&quot;playoff&quot;, &quot;non-playoff&quot;)), 
+         fg3p = fg3m / fg3a) %&gt;% 
+  relocate(season_year, team_abbreviation, conference, play_off_team)</code></pre>
+<p>This dataframe contains 23476 observations in the last 8 years which is mainly used for analyzing the tendency of different stats between palyoff teams and non-playoff teams.</p>
+<p>To add the rank of a team, we joined it with the conf_rank in avg_df.</p>
+<p><strong>4,regre_df</strong></p>
+<pre class="r"><code>regre_df = 
+  box_score_all %&gt;%
+  select(-c(1:7)) %&gt;%
+  select(-ends_with(&quot;rank&quot;)) %&gt;%
+  mutate(wl = recode(wl, &quot;W&quot; = 1, &quot;L&quot; = 0),
+         wl = as.factor(wl)) </code></pre>
+<p>This dataframe contains stats per game, which is used for logistic regression. We exclude useless variables here and change win or lose to a factor variable.</p>
 </div>
 <div id="data-description" class="section level2">
 <h2>Data Description</h2>
