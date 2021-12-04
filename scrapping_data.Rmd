@@ -1,6 +1,6 @@
 ---
 title: "data_scrapping"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -37,14 +37,15 @@ scrapping_data = function(url) {
 }
 
 drop_last_column = function(df) {
-  df = df %>% select(- names(df)[[length(names(df))]])
+  df = df %>% select(-names(df)[[length(names(df))]])
   return(df)
 }
 ```
 
 ## Box scores
-get data from 2001-02 season to 2020-21 season
-```{r, eval=FALSE}
+
+Get individual game statistics data from 2001-02 season to 2020-21 season
+```{r,eval=FALSE}
 season_years = c("2020-21", "2019-20", 
            "2018-19", "2017-18", 
            "2016-17", "2015-16", 
@@ -56,57 +57,40 @@ season_years = c("2020-21", "2019-20",
            "2004-05", "2003-04", 
            "2002-03", "2001-02")
 
-box_score_all = tibble(season_year = season_years)
-box_score_all = 
-  box_score_all %>% 
-  mutate(url = str_c("https://stats.nba.com/stats/teamgamelogs?DateFrom=&DateTo=&GameSegment=&LastNGames=0&LeagueID=00&Location=&MeasureType=Base&Month=0&OpponentTeamID=0&Outcome=&PORound=0&PaceAdjust=N&PerMode=Totals&Period=0&PlusMinus=N&Rank=N&Season=", season_year, "&SeasonSegment=&SeasonType=Regular+Season&ShotClockRange=&VsConference=&VsDivision=")) %>%
-  mutate(box_score = map(url, scrapping_data))
-
-```
-
-
-As the last column of each box score is NA, so we need to drop this column
-```{r, eval=FALSE}
-box_score_all = 
-  box_score_all %>% 
-  mutate(box_score = map(box_score, drop_last_column)) 
-
-box_score_all = 
-  box_score_all %>% 
+box_score_all = tibble(
+  season_year = season_years,
+  url = str_c("https://stats.nba.com/stats/teamgamelogs?DateFrom=&DateTo=&GameSegment=&LastNGames=0&LeagueID=00&Location=&MeasureType=Base&Month=0&OpponentTeamID=0&Outcome=&PORound=0&PaceAdjust=N&PerMode=Totals&Period=0&PlusMinus=N&Rank=N&Season=", season_year, "&SeasonSegment=&SeasonType=Regular+Season&ShotClockRange=&VsConference=&VsDivision="),
+  box_score = map(url, scrapping_data)) %>% 
+  mutate(box_score = map(box_score, drop_last_column)) %>% # last column of each box score is NA
   select(-season_year, -url) %>% 
   unnest(cols = box_score)
 ```
 
-
-
 ## Transition data
-```{r, eval=FALSE}
+
+Get average transition data of every team in the last 9 seasons.
+
+```{r,eval=FALSE}
 season_years = c(
   "2020-21", "2019-20", 
   "2018-19", "2017-18", 
   "2016-17", "2015-16", 
   "2014-15", "2013-14", "2012-13")
 
-transition_df = 
-  tibble(
-  season_year = season_years) %>% 
-  mutate(url = str_c("https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&PerMode=PerGame&PlayType=Transition&PlayerOrTeam=T&SeasonType=Regular+Season&SeasonYear=", season_year, "&TypeGrouping=offensive")) %>% 
-  mutate(transition = map(url, scrapping_data))
-
-```
-
-```{r, eval=FALSE}
-transition_df = 
-  transition_df %>% 
+transition_df = tibble(
+  season_year = season_years,
+  url = str_c("https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&PerMode=PerGame&PlayType=Transition&PlayerOrTeam=T&SeasonType=Regular+Season&SeasonYear=", season_year, "&TypeGrouping=offensive"),
+  transition = map(url, scrapping_data)) %>% 
   mutate(transition = map(transition, drop_last_column)) %>% 
   select(-season_year, -url) %>% 
   unnest(cols = transition)
-
 ```
 
 ## Isolation data
 
-```{r, eval=FALSE}
+Get average Isolation data of every team in the last 9 seasons.
+
+```{r,eval=FALSE}
 season_years = c(
   "2020-21", "2019-20", 
   "2018-19", "2017-18", 
@@ -115,19 +99,19 @@ season_years = c(
 
 isol_df = 
   tibble(
-  season_year = season_years) %>% 
-  mutate(url = str_c("https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&PerMode=PerGame&PlayType=Isolation&PlayerOrTeam=T&SeasonType=Regular+Season&SeasonYear=", season_year, "&TypeGrouping=offensive")) %>% 
-  mutate(isol = map(url, scrapping_data)) %>% 
+  season_year = season_years,
+  url = str_c("https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&PerMode=PerGame&PlayType=Isolation&PlayerOrTeam=T&SeasonType=Regular+Season&SeasonYear=", season_year, "&TypeGrouping=offensive"),
+  isol = map(url, scrapping_data)) %>% 
   mutate(isol = map(isol, drop_last_column)) %>% 
   select(-season_year, -url) %>% 
   unnest(cols = isol)
 ```
 
-
-
 ## pick and roll ball handler data
 
-```{r, eval=FALSE}
+Get average pick and roll ball handler data of every team in the last 9 seasons.
+
+```{r,eval=FALSE}
 season_years = c(
   "2020-21", "2019-20", 
   "2018-19", "2017-18", 
@@ -145,7 +129,10 @@ prbh_df =
 ```
 
 ## pick and roll roll man
-```{r, eval=FALSE}
+
+Get average pick and roll roll man data of every team in the last 9 seasons.
+
+```{r,eval=FALSE}
 season_years = c(
   "2020-21", "2019-20", 
   "2018-19", "2017-18", 
@@ -160,12 +147,13 @@ prrm_df =
   mutate(prrm = map(prrm, drop_last_column)) %>% 
   select(-season_year, -url) %>% 
   unnest(cols = prrm)
-
 ```
 
 ## Passing data
 
-```{r, eval=FALSE}
+Get average passing data of every team in the last 8 seasons.
+
+```{r,eval=FALSE}
 season_years = c(
   "2020-21", "2019-20", 
   "2018-19", "2017-18", 
@@ -180,11 +168,13 @@ pass_df =
   mutate(passing = map(passing, drop_last_column)) %>% 
   select(-season_year, -url) %>% 
   unnest(cols = passing)
-
 ```
 
 ## Defensive impact
-```{r, eval=FALSE}
+
+Get average defensive data of every team in the last 8 seasons.
+
+```{r,eval=FALSE}
 season_years = c(
   "2020-21", "2019-20", 
   "2018-19", "2017-18", 
@@ -201,11 +191,11 @@ defensive_impact_df =
   unnest(cols = defend)
 ```
 
-
-
-
 ## Shooting Log Data of Knicks
-```{r, eval=FALSE}
+
+Get the current up to date shooting location data of Knicks.
+
+```{r,eval=FALSE}
 url = "https://stats.nba.com/stats/shotchartdetail?AheadBehind=&CFID=155&CFPARAMS=2020-21&ClutchTime=&Conference=&ContextFilter=&ContextMeasure=FGA&DateFrom=&DateTo=&Division=&EndPeriod=10&EndRange=28800&GROUP_ID=&GameEventID=&GameID=&GameSegment=&GroupID=&GroupMode=&GroupQuantity=5&LastNGames=0&LeagueID=00&Location=&Month=0&OnOff=&OpponentTeamID=0&Outcome=&PORound=0&Period=0&PlayerID=0&PlayerID1=&PlayerID2=&PlayerID3=&PlayerID4=&PlayerID5=&PlayerPosition=&PointDiff=&Position=&RangeType=0&RookieYear=&Season=2020-21&SeasonSegment=&SeasonType=Regular+Season&ShotClockRange=&StartPeriod=1&StartRange=0&StarterBench=&TeamID=1610612752&VsConference=&VsDivision=&VsPlayerID1=&VsPlayerID2=&VsPlayerID3=&VsPlayerID4=&VsPlayerID5=&VsTeamID="
 
 shooting_log_df = 
@@ -214,12 +204,11 @@ shooting_log_df =
 
 ```
 
-
-
 ## Some data cleaning
 
 some datasets are without the column - season_year, for later analysis, we need to add this column
-```{r, eval=FALSE}
+
+```{r}
 add_season_year = function(season_years, df) {
   df = df %>% 
     mutate(season_year = season_years) %>% 
@@ -229,7 +218,7 @@ add_season_year = function(season_years, df) {
 }
 ```
 
-```{r, eval=FALSE}
+```{r,eval=FALSE}
 season_years =  c(replicate(30, "2020-21"), 
   replicate(30, "2019-20"), 
   replicate(30, "2018-19"), 
@@ -253,10 +242,24 @@ season_years_pass =  c(replicate(30, "2020-21"),
   replicate(30, "2015-16"), 
   replicate(30, "2014-15"), 
   replicate(30, "2013-14"))
-pass_df = add_season_year(season_years_pass, pass_df)
 
+pass_df = add_season_year(season_years_pass, pass_df)
 defensive_impact_df = add_season_year(season_years_pass, defensive_impact_df)
 
+```
+
+## Save to the local for further use
+
+Save dataset for further use.
+
+```{r,eval=FALSE}
+write_csv(box_score_all, "./data2/box_score_all.csv")
+write_csv(transition_df, "./data2/transition_df.csv")
+write_csv(isol_df, "./data2/isol_df.csv")
+write_csv(prbh_df, "./data2/prbh_df.csv")
+write_csv(prrm_df, "./data2/prrm_df.csv")
+write_csv(pass_df, "./data2/pass_df.csv")
+write_csv(defensive_impact_df, "./data2/defensive_impact_df.csv")
 ```
 
 

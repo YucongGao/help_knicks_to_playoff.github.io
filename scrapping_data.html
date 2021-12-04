@@ -410,13 +410,13 @@ div.tocify {
 }
 
 drop_last_column = function(df) {
-  df = df %&gt;% select(- names(df)[[length(names(df))]])
+  df = df %&gt;% select(-names(df)[[length(names(df))]])
   return(df)
 }</code></pre>
 </div>
 <div id="box-scores" class="section level2">
 <h2>Box scores</h2>
-<p>get data from 2001-02 season to 2020-21 season</p>
+<p>Get individual game statistics data from 2001-02 season to 2020-21 season</p>
 <pre class="r"><code>season_years = c(&quot;2020-21&quot;, &quot;2019-20&quot;, 
            &quot;2018-19&quot;, &quot;2017-18&quot;, 
            &quot;2016-17&quot;, &quot;2015-16&quot;, 
@@ -428,42 +428,34 @@ drop_last_column = function(df) {
            &quot;2004-05&quot;, &quot;2003-04&quot;, 
            &quot;2002-03&quot;, &quot;2001-02&quot;)
 
-box_score_all = tibble(season_year = season_years)
-box_score_all = 
-  box_score_all %&gt;% 
-  mutate(url = str_c(&quot;https://stats.nba.com/stats/teamgamelogs?DateFrom=&amp;DateTo=&amp;GameSegment=&amp;LastNGames=0&amp;LeagueID=00&amp;Location=&amp;MeasureType=Base&amp;Month=0&amp;OpponentTeamID=0&amp;Outcome=&amp;PORound=0&amp;PaceAdjust=N&amp;PerMode=Totals&amp;Period=0&amp;PlusMinus=N&amp;Rank=N&amp;Season=&quot;, season_year, &quot;&amp;SeasonSegment=&amp;SeasonType=Regular+Season&amp;ShotClockRange=&amp;VsConference=&amp;VsDivision=&quot;)) %&gt;%
-  mutate(box_score = map(url, scrapping_data))</code></pre>
-<p>As the last column of each box score is NA, so we need to drop this column</p>
-<pre class="r"><code>box_score_all = 
-  box_score_all %&gt;% 
-  mutate(box_score = map(box_score, drop_last_column)) 
-
-box_score_all = 
-  box_score_all %&gt;% 
+box_score_all = tibble(
+  season_year = season_years,
+  url = str_c(&quot;https://stats.nba.com/stats/teamgamelogs?DateFrom=&amp;DateTo=&amp;GameSegment=&amp;LastNGames=0&amp;LeagueID=00&amp;Location=&amp;MeasureType=Base&amp;Month=0&amp;OpponentTeamID=0&amp;Outcome=&amp;PORound=0&amp;PaceAdjust=N&amp;PerMode=Totals&amp;Period=0&amp;PlusMinus=N&amp;Rank=N&amp;Season=&quot;, season_year, &quot;&amp;SeasonSegment=&amp;SeasonType=Regular+Season&amp;ShotClockRange=&amp;VsConference=&amp;VsDivision=&quot;),
+  box_score = map(url, scrapping_data)) %&gt;% 
+  mutate(box_score = map(box_score, drop_last_column)) %&gt;% # last column of each box score is NA
   select(-season_year, -url) %&gt;% 
   unnest(cols = box_score)</code></pre>
 </div>
 <div id="transition-data" class="section level2">
 <h2>Transition data</h2>
+<p>Get average transition data of every team in the last 9 seasons.</p>
 <pre class="r"><code>season_years = c(
   &quot;2020-21&quot;, &quot;2019-20&quot;, 
   &quot;2018-19&quot;, &quot;2017-18&quot;, 
   &quot;2016-17&quot;, &quot;2015-16&quot;, 
   &quot;2014-15&quot;, &quot;2013-14&quot;, &quot;2012-13&quot;)
 
-transition_df = 
-  tibble(
-  season_year = season_years) %&gt;% 
-  mutate(url = str_c(&quot;https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&amp;PerMode=PerGame&amp;PlayType=Transition&amp;PlayerOrTeam=T&amp;SeasonType=Regular+Season&amp;SeasonYear=&quot;, season_year, &quot;&amp;TypeGrouping=offensive&quot;)) %&gt;% 
-  mutate(transition = map(url, scrapping_data))</code></pre>
-<pre class="r"><code>transition_df = 
-  transition_df %&gt;% 
+transition_df = tibble(
+  season_year = season_years,
+  url = str_c(&quot;https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&amp;PerMode=PerGame&amp;PlayType=Transition&amp;PlayerOrTeam=T&amp;SeasonType=Regular+Season&amp;SeasonYear=&quot;, season_year, &quot;&amp;TypeGrouping=offensive&quot;),
+  transition = map(url, scrapping_data)) %&gt;% 
   mutate(transition = map(transition, drop_last_column)) %&gt;% 
   select(-season_year, -url) %&gt;% 
   unnest(cols = transition)</code></pre>
 </div>
 <div id="isolation-data" class="section level2">
 <h2>Isolation data</h2>
+<p>Get average Isolation data of every team in the last 9 seasons.</p>
 <pre class="r"><code>season_years = c(
   &quot;2020-21&quot;, &quot;2019-20&quot;, 
   &quot;2018-19&quot;, &quot;2017-18&quot;, 
@@ -472,15 +464,16 @@ transition_df =
 
 isol_df = 
   tibble(
-  season_year = season_years) %&gt;% 
-  mutate(url = str_c(&quot;https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&amp;PerMode=PerGame&amp;PlayType=Isolation&amp;PlayerOrTeam=T&amp;SeasonType=Regular+Season&amp;SeasonYear=&quot;, season_year, &quot;&amp;TypeGrouping=offensive&quot;)) %&gt;% 
-  mutate(isol = map(url, scrapping_data)) %&gt;% 
+  season_year = season_years,
+  url = str_c(&quot;https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&amp;PerMode=PerGame&amp;PlayType=Isolation&amp;PlayerOrTeam=T&amp;SeasonType=Regular+Season&amp;SeasonYear=&quot;, season_year, &quot;&amp;TypeGrouping=offensive&quot;),
+  isol = map(url, scrapping_data)) %&gt;% 
   mutate(isol = map(isol, drop_last_column)) %&gt;% 
   select(-season_year, -url) %&gt;% 
   unnest(cols = isol)</code></pre>
 </div>
 <div id="pick-and-roll-ball-handler-data" class="section level2">
 <h2>pick and roll ball handler data</h2>
+<p>Get average pick and roll ball handler data of every team in the last 9 seasons.</p>
 <pre class="r"><code>season_years = c(
   &quot;2020-21&quot;, &quot;2019-20&quot;, 
   &quot;2018-19&quot;, &quot;2017-18&quot;, 
@@ -498,6 +491,7 @@ prbh_df =
 </div>
 <div id="pick-and-roll-roll-man" class="section level2">
 <h2>pick and roll roll man</h2>
+<p>Get average pick and roll roll man data of every team in the last 9 seasons.</p>
 <pre class="r"><code>season_years = c(
   &quot;2020-21&quot;, &quot;2019-20&quot;, 
   &quot;2018-19&quot;, &quot;2017-18&quot;, 
@@ -515,6 +509,7 @@ prrm_df =
 </div>
 <div id="passing-data" class="section level2">
 <h2>Passing data</h2>
+<p>Get average passing data of every team in the last 8 seasons.</p>
 <pre class="r"><code>season_years = c(
   &quot;2020-21&quot;, &quot;2019-20&quot;, 
   &quot;2018-19&quot;, &quot;2017-18&quot;, 
@@ -532,6 +527,7 @@ pass_df =
 </div>
 <div id="defensive-impact" class="section level2">
 <h2>Defensive impact</h2>
+<p>Get average defensive data of every team in the last 8 seasons.</p>
 <pre class="r"><code>season_years = c(
   &quot;2020-21&quot;, &quot;2019-20&quot;, 
   &quot;2018-19&quot;, &quot;2017-18&quot;, 
@@ -549,6 +545,7 @@ defensive_impact_df =
 </div>
 <div id="shooting-log-data-of-knicks" class="section level2">
 <h2>Shooting Log Data of Knicks</h2>
+<p>Get the current up to date shooting location data of Knicks.</p>
 <pre class="r"><code>url = &quot;https://stats.nba.com/stats/shotchartdetail?AheadBehind=&amp;CFID=155&amp;CFPARAMS=2020-21&amp;ClutchTime=&amp;Conference=&amp;ContextFilter=&amp;ContextMeasure=FGA&amp;DateFrom=&amp;DateTo=&amp;Division=&amp;EndPeriod=10&amp;EndRange=28800&amp;GROUP_ID=&amp;GameEventID=&amp;GameID=&amp;GameSegment=&amp;GroupID=&amp;GroupMode=&amp;GroupQuantity=5&amp;LastNGames=0&amp;LeagueID=00&amp;Location=&amp;Month=0&amp;OnOff=&amp;OpponentTeamID=0&amp;Outcome=&amp;PORound=0&amp;Period=0&amp;PlayerID=0&amp;PlayerID1=&amp;PlayerID2=&amp;PlayerID3=&amp;PlayerID4=&amp;PlayerID5=&amp;PlayerPosition=&amp;PointDiff=&amp;Position=&amp;RangeType=0&amp;RookieYear=&amp;Season=2020-21&amp;SeasonSegment=&amp;SeasonType=Regular+Season&amp;ShotClockRange=&amp;StartPeriod=1&amp;StartRange=0&amp;StarterBench=&amp;TeamID=1610612752&amp;VsConference=&amp;VsDivision=&amp;VsPlayerID1=&amp;VsPlayerID2=&amp;VsPlayerID3=&amp;VsPlayerID4=&amp;VsPlayerID5=&amp;VsTeamID=&quot;
 
 shooting_log_df = 
@@ -588,9 +585,20 @@ season_years_pass =  c(replicate(30, &quot;2020-21&quot;),
   replicate(30, &quot;2015-16&quot;), 
   replicate(30, &quot;2014-15&quot;), 
   replicate(30, &quot;2013-14&quot;))
-pass_df = add_season_year(season_years_pass, pass_df)
 
+pass_df = add_season_year(season_years_pass, pass_df)
 defensive_impact_df = add_season_year(season_years_pass, defensive_impact_df)</code></pre>
+</div>
+<div id="save-to-the-local-for-further-use" class="section level2">
+<h2>Save to the local for further use</h2>
+<p>Save dataset for further use.</p>
+<pre class="r"><code>write_csv(box_score_all, &quot;./data2/box_score_all.csv&quot;)
+write_csv(transition_df, &quot;./data2/transition_df.csv&quot;)
+write_csv(isol_df, &quot;./data2/isol_df.csv&quot;)
+write_csv(prbh_df, &quot;./data2/prbh_df.csv&quot;)
+write_csv(prrm_df, &quot;./data2/prrm_df.csv&quot;)
+write_csv(pass_df, &quot;./data2/pass_df.csv&quot;)
+write_csv(defensive_impact_df, &quot;./data2/defensive_impact_df.csv&quot;)</code></pre>
 </div>
 </div>
 
