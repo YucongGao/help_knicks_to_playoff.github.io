@@ -5,11 +5,17 @@ output: html_document
 
 ```{r setup, include=FALSE}
 library(tidyverse)
+library(patchwork)
+library(plotly)
+library(ggridges)
 
 knitr::opts_chunk$set(
-  fig.width = 6,
-  fig.asp = .6,
-  out.width = "90%"
+  fig.height = 6,
+  fig.width = 8,
+  message = F,
+  echo = T, 
+  warning = F, 
+  cache = F
 )
 
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
@@ -24,13 +30,13 @@ scale_fill_discrete = scale_fill_viridis_d
 ```
 
 
-# Motivation(Pictures, links and words refinement)
+## Motivation(Pictures, links and words refinement)
 
 As NBA fans, we are witnessing probably the greatest revolution ever on the court, which is called "Small ball era". Teams tend to use small and faster players instead of traditional giants to accelerate moving speed and improve shooting efficiency. 
 
 Last year, our favorite team Knicks returned to playoff season after eight years, which brought great joy to the fans. In order to make this performance long-lasting, we feel obligated to research the key variables that contribute to the winning so that help Knicks maintain existing strengths and make up for the disadvantages. The most obvious feature of the "small ball era" is the lifting of speed and the rise of 3 point shot attempt. In this way, we focus on offensive playtype and three-point related variables along with other factors to conduct our analysis.
 
-# Questions
+## Questions
 
 To ensure themselves into the playoff game, Knicks need to win enough games to become top eight in east conference. So at the very beginning, we are interested in exploring the distribution of the number of games won by NBA playoff teams to find the threshold number of wins to enter into the playoff. Then We want to figure out the contributors to total wins of a season and single win of a game. With the assumption that total wins are independent between each team and each year, and the result of a single game is independent of another, we used linear regression model to fit total wins with average performance predictors in both offensive and defensive parts. In addition, we would use our model to predict Knicks' performance in the new season of 2021-22 to see whether it can get into play-off season. Then according to the models we build, we analyzed the performance of Knicks on key predictors to see the gap between knicks and super teams. What's more, we deep dived these gaps from team level into player level and found how leading players should improve to get more wins. Finally, a detailed game and training strategy is proposed. 
 
@@ -48,9 +54,9 @@ To ensure themselves into the playoff game, Knicks need to win enough games to b
 5. What Knicks can do to improve its performance in other areas such as assistance, rebound, etc. to secure a place in play-off season?
 
 
-# Data 
+## Data 
 
-## Data Source
+### Data Source
 
 As our project needs detailed stats about NBA teams and players from last 10 seasons NBA regular season, we used scrapping to get official advanced data from [NBA Stats](https://www.nba.com/stats/). There are four datasets we mainly used:
 
@@ -64,7 +70,7 @@ As our project needs detailed stats about NBA teams and players from last 10 sea
 
 As I mentioned above, these data sets were scrapped from NBA website, the code to scrap data can be found at [scrapping data](scrapping_data.Rmd)
 
-## Data Wrangling(ref for scrapping) 
+### Data Wrangling(ref for scrapping) 
 
 First, the datasets in [NBA Stats](https://www.nba.com/stats/) don't have API, so we write a function to extract them using devtools.
 ```{r, eval=FALSE,message=FALSE,warning=FALSE}
@@ -297,17 +303,203 @@ regre_df =
 ```
 This dataframe contains stats per game, which is used for logistic regression. We exclude useless variables here and change win or lose to a factor variable.
 
-## Data Description
+### Data Description
 
 
-# Exploratory Analysis
+## Exploratory Analysis
 In this part, we explore that on which variables, there would be difference between teams that get into play-off season and teams that not. In this way, we can get some insight on choosing potential parameters for model building. Specifically, we identify the trend in three point attempt by time in the past 10 seasons
 
+### Difference in Score between Play-off Team and Regular Team
+Firstly, We wanted to look at how the scores of each play distributed in the last 10 seasons from the aspects of team which got into play-off season and team who didn't.From the figure below, team who got into the playoff season have higher score compared to team who did not get into playoff season. Moreover, in the last 10 regular seasons, score of each play display an increasing trend. 
+```{r}
+non_play_off = 
+  box_score_viz %>% 
+  filter(play_off_team == "non-playoff") 
+
+box_score_viz %>% 
+  filter(play_off_team == "playoff") %>% 
+  ggplot(aes(x = pts, y = season_year)) + 
+  geom_density_ridges(scale = .8, alpha = .5, fill = "blue", 
+                      quantile_lines = T, quantile_fun = mean) + 
+  geom_density_ridges(data = non_play_off, aes(x = pts, y = season_year), 
+                      scale = .8, alpha = .5, fill = "salmon", 
+                      quantile_lines = T, quantile_fun = mean) + 
+  scale_fill_manual(name = "Team", values = cols) + 
+  xlim(65, 140) + 
+  labs(x = "Scores", 
+       y = "Season Year", 
+       title = "Score Distribution Between Playoff and Regular Season Team")  
+
+```
+
+
+### Three Point Parameters {.tabset}
+
+Next, we use the Boxscore data and team average data to deep dive potential variables that contribute to the wining of plays. 
+
+It is clear that team who got into playoff season have more **three field goal attempt** during a game. On the other hand, we can see that the percentage of three field goal attempts in all filed goal attempt was increasing in the last 10 seasons, which corresponds to the phenomenon of "Small Ball Revolution" and our analysis that score of each play was increasing in last 10 regular seasons. In addition, teams who got into playoff season were more likely to score at three filed goal, 
+
+#### Three Field Goal Attempt Percent
+
+```{r, three field goal attempt percent}
+plot_ly(box_score_viz, x = ~ season_year, y = ~ fg3a_p, color = ~ play_off_team, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Three Field Goal Attempt Percent"))
+```
+
+#### Three Pointer Rate
+```{r, three pointer rate}
+plot_ly(box_score_viz, x = ~ season_year, y = ~ fg3p, color = ~ play_off_team, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Three Pointer Rate"))
+```
+
+### Offensive Play Type {.tabset}
+```{r, include=FALSE}
+play_tp_df = 
+  predict_df %>% 
+  select(season_year, team_abbreviation, conference, 
+         conf_rank, play_off_team, poss_iso, poss_trans, poss_pr)
+```
+
+
+#### Isolation
+```{r}
+play_tp_df %>% 
+  group_by(season_year, play_off_team) %>% 
+  summarise(iso_mean = mean(poss_iso)) %>% 
+  mutate(text_label = str_c("Team Type: ", play_off_team, 
+                            "\nAverage Isolation: ", round(iso_mean, 2))) %>% 
+  plot_ly(x = ~ season_year, y = ~ iso_mean, type = "bar",
+    color = ~ play_off_team, text = ~text_label, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Average Isolation"))
+```
+
+#### Pick and Roll
+
+```{r}
+play_tp_df %>% 
+  group_by(season_year, play_off_team) %>% 
+  summarise(pr_mean = mean(poss_pr)) %>% 
+  mutate(text_label = str_c("Team Type: ", play_off_team, 
+                            "\nAverage Pick and Roll: ", round(pr_mean, 2))) %>% 
+  plot_ly(x = ~ season_year, y = ~ pr_mean, type = "bar",
+    color = ~ play_off_team, text = ~text_label, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Average Pick and Roll"))
+```
+
+#### Transition
+```{r}
+play_tp_df %>% 
+  group_by(season_year, play_off_team) %>% 
+  summarise(trans_mean = mean(poss_trans)) %>% 
+  mutate(text_label = str_c("Team Type: ", play_off_team, 
+                            "\nAverage Transition: ", round(trans_mean, 2))) %>% 
+  plot_ly(x = ~ season_year, y = ~ trans_mean, type = "bar",
+    color = ~ play_off_team, text = ~text_label, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Average Transition"))
+```
 
 
 
-# Regression Related
+### Season Average Movement Parameters {.tabset}
 
-# Shiny App
 
-# Conclusion and Discussion
+```{r, include=FALSE}
+avg_viz_df = 
+  predict_df %>% 
+  left_join(conf_rank, by = c("season_year", "team_abbreviation", "conference")) %>% 
+  ungroup()
+```
+
+#### Block
+```{r}
+avg_viz_df %>% 
+  group_by(season_year, play_off_team) %>% 
+  summarise(blk_mean = mean(blk)) %>% 
+  mutate(text_label = str_c("Team Type: ", play_off_team, 
+                            "\nAverage Block: ", round(blk_mean, 2))) %>% 
+  plot_ly(x = ~ season_year, y = ~ blk_mean, type = "bar",
+    color = ~ play_off_team, text = ~text_label, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Average Steal"))
+```
+
+#### Steal
+```{r, Steal}
+avg_viz_df %>% 
+  group_by(season_year, play_off_team) %>% 
+  summarise(stl_mean = mean(stl)) %>% 
+  mutate(text_label = str_c("Team Type: ", play_off_team, 
+                            "\nAverage Steal: ", round(stl_mean, 2))) %>% 
+  plot_ly(x = ~ season_year, y = ~ stl_mean, type = "bar",
+    color = ~ play_off_team, text = ~text_label, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Average Steal"))
+
+
+
+```
+
+#### Turnover
+```{r}
+avg_viz_df %>% 
+  group_by(season_year, play_off_team) %>% 
+  summarise(tov_mean = mean(tov_avg)) %>% 
+  mutate(text_label = str_c("Team Type: ", play_off_team, 
+                            "\nAverage Turnover: ", round(tov_mean, 2))) %>% 
+  plot_ly(x = ~ season_year, y = ~ tov_mean, type = "bar",
+    color = ~ play_off_team, text = ~text_label, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Average Turnover"))
+```
+
+#### Defensive Rebound
+```{r}
+avg_viz_df %>% 
+  group_by(season_year, play_off_team) %>% 
+  summarise(dreb_mean = mean(dreb)) %>% 
+  mutate(text_label = str_c("Team Type: ", play_off_team, 
+                            "\nAverage Defensive Rebound: ", round(dreb_mean, 2))) %>% 
+  plot_ly(x = ~ season_year, y = ~ dreb_mean, type = "bar",
+    color = ~ play_off_team, text = ~text_label, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Average Turnover"))
+```
+
+#### Passes
+```{r}
+avg_viz_df %>% 
+  group_by(season_year, play_off_team) %>% 
+  summarise(passes_mean = mean(passes_made)) %>% 
+  mutate(text_label = str_c("Team Type: ", play_off_team, 
+                            "\nAverage Passes: ", round(passes_mean, 2))) %>% 
+  plot_ly(x = ~ season_year, y = ~ passes_mean, type = "bar",
+    color = ~ play_off_team, text = ~text_label, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Average Passes"))
+```
+
+
+
+
+## Regression Related
+
+
+
+## Shiny App
+
+## Conclusion and Discussion

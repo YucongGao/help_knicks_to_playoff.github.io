@@ -407,16 +407,16 @@ scale_fill_discrete = scale_fill_viridis_d</code></pre>
 <div id="data" class="section level2">
 <h2>Data</h2>
 <pre class="r"><code>box_score_all = read_csv(&quot;./data2/box_score_all.csv&quot;)</code></pre>
-<pre><code>## Rows: 47830 Columns: 56</code></pre>
-<pre><code>## -- Column specification --------------------------------------------------------
+<pre><code>## Rows: 47830 Columns: 30</code></pre>
+<pre><code>## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
 ## chr   (6): season_year, team_abbreviation, team_name, game_id, matchup, wl
-## dbl  (49): team_id, min, fgm, fga, fg_pct, fg3m, fg3a, fg3_pct, ftm, fta, ft...
+## dbl  (23): team_id, min, fgm, fga, fg_pct, fg3m, fg3a, fg3_pct, ftm, fta, ft...
 ## dttm  (1): game_date</code></pre>
 <pre><code>## 
-## i Use `spec()` to retrieve the full column specification for this data.
-## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<p>The box_score_all dataset contains 47830 games’ data from season 2012-2013 to season 2020-2021, which includes 56 variables. We are going to use some of them in the following exploratory data analysis.</p>
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<p>The box_score_all dataset contains 47830 games’ data from season 2012-2013 to season 2020-2021, which includes 30 variables. We are going to use some of them in the following exploratory data analysis.</p>
 </div>
 <div id="descriptive-statistics" class="section level2">
 <h2>Descriptive Statistics</h2>
