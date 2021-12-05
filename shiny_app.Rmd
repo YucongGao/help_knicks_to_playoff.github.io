@@ -75,72 +75,12 @@ box_score_all =
 
 
 ```{r, include=FALSE}
-add_season = function(seasons_id, seasons_year, file) {
-  nba_stat_df = read_csv(file)
-  nba_stat_df = 
-    nba_stat_df %>% 
-    mutate(season_id = seasons_id, 
-           season_year = seasons_year) %>% 
-    relocate(season_id, season_year)
-  
-  return(nba_stat_df)
-}
-
-seasons_id = 
-  c(replicate(30, "22020"), 
-  replicate(30, "22019"), 
-  replicate(30, "22018"), 
-  replicate(30, "22017"), 
-  replicate(30, "22016"), 
-  replicate(30, "22015"), 
-  replicate(30, "22014"), 
-  replicate(30, "22013"))
-
-seasons_year = 
-  c(replicate(30, "2020-21"), 
-  replicate(30, "2019-20"), 
-  replicate(30, "2018-19"), 
-  replicate(30, "2017-18"), 
-  replicate(30, "2016-17"), 
-  replicate(30, "2015-16"), 
-  replicate(30, "2014-15"), 
-  replicate(30, "2013-14"))
-
-
-defensive_impact_df = add_season(seasons_id, seasons_year, "./data/defensive_impact_12_21.csv")
-
-passing_df = add_season(seasons_id, seasons_year, "./data/passing_12_21.csv") 
-touches_df = add_season(seasons_id, seasons_year, "./data/touches_12_21.csv")
-drive_df = add_season(seasons_id, seasons_year, "./data/drives_12_21.csv")
-
-seasons_id_12_20 = 
-  c(replicate(30, "22020"), 
-  replicate(30, "22019"), 
-  replicate(30, "22018"), 
-  replicate(30, "22017"), 
-  replicate(30, "22016"), 
-  replicate(30, "22015"), 
-  replicate(30, "22014"), 
-  replicate(30, "22013"), 
-  replicate(30, "22012"))
-
-seasons_year_12_20 = 
-  c(replicate(30, "2020-21"), 
-  replicate(30, "2019-20"), 
-  replicate(30, "2018-19"), 
-  replicate(30, "2017-18"), 
-  replicate(30, "2016-17"), 
-  replicate(30, "2015-16"), 
-  replicate(30, "2014-15"), 
-  replicate(30, "2013-14"), 
-  replicate(30, "2012-13"))
-
-pullup_shooting_df = add_season(seasons_id_12_20, seasons_year_12_20, "./data/pullup_shooting_12_21.csv") 
-catch_and_shoot_df = add_season(seasons_id_12_20, seasons_year_12_20, "./data/catch_and_shoot_12_21.csv")
-isolation_df = add_season(seasons_id_12_20, seasons_year_12_20, "./data/isolation_12_21.csv")
-pick_roll_baller_df = add_season(seasons_id_12_20, seasons_year_12_20, "./data/prbh_12_21.csv")
-pick_roll_roller_df = add_season(seasons_id_12_20, seasons_year_12_20, "./data/prrm_12_21.csv")
-transition_df = add_season(seasons_id_12_20, seasons_year_12_20, "./data/transition_12_21.csv")
+defensive_impact_df = read_csv("./data2/defensive_impact_df.csv")
+passing_df = read_csv("./data2/pass_df.csv") 
+isolation_df = read_csv("./data2/isol_df.csv")
+pick_roll_baller_df = read_csv("./data2/prbh_df.csv")
+pick_roll_roller_df = read_csv("./data2/prrm_df.csv")
+transition_df = read_csv("./data2/transition_df.csv")
 
 trans_df = 
   transition_df %>% 
@@ -267,7 +207,7 @@ selectInput(
 Column {data-width=1000}
 -----------------------------------------------------------------------
 
-### Chart A
+### Average Play Data by Teams
 
 ```{r}
 renderPlotly({

@@ -37,12 +37,12 @@ scale_fill_discrete = scale_fill_viridis_d
 box_score_all = read_csv("./data2/box_score_all.csv")
 ```
 
-    ## Rows: 47830 Columns: 56
+    ## Rows: 47830 Columns: 30
 
     ## ── Column specification ────────────────────────────────────────────────────────
     ## Delimiter: ","
     ## chr   (6): season_year, team_abbreviation, team_name, game_id, matchup, wl
-    ## dbl  (49): team_id, min, fgm, fga, fg_pct, fg3m, fg3a, fg3_pct, ftm, fta, ft...
+    ## dbl  (23): team_id, min, fgm, fga, fg_pct, fg3m, fg3a, fg3_pct, ftm, fta, ft...
     ## dttm  (1): game_date
 
     ## 
@@ -50,7 +50,7 @@ box_score_all = read_csv("./data2/box_score_all.csv")
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 The box\_score\_all dataset contains 47830 games’ data from season
-2012-2013 to season 2020-2021, which includes 56 variables. We are going
+2012-2013 to season 2020-2021, which includes 30 variables. We are going
 to use some of them in the following exploratory data analysis.
 
 ## Descriptive Statistics
