@@ -333,7 +333,7 @@ box_score_viz %>%
 ```
 
 
-### Related Variables Per Game {.tabset}
+### Three Point Parameters {.tabset}
 
 Next, we use the Boxscore data and team average data to deep dive potential variables that contribute to the wining of plays. 
 
@@ -358,44 +358,67 @@ plot_ly(box_score_viz, x = ~ season_year, y = ~ fg3p, color = ~ play_off_team, t
          yaxis = list(title = "Three Pointer Rate"))
 ```
 
+### Season Average Parameters {.tabset}
+
+```{r}
+avg_viz_df = 
+  predict_df %>% 
+  left_join(conf_rank, by = c("season_year", "team_abbreviation", "conference")) %>% 
+  ungroup()
+```
+
 #### Steal
 ```{r, Steal}
-plot_ly(box_score_viz, x = ~ season_year, y = ~ stl, color = ~ play_off_team, type = "box") %>% 
-  layout(boxmode = "group", 
-         xaxis = list(title = 'Season Year'),
-         yaxis = list(title = "Steal"))
+avg_viz_df %>% 
+  mutate(text_label = str_c("Team: ", team_abbreviation, "\nAverage Steal: ", stl)) %>% 
+  plot_ly(x = ~ season_year, y = ~ stl, type = "scatter", mode = "markers",
+    color = ~ play_off_team, text = ~text_label) %>% 
+  layout(xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Average Steal"))
+  
 ```
 
 #### Block
 ```{r}
-plot_ly(box_score_viz, x = ~ season_year, y = ~ blk, color = ~ play_off_team, type = "box") %>% 
-  layout(boxmode = "group", 
-         xaxis = list(title = 'Season Year'),
-         yaxis = list(title = "Block"))
+avg_viz_df %>% 
+  mutate(text_label = str_c("Team: ", team_abbreviation, "\nAverage Block: ", blk)) %>% 
+  plot_ly(x = ~ season_year, y = ~ blk, type = "scatter", mode = "markers",
+    color = ~ play_off_team, text = ~text_label) %>% 
+  layout(xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Average Block"))
 ```
 
 #### Turnover
 ```{r}
-plot_ly(box_score_viz, x = ~ season_year, y = ~ tov, color = ~ play_off_team, type = "box") %>% 
-  layout(boxmode = "group", 
-         xaxis = list(title = 'Season Year'),
-         yaxis = list(title = "Turnover"))
+
 ```
 
 #### Defensive Rebound
 ```{r}
-plot_ly(box_score_viz, x = ~ season_year, y = ~ dreb, color = ~ play_off_team, type = "box") %>% 
-  layout(boxmode = "group", 
-         xaxis = list(title = 'Season Year'),
-         yaxis = list(title = "Defensive Rebounds"))
+
 ```
 
 ```{r}
 steal = 
   box_score_viz %>% 
   select(season_year, team_abbreviation, conference, play_off_team, stl) %>% 
-  group_by(stl) %>% 
-  summarise(obs = n())
+  group_by(stl, play_off_team) %>% 
+  summarise(obs = n()) %>% 
+  ungroup() %>% 
+  mutate(stl = case_when(
+    stl >= 0 & stl < 5 ~ "0-4", 
+    stl>=5 & stl<10 ~ "5-9", 
+    stl>=10 & stl<15  ~ "10-14", 
+    stl>=15 & stl<20  ~ "15-19", 
+    stl>=20 ~ "above 20"
+  )) %>% 
+  mutate(
+    stl = fct_relevel(stl, c("0-4", "5-9", "10-14", "15-19", "above 20"))
+  )
+
+steal %>% 
+  ggplot(aes(x = stl, y = obs, fill = play_off_team)) + 
+  geom_bar(stat = "identity", position = 'dodge')
 ```
 
 
