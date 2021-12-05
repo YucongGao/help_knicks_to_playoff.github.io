@@ -449,7 +449,7 @@ div.tocify {
 drop_last_column = function(df) {
   df = df %&gt;% select(-names(df)[[length(names(df))]])
   return(df)}</code></pre>
-<p>Then, apply the function to each dataset we want, select the variables we want and save all of them to local. Here is one example, box_score_all.</p>
+<p>Then, apply the function to each dataset we want, select the variables we want and save all of them to local for tfurther use. Here is one example, box_score_all.</p>
 <pre class="r"><code>season_years = c(&quot;2020-21&quot;, &quot;2019-20&quot;, 
            &quot;2018-19&quot;, &quot;2017-18&quot;, 
            &quot;2016-17&quot;, &quot;2015-16&quot;, 
@@ -512,7 +512,11 @@ trans_df =
 <li>pick_roll_roller_df: average pick and roll for roll man by team and season.</li>
 </ul>
 <p>After read these half raw dataset, we need to prepare four dataframes for exploring data analysis, fit regression model.</p>
+<<<<<<< HEAD
 <p>1.avg_df</p>
+=======
+<p><strong>1.avg_df</strong></p>
+>>>>>>> e4328fb97469b6a290280db566ef0aa36372174a
 <pre class="r"><code>avg_df = 
   box_score_all %&gt;% 
   select(season_year, team_abbreviation, wl, pts, ast, tov, fgm, fga, fg3m, fg3a) %&gt;%
@@ -551,11 +555,19 @@ trans_df =
            conf_rank &gt; 8 ~ &quot;non-playoff&quot;
          ), 
          play_off_team = fct_relevel(play_off_team, c(&quot;playoff&quot;, &quot;non-playoff&quot;)))</code></pre>
+<<<<<<< HEAD
 <p>As data in box_score_all is documented per game, we need to summarise it into total and average stats. Detailed wrangling process:</p>
 <p>1).select the variables we are interested from box_score_all.</p>
 <p>2).define four new variables. * <code>win</code>: 1 means winning and 0 means lost. * <code>game_num</code>: constant 1 used to sum the number of games. * <code>fg3a_p</code>: the percentage of 3 point field goal attempt. * <code>conference</code>: west or east</p>
 <p>3).exploratory data analysis. * calculate total number of wins, total number of games, total number of field goal attempt, total number of field goal made, total number of 3 points field goal attempt and total number of 3 points field goal made by team and season. * calculate average number of points, average number of assists and average number of turnovers by team and season. * revised the number of wins in strike season and COVID-19 season. * locate key variables at the first. * arrange all data by season year and number of wins.</p>
 <p>2.predict_df</p>
+=======
+<p>The avg_df contains the number of wins by team and year in the last 20 years, which is used to analyse the distribution of threshold wins, and to further generate predict_df for regression. As data in box_score_all is documented by game, we need to summarise it into total and average stats. Detailed wrangling process:</p>
+<p>1).select the variables we are interested from box_score_all.</p>
+<p>2).define four new variables. * <code>win</code>: 1 means winning and 0 means lost. * <code>game_num</code>: constant 1 used to sum the number of games. * <code>fg3a_p</code>: the percentage of 3 point field goal attempt. * <code>conference</code>: west or east</p>
+<p>3). * calculate total number of wins, total number of games, total number of field goal attempt, total number of field goal made, total number of 3 points field goal attempt and total number of 3 points field goal made by team and season. * calculate average number of points, average number of assists and average number of turnovers by team and season. * revised the number of wins in strike season and COVID-19 season. * locate key variables at the first. * arrange all data by season year and number of wins. * calculate the rank in east or west conference by team and year * marked whether or not a team entered into the playoff in that year</p>
+<p><strong>2.predict_df</strong></p>
+>>>>>>> e4328fb97469b6a290280db566ef0aa36372174a
 <pre class="r"><code>predict_df = 
   avg_df %&gt;%
   left_join(defend_df, by = c(&quot;season_year&quot;,&quot;team_abbreviation&quot;)) %&gt;% 
@@ -569,7 +581,12 @@ trans_df =
     poss_pr = poss_prr + poss_prb
   ) %&gt;% 
   select(-poss_prr, -poss_prb, -wins, -games, -games_should, -fgm_total, -fga_total)</code></pre>
+<<<<<<< HEAD
 <p>3.box_score_viz</p>
+=======
+<p>The predict_df contain the average performance data with total number of games won in the last 8 years, which is used to build models and predict the number of winnings. Not only do we include the fundamental average stats like points, steals, blocks and turnovers from avg_df, but also we want to include playtype data and denfensive data in the model. Thus, we combine the avg_df with 6 other dataframes.</p>
+<p>**3.box_score_viz*</p>
+>>>>>>> e4328fb97469b6a290280db566ef0aa36372174a
 <pre class="r"><code>box_score_viz = 
   box_score_all %&gt;% 
   filter(season_year %in% c(&quot;2011-12&quot;, &quot;2012-13&quot;, &quot;2013-14&quot;, &quot;2014-15&quot;, &quot;2015-16&quot;, &quot;2016-17&quot;, &quot;2017-18&quot;, &quot;2018-19&quot;, &quot;2019-20&quot;, &quot;2020-21&quot;)) %&gt;% 
@@ -605,6 +622,19 @@ box_score_viz =
          play_off_team = fct_relevel(play_off_team, c(&quot;playoff&quot;, &quot;non-playoff&quot;)), 
          fg3p = fg3m / fg3a) %&gt;% 
   relocate(season_year, team_abbreviation, conference, play_off_team)</code></pre>
+<<<<<<< HEAD
+=======
+<p>This dataframe contains 23476 observations in the last 8 years which is mainly used for analyzing the tendency of different stats between palyoff teams and non-playoff teams.</p>
+<p>To add the rank of a team, we joined it with the conf_rank in avg_df.</p>
+<p><strong>4,regre_df</strong></p>
+<pre class="r"><code>regre_df = 
+  box_score_all %&gt;%
+  select(-c(1:7)) %&gt;%
+  select(-ends_with(&quot;rank&quot;)) %&gt;%
+  mutate(wl = recode(wl, &quot;W&quot; = 1, &quot;L&quot; = 0),
+         wl = as.factor(wl)) </code></pre>
+<p>This dataframe contains stats per game, which is used for logistic regression. We exclude useless variables here and change win or lose to a factor variable.</p>
+>>>>>>> e4328fb97469b6a290280db566ef0aa36372174a
 </div>
 <div id="data-description" class="section level2">
 <h2>Data Description</h2>
