@@ -5,11 +5,17 @@ output: html_document
 
 ```{r setup, include=FALSE}
 library(tidyverse)
+library(patchwork)
+library(plotly)
+library(ggridges)
 
 knitr::opts_chunk$set(
-  fig.width = 6,
-  fig.asp = .6,
-  out.width = "90%"
+  fig.height = 6,
+  fig.width = 8,
+  message = F,
+  echo = T, 
+  warning = F, 
+  cache = F
 )
 
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
@@ -24,37 +30,39 @@ scale_fill_discrete = scale_fill_viridis_d
 ```
 
 
-# Motivation
+# Motivation(Pictures, links and words refinement)
 
-As Knicks fans, we are witnessing probably the greatest revolution ever on the court, which is called "Small ball era". Teams tend to use small and faster players instead of traditional giants to accelerate moving speed and improve shooting efficiency. 
+As NBA fans, we are witnessing probably the greatest revolution ever on the court, which is called "Small ball era". Teams tend to use small and faster players instead of traditional giants to accelerate moving speed and improve shooting efficiency. 
 
-Last year, the Knicks returned to playoff season after eight years, which brought great joy to the fans. In order to make this performance long-lasting, we feel obligated to research the key variables that contribute to the winning of a game, to help Knicks maintain existing strengths and make up for the disadvantages. The most obvious feature of the "small ball era" is the rise of 3 point shot attempt. In this way, we focus on three-point related variables along with other factors to conduct our analysis. 
+Last year, our favorite team Knicks returned to playoff season after eight years, which brought great joy to the fans. In order to make this performance long-lasting, we feel obligated to research the key variables that contribute to the winning so that help Knicks maintain existing strengths and make up for the disadvantages. The most obvious feature of the "small ball era" is the lifting of speed and the rise of 3 point shot attempt. In this way, we focus on offensive playtype and three-point related variables along with other factors to conduct our analysis.
 
 # Questions
 
-Our questions are based on data from last 10 NBA regular seasons, from 2011-12 season to 2020-2021 season.
+To ensure themselves into the playoff game, Knicks need to win enough games to become top eight in east conference. So at the very beginning, we are interested in exploring the distribution of the number of games won by NBA playoff teams to find the threshold number of wins to enter into the playoff. Then We want to figure out the contributors to total wins of a season and single win of a game. With the assumption that total wins are independent between each team and each year, and the result of a single game is independent of another, we used linear regression model to fit total wins with average performance predictors in both offensive and defensive parts. In addition, we would use our model to predict Knicks' performance in the new season of 2021-22 to see whether it can get into play-off season. Then according to the models we build, we analyzed the performance of Knicks on key predictors to see the gap between knicks and super teams. What's more, we deep dived these gaps from team level into player level and found how leading players should improve to get more wins. Finally, a detailed game and training strategy is proposed. 
 
-The First analysis is to explore the relationship between wining (number of wining, score in each game) in regular season with potential factors. In addition, we would use our model to predict Knicks' performance in the new season of 2021-22 to see whether it can get into play-off season. And we wanted to visualize Knicks' game data (especially three-point shooting data) to see its strengths and weakness. Our analysis mainly address the following questions:
+1. What is the threshold number of wins to enter playoff?
 
-1. What variables contribute to the wining of NBA teams, how they impact the game result? <br>
+2. What variables contribute to the total wins of a season, how they impact a single game result? <br>
 
-2. If using the model we built to predict the ranking of Knicks in new season, will it get into play-off season? 
+3. If using the model we built to predict the ranking of Knicks with data in this new season, will it get into play-off? 
 
-3. How is the Knicks' three shooting performance different from the league average? Are there any obvious weakness in three point shooting?
+4. What is the difference in performance between Knicks and league average?
 
-4. What Knicks can do to improve its performance in other areas such as assistance, rebound, etc. to secure a place in play-off season?
+1).How is the Knicks' three shooting performance different from the league average? 
+2).Are there any obvious weakness in three point shooting?
 
+5. What Knicks can do to improve its performance in other areas such as assistance, rebound, etc. to secure a place in play-off season?
 
 
 # Data 
 
 ## Data Source
 
-As our project is based on data from last 10 seasons NBA regular season, we used scrapping to get data from [NBA Stats](https://www.nba.com/stats/), there are three data sest we mainly used:
+As our project needs detailed stats about NBA teams and players from last 10 seasons NBA regular season, we used scrapping to get official advanced data from [NBA Stats](https://www.nba.com/stats/). There are four datasets we mainly used:
 
 1. [Advanced Box Score](https://www.nba.com/stats/teams/boxscores-advanced/): In this data set, each observation represent a game and the specific data in this game, which contains the score, total field goal attempt, three point made and so on. 
 
-2. [Playtype by Team](https://www.nba.com/stats/teams/transition/): this data set contains average data for each team in the aspect of offensive play type, such as isolation, pick and roll, ect. Each observation represent the team average data in a regular season with respect to a specific play type. 
+2. [Playtype by Team](https://www.nba.com/stats/teams/transition/): this data set contains average data for each team of a season in the aspect of offensive play type, such as isolation, pick and roll, ect. Each observation represent the team average data in a regular season with respect to a specific play type. 
 
 3. [Tracking](https://www.nba.com/stats/teams/drives/): this data set contains detailed information about NBA teams' average movement data in a regular season, for example, passing, touches. 
 
@@ -62,13 +70,318 @@ As our project is based on data from last 10 seasons NBA regular season, we used
 
 As I mentioned above, these data sets were scrapped from NBA website, the code to scrap data can be found at [scrapping data](scrapping_data.Rmd)
 
-## Data Wrangling
+## Data Wrangling(ref for scrapping)
+
+First, the datasets in [NBA Stats](https://www.nba.com/stats/) don't have API, so we write a function to extract them using devtools.
+```{r, eval=FALSE}
+scrapping_data = function(url) {
+  headers = headers = c(
+  `Connection` = 'keep-alive',
+  `Accept` = 'application/json, text/plain, */*',
+  `x-nba-stats-token` = 'true',
+  `X-NewRelic-ID` = 'VQECWF5UChAHUlNTBwgBVw==',
+  `User-Agent` = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36', 
+  `x-nba-stats-origin` = 'stats',
+  `Sec-Fetch-Site` = 'same-origin',
+  `Sec-Fetch-Mode` = 'cors',
+  `Referer` = 'https://stats.nba.com/players/leaguedashplayerbiostats/',
+  `Accept-Encoding` = 'gzip, deflate, br',
+  `Accept-Language` = 'en-US,en;q=0.9')
+  response = GET(url, add_headers(headers))
+  data = fromJSON(content(response, as = "text"))
+  df = data.frame(data$resultSets$rowSet[[1]], stringAsFactors = FALSE)
+  names(df) = tolower(data$resultSets$headers[[1]])
+  return(df)
+}
+
+drop_last_column = function(df) {
+  df = df %>% select(-names(df)[[length(names(df))]])
+  return(df)}
+```
+
+Then, apply the function to each dataset we want, select the variables we want and save all of them to local. Here is one example, box_score_all.
+```{r, eval=FALSE}
+season_years = c("2020-21", "2019-20", 
+           "2018-19", "2017-18", 
+           "2016-17", "2015-16", 
+           "2014-15", "2013-14", 
+           "2012-13", "2011-12", 
+           "2010-11", "2009-10", 
+           "2008-09", "2007-08", 
+           "2006-07", "2005-06", 
+           "2004-05", "2003-04", 
+           "2002-03", "2001-02")
+
+box_score_all = tibble(
+  season_year = season_years,
+  url = str_c("https://stats.nba.com/stats/teamgamelogs?DateFrom=&DateTo=&GameSegment=&LastNGames=0&LeagueID=00&Location=&MeasureType=Base&Month=0&OpponentTeamID=0&Outcome=&PORound=0&PaceAdjust=N&PerMode=Totals&Period=0&PlusMinus=N&Rank=N&Season=", season_year, "&SeasonSegment=&SeasonType=Regular+Season&ShotClockRange=&VsConference=&VsDivision="),
+  box_score = map(url, scrapping_data)) %>% 
+  mutate(box_score = map(box_score, drop_last_column)) %>% # last column of each box score is NA
+  select(-season_year, -url) %>% 
+  unnest(cols = box_score)
+
+write_csv(box_score_all, "./data2/box_score_all.csv")
+```
+
+Then, read them and select related variables. All the raw datasets are as following:
+
+```{r}
+box_score_all = read_csv("./data2/box_score_all.csv") %>% 
+  janitor::clean_names() %>% 
+  select(-contains("rank"))
+
+pass_df = 
+  read_csv("./data2/pass_df.csv") %>% 
+  select(season_year, team_abbreviation, passes_made)
+
+isol_df = 
+  read_csv("./data2/isol_df.csv") %>% 
+  select(season_year, team_abbreviation, poss) %>% 
+  rename(poss_iso = poss)
+
+prbh_df = 
+  read_csv("./data2/prbh_df.csv") %>% 
+  select(season_year, team_abbreviation, poss) %>% 
+  rename(poss_prb = poss)
+
+prrm_df = 
+  read_csv("./data2/prrm_df.csv") %>% 
+  select(season_year, team_abbreviation, poss) %>% 
+  rename(poss_prr = poss)
+
+defend_df = 
+  read_csv("./data2/defensive_impact_df.csv") %>% 
+  select(season_year, team_abbreviation, stl, blk, dreb)
+
+trans_df = 
+  read_csv("./data2/transition_df.csv") %>% 
+  select(season_year, team_abbreviation, poss) %>% 
+  rename(poss_trans = poss)
+```
+
+
+* box_score_all: contains statistics in individual games. Totally 47830 observations in the last 20 years, Variables include win or lose, rebound, assist, three point shooting attempt and so on.
+* passing_df: average of passes each game.
+* defensive_impact_df: contain average defensive variables each game by team and season.
+* isolation_df: average isolation times each game by team and season.
+* transition_df: average transition times each game by team and season.
+* pick_roll_baller_df: average pick and roll for ball handler by team and season.
+* pick_roll_roller_df: average pick and roll for roll man by team and season.
+
+After read these half raw dataset, we need to prepare four dataframes for exploring data analysis, fit regression model.
+
+1.avg_df
+```{r,message=FALSE, warning=FALSE}
+avg_df = 
+  box_score_all %>% 
+  select(season_year, team_abbreviation, wl, pts, ast, tov, fgm, fga, fg3m, fg3a) %>%
+  mutate(
+    win = case_when(wl == "W" ~ 1, TRUE~0),
+    game_num = 1,
+    fg3a_p = round(fg3a/fga, digits = 3),
+    team_abbreviation = str_replace(team_abbreviation, "NOH", "NOP"), 
+    team_abbreviation = str_replace(team_abbreviation, "NJN", "BKN"),
+    conference = case_when(
+      team_abbreviation %in% c("UTA","PHX","LAC","DEN","DAL","LAL","POR","GSW","SAS","MEM","NOP","SAC","MIN","OKC","HOU","SEA","NOK","CHH")~"west",
+      team_abbreviation %in% c("PHI","BKN","MIL","ATL","NYK","MIA","BOS","IND","WAS","CHI","TOR","CLE","ORL","DET","CHA")~"east") # divide into east and west conference
+    ) %>% 
+  group_by(season_year, team_abbreviation, conference) %>% 
+  summarise(
+    wins = sum(win), 
+    games = sum(game_num), 
+    games_should = 82, 
+    pts_avg = round(mean(pts), digits = 1), 
+    ast_avg = round(mean(ast), digits = 1),
+    tov_avg = round(mean(tov), digits = 1),
+    fgm_total = sum(fgm), 
+    fga_total = sum(fga), 
+    fg3m_total = sum(fg3m), 
+    fg3a_total = sum(fg3a)
+    ) %>% 
+  mutate(wins_revised = round(wins/games*games_should,0)) %>% # due to labor negotiation in 2011-12, COVID-19.
+  relocate(season_year, team_abbreviation, conference, wins, wins_revised, everything()) %>% 
+  arrange(desc(season_year),desc(wins)) %>% 
+  mutate(fg3_p = fg3a_total/fga_total, fg3_r = fg3m_total/fg3a_total) %>% 
+  group_by(season_year,conference) %>% 
+  mutate(
+    conf_rank = row_number(),
+    play_off_team = case_when(
+           conf_rank <= 8 ~ "playoff", 
+           conf_rank > 8 ~ "non-playoff"
+         ), 
+         play_off_team = fct_relevel(play_off_team, c("playoff", "non-playoff")))
+```
+
+As data in box_score_all is documented per game, we need to summarise it into total and average stats. Detailed wrangling process:
+
+1).select the variables we are interested from box_score_all.
+
+2).define four new variables. 
+* `win`: 1 means winning and 0 means lost.
+* `game_num`: constant 1 used to sum the number of games.
+* `fg3a_p`: the percentage of 3 point field goal attempt.
+* `conference`: west or east
+
+3).exploratory data analysis.
+* calculate total number of wins, total number of games, total number of field goal attempt, total number of field goal made, total number of 3 points field goal attempt and total number of 3 points field goal made by team and season.
+* calculate average number of points, average number of assists and average number of turnovers by team and season.
+* revised the number of wins in strike season and COVID-19 season.
+* locate key variables at the first.
+* arrange all data by season year and number of wins.
+
+2.predict_df
+```{r}
+predict_df = 
+  avg_df %>%
+  left_join(defend_df, by = c("season_year","team_abbreviation")) %>% 
+  left_join(prrm_df, by = c("season_year","team_abbreviation")) %>% 
+  left_join(prbh_df, by = c("season_year","team_abbreviation")) %>%
+  left_join(isol_df, by = c("season_year","team_abbreviation")) %>% 
+  left_join(pass_df, by = c("season_year","team_abbreviation")) %>%
+  left_join(trans_df, by = c("season_year","team_abbreviation")) %>% 
+  drop_na(poss_trans, passes_made, poss_iso, poss_prb, poss_prr, stl, blk, dreb) %>% 
+  mutate(
+    poss_pr = poss_prr + poss_prb
+  ) %>% 
+  select(-poss_prr, -poss_prb, -wins, -games, -games_should, -fgm_total, -fga_total)
+```
+
+
+3.box_score_viz
+```{r}
+box_score_viz = 
+  box_score_all %>% 
+  filter(season_year %in% c("2011-12", "2012-13", "2013-14", "2014-15", "2015-16", "2016-17", "2017-18", "2018-19", "2019-20", "2020-21")) %>% 
+  mutate(team_abbreviation = str_replace(team_abbreviation, "NOH", "NOP"), 
+    team_abbreviation = str_replace(team_abbreviation, "NJN", "BKN")) %>% 
+  select(season_year, team_abbreviation, wl, pts, ast, tov, fgm, fga, fg3m, fg3a, stl, blk, dreb) %>%
+  mutate(
+    win = case_when(wl == "W" ~ 1, TRUE~0),
+    game_num = 1, 
+    conference = case_when(
+      team_abbreviation %in% c("UTA","PHX","LAC","DEN","DAL","LAL","POR","GSW","SAS","MEM","NOP","SAC","MIN","OKC","HOU","SEA","NOK","CHH")~"west",
+      team_abbreviation %in% c("PHI","BKN","MIL","ATL","NYK","MIA","BOS","IND","WAS","CHI","TOR","CLE","ORL","DET","CHA")~"east"), # divide into east and west conference
+    fg3a_p = round(fg3a/fga, digits = 3),
+    fg3_r = round(fg3m/fg3a, digits = 3)
+    ) %>% 
+  relocate(season_year, team_abbreviation, conference)
+
+conf_rank = 
+  avg_df %>% 
+  filter(season_year %in% c("2011-12", "2012-13", "2013-14", "2014-15", "2015-16", "2016-17", "2017-18", "2018-19", "2019-20", "2020-21")) %>% 
+  ungroup() %>% 
+  select(season_year, team_abbreviation, conference, conf_rank)
+
+
+#join the two table together
+box_score_viz = 
+  box_score_viz %>% 
+  left_join(conf_rank, by = c("season_year", "team_abbreviation", "conference")) %>% 
+  mutate(play_off_team = case_when(
+           conf_rank <= 8 ~ "playoff", 
+           conf_rank > 8 ~ "non-playoff"
+         ), 
+         play_off_team = fct_relevel(play_off_team, c("playoff", "non-playoff")), 
+         fg3p = fg3m / fg3a) %>% 
+  relocate(season_year, team_abbreviation, conference, play_off_team)
+```
+
+
 
 ## Data Description
 
 
 # Exploratory Analysis
 In this part, we explore that on which variables, there would be difference between teams that get into play-off season and teams that not. In this way, we can get some insight on choosing potential parameters for model building. Specifically, we identify the trend in three point attempt by time in the past 10 seasons
+
+### Difference in Play-off Team and Regular Team
+Firstly, We wanted to look at how the scores of each play distributed in the last 10 seasons from the aspects of team which got into play-off season and team who didn't.From the figure below, team who got into the playoff season have higher score compared to team who did not get into playoff season. Moreover, in the last 10 regular seasons, score of each play display an increasing trend. 
+```{r}
+non_play_off = 
+  box_score_viz %>% 
+  filter(play_off_team == "non-playoff") 
+
+box_score_viz %>% 
+  filter(play_off_team == "playoff") %>% 
+  ggplot(aes(x = pts, y = season_year)) + 
+  geom_density_ridges(scale = .8, alpha = .5, fill = "blue", 
+                      quantile_lines = T, quantile_fun = mean) + 
+  geom_density_ridges(data = non_play_off, aes(x = pts, y = season_year), 
+                      scale = .8, alpha = .5, fill = "salmon", 
+                      quantile_lines = T, quantile_fun = mean) + 
+  scale_fill_manual(name = "Team", values = cols) + 
+  xlim(65, 140) + 
+  labs(x = "Scores", 
+       y = "Season Year", 
+       title = "Score Distribution Between Playoff and Regular Season Team")  
+
+```
+
+
+### Related Variables Per Game {.tabset}
+
+Next, we use the Boxscore data and team average data to deep dive potential variables that contribute to the wining of plays. 
+
+It is clear that team who got into playoff season have more **three field goal attempt** during a game. On the other hand, we can see that the percentage of three field goal attempts in all filed goal attempt was increasing in the last 10 seasons, which corresponds to the phenomenon of "Small Ball Revolution" and our analysis that score of each play was increasing in last 10 regular seasons
+
+In addition, teams who got into playoff season were more likely to score at three filed goal, 
+
+#### Three Field Goal Attempt Percent
+
+```{r, three field goal attempt percent}
+plot_ly(box_score_viz, x = ~ season_year, y = ~ fg3a_p, color = ~ play_off_team, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Three Field Goal Attempt Percent"))
+```
+
+#### Three Pointer Rate
+```{r, three pointer rate}
+plot_ly(box_score_viz, x = ~ season_year, y = ~ fg3p, color = ~ play_off_team, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Three Pointer Rate"))
+```
+
+#### Steal
+```{r, Steal}
+plot_ly(box_score_viz, x = ~ season_year, y = ~ stl, color = ~ play_off_team, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Steal"))
+```
+
+#### Block
+```{r}
+plot_ly(box_score_viz, x = ~ season_year, y = ~ blk, color = ~ play_off_team, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Block"))
+```
+
+#### Turnover
+```{r}
+plot_ly(box_score_viz, x = ~ season_year, y = ~ tov, color = ~ play_off_team, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Turnover"))
+```
+
+#### Defensive Rebound
+```{r}
+plot_ly(box_score_viz, x = ~ season_year, y = ~ dreb, color = ~ play_off_team, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Defensive Rebounds"))
+```
+
+```{r}
+steal = 
+  box_score_viz %>% 
+  select(season_year, team_abbreviation, conference, play_off_team, stl) %>% 
+  group_by(stl) %>% 
+  summarise(obs = n())
+```
 
 
 
