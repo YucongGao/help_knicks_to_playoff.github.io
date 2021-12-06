@@ -573,6 +573,156 @@ avg_viz_df %>%
 
 
 
+### Variabls can affect the result of game {.tabset}
+
+
+#### Field Goal Percentage
+
+```{r,warning=FALSE}
+plot_ly( box_score_all, x = ~ season_year, y = ~ fg_pct, color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Field Goal Percent"))
+```
+
+#### 3 Point Field Goals Percentage
+```{r,warning=FALSE}
+plot_ly(box_score_all, x = ~ season_year, y = ~ fg3_pct, color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "3 Point Field Goals Percentage"))
+```
+
+#### Free Throw Percentage
+```{r,warning=FALSE}
+plot_ly(box_score_all, x = ~ season_year, y = ~ ft_pct, color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Free Throw Percent"))
+```
+
+
+
+### Offensive Level Parameters {.tabset}
+
+```{r, include=FALSE}
+offensive_df = 
+  box_score_all %>% 
+  select(season_year,wl, oreb, ast)
+```
+
+
+
+#### Average offensive rebounds per game
+
+
+```{r,warning=FALSE}
+offensive_df %>% 
+  group_by(season_year, wl) %>% 
+  summarise(oreb= mean(oreb)) %>% 
+  plot_ly(x = ~ season_year, y = ~ oreb, type = "bar",
+    color = ~wl, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Average offensive rebounds of each game"))
+```
+#### Aaverage assists per games
+
+```{r,warning=FALSE}
+offensive_df %>% 
+  group_by(season_year, wl) %>% 
+  summarise(ast= mean(ast)) %>% 
+  plot_ly(x = ~ season_year, y = ~ ast, type = "bar",
+    color = ~wl, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Aaverage assists of each game"))
+```
+
+
+
+
+### Defensive level Parameters {.tabset}
+
+```{r, include=FALSE}
+defensive_df = 
+  box_score_all %>% 
+  select(season_year,wl,stl,blk,dreb,tov, pf)
+```
+
+
+#### Steals of each game
+
+
+```{r,warning=FALSE}
+box_score_all %>% 
+  group_by(season_year, wl) %>% 
+  summarise(stl= mean(stl)) %>% 
+  plot_ly(x = ~ season_year, y = ~ stl, type = "bar",
+    color = ~wl, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Aaverage steals of each game"))
+```
+
+#### Blocks of each game
+
+```{r,warning=FALSE}
+box_score_all %>% 
+  group_by(season_year, wl) %>% 
+  summarise(blk= mean(blk)) %>% 
+  plot_ly(x = ~ season_year, y = ~ blk, type = "bar",
+    color = ~wl, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Aaverage blocks of each game"))
+```
+
+#### Defensive rebounds of each game
+
+```{r,warning=FALSE}
+
+box_score_all %>% 
+  group_by(season_year, wl) %>% 
+  summarise(dreb= mean(dreb)) %>% 
+  plot_ly(x = ~ season_year, y = ~ dreb, type = "bar",
+    color = ~wl, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Aaverage defensive rebounds of each game"))
+
+```
+
+#### Turnovers of each game
+
+```{r,warning=FALSE}
+
+box_score_all %>% 
+  group_by(season_year, wl) %>% 
+  summarise(tov= mean(tov)) %>% 
+  plot_ly(x = ~ season_year, y = ~ tov, type = "bar",
+    color = ~wl, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Aaverage turnovers of each game"))
+
+```
+
+#### Personal foul of each game
+
+```{r,warning=FALSE}
+
+box_score_all %>% 
+  group_by(season_year, wl) %>% 
+  summarise(pf= mean(pf)) %>% 
+  plot_ly(x = ~ season_year, y = ~ pf, type = "bar",
+    color = ~wl, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Aaverage personal foul of each game"))
+
+```
+
 
 
 ## Regression Related
