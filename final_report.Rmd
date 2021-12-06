@@ -571,8 +571,19 @@ avg_viz_df %>%
          yaxis = list(title = "Average Passes"))
 ```
 
+## Exploratory Analysis
+In this part, we explore each game in the past 20 years, try to find some important variables that might affect the result of the game. By this process, we also can get some insight on choosing potential parameters for model building.
+
+### Difference average scores
+
+Firstly, we take a look on the scores difference between the winning team and losing team in the past 20 years.
+
+We can see that if a team wants to win the game, the score they needs to achieve become much higher compared to the past years. The average score for the winning team has some up and down form 2001-2015 seasons, however, after entering the small ball revolution, the average score for winning keep increase and never fall down since 2015-16 season.
+
+So, it is obviously that if a team wants to win a game, they need to find a new techniques to earn more score. Next we will explore some factors we think might play a rule on the result of the game.
+
 ```{r}
-lose_game = 
+lose_game=
   box_score_all %>% 
   filter(wl== "L") 
 
@@ -588,40 +599,113 @@ lose_game =
   xlim(65, 140) + 
   labs(x = "Scores", 
        y = "Season Year", 
-       title = "Score Distribution win and lose game")  
+       title = "Score Distribution Win and Lose game")  
 
 ```
-### Variabls can affect the result of game {.tabset}
+
+### Variables can affect the result of game {.tabset}
+
+As a team needs to gain more score for winning the game, to analyze the factors of game result, we first look at some variables that directly have influence on score. 
+We put both the plot of percentage and attempted together, so we can observe NBA's trend of scoring strategy in these 20 years.
+
+First, we can see that although the field goal attempted and percentage  didn't seems to  have much change through these 20 years,  the winning team have much stronger field goal percentage compare the team who lose. Also, we can see that the losing team have a slightly more field goal attempted than the winning team. 
+
+Secondly, we can see that the 3 point field goals's percentage didn't change much in these two decades.However, there is a really significant increase on the 3 point field goals attempted.
+After the small ball era at 2015, the 3 point field goals attempted grow up remarkably, also we can see that same pattern as field goal attempted, the losing team also have higher 3 point field goals attempted.
+
+Third, we can see that free throw attempted and percentage didn't have much change through these 20 years. The winning team have higher attempted and percentage.
+
+By inspect these variables, we can conclude that on the basketball field there are almost like a three points field goals fight after 2015, everyone throw as much as 3 points play as they can. 
+The most notable difference of attempted between winning team and losing team happened on the free throw attempted, this means that even that the free throw only contribute one point in the score, it still is a indicator of the game result.And the most outstanding difference of percentage between winning team and losing team happened on the field goal percentage,  this suggest that the to improve field goal percentage is one of the most critcal thing a team should consider if they want to win the game.
+
+So since 3 points field attempted become trend in every game,  we look up three of the most higher 3 points field attempted out liner on the plot. We find out it all made by Houston Rockets, so we took a look deeply, we find out in the top ten of the highest higher 3 points field in these 20 years, Houston Rockets occupy 8 of it and the other 2 is Atlanta Hawks.
 
 
-#### Field Goal Percentage
+#### Field Goal 
 
 ```{r,warning=FALSE}
+plot_ly( box_score_all, x = ~ season_year, y = ~ fga , color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Field Goal Attempted"))
+
 plot_ly( box_score_all, x = ~ season_year, y = ~ fg_pct, color = ~ wl, type = "box") %>% 
   layout(boxmode = "group", 
          xaxis = list(title = 'Season Year'),
-         yaxis = list(title = "Field Goal Percent"))
+         yaxis = list(title = "Field Goal Percentage"))
 ```
 
-#### 3 Point Field Goals Percentage
+#### 3 Point Field Goals 
 ```{r,warning=FALSE}
+plot_ly(box_score_all, x = ~ season_year, y = ~ fg3a, color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "3 Point Field Goals Attempted"))
+
 plot_ly(box_score_all, x = ~ season_year, y = ~ fg3_pct, color = ~ wl, type = "box") %>% 
   layout(boxmode = "group", 
          xaxis = list(title = 'Season Year'),
          yaxis = list(title = "3 Point Field Goals Percentage"))
 ```
 
-#### Free Throw Percentage
+#### Free Throw 
 ```{r,warning=FALSE}
+
+plot_ly(box_score_all, x = ~ season_year, y = ~ fta, color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Free Throw Attempted"))
+
 plot_ly(box_score_all, x = ~ season_year, y = ~ ft_pct, color = ~ wl, type = "box") %>% 
   layout(boxmode = "group", 
          xaxis = list(title = 'Season Year'),
          yaxis = list(title = "Free Throw Percent"))
+
+
 ```
 
 
 
+### New York Knicks 3 Point Field Goals {.tabset}
+
+
+```{r}
+
+nyk= 
+  box_score_all %>% 
+  filter(team_abbreviation =="NYK")
+```
+#### 3 Point Field Goals Attempted
+```{r}
+
+plot_ly(nyk, x = ~ season_year, y = ~ fg3a, color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "3 Point Field Goals Attempted"))
+```
+#### 3 Point Field Goals Percentage
+```{r}
+
+plot_ly(nyk, x = ~ season_year, y = ~ fg3_pct, color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "3 Point Field Goals Percentage"))
+
+
+```
+
+
 ### Offensive Level Parameters {.tabset}
+
+Next, we are going to explore the influence of some offensive strategies on the basketball field, to see what kind of techniques might play a role on the result of the game.
+
+The average offensive rebounds is slightly higher in the losing team. And in the average assists per game the winning team is significantly higher. 
+
+Average offensive rebounds are higher in the losing team seems like a same pattern as the attempted also higher in the losing team. We can hypothesize that when a team started to lose they will take more aggressive strategies compared to the team who keep leading .
+
+
+Average assists per games is significantly higher in the winning team might result from the assists is defined as scoring successfully, and more scoring means more possible to win.
+
 
 ```{r, include=FALSE}
 offensive_df = 
@@ -661,6 +745,16 @@ offensive_df %>%
 
 
 ### Defensive level Parameters {.tabset}
+
+In this part, we are going to explore the influence of some defensive level strategies on the basketball field, to see what kind of defensive techniques might play a role on the result of the game.
+
+The steals of each game is slightly higher in the losing team. And in the average assists per game the winning team is significantly higher. 
+
+Average offensive rebounds are higher in the losing team seems like a same pattern as the attempted also higher in the losing team. We can hypothesize that when a team started to lose they will take more aggressive strategies compared to the team who keep leading .
+
+
+Average assists per games is significantly higher in the winning team might result from the assists is defined as scoring successfully, and more scoring means more possible to win.
+
 
 ```{r, include=FALSE}
 defensive_df = 
