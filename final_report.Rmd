@@ -748,12 +748,8 @@ offensive_df %>%
 
 In this part, we are going to explore the influence of some defensive level strategies on the basketball field, to see what kind of defensive techniques might play a role on the result of the game.
 
-The steals of each game is slightly higher in the losing team. And in the average assists per game the winning team is significantly higher. 
+Steals, Blocks, Defensive rebounds of each game is significantly higher in the winning team,  Personal foul and Turnovers of each game are slightly higher in the losig team.
 
-Average offensive rebounds are higher in the losing team seems like a same pattern as the attempted also higher in the losing team. We can hypothesize that when a team started to lose they will take more aggressive strategies compared to the team who keep leading .
-
-
-Average assists per games is significantly higher in the winning team might result from the assists is defined as scoring successfully, and more scoring means more possible to win.
 
 
 ```{r, include=FALSE}
