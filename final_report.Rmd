@@ -571,8 +571,26 @@ avg_viz_df %>%
          yaxis = list(title = "Average Passes"))
 ```
 
+```{r}
+lose_game = 
+  box_score_all %>% 
+  filter(wl== "L") 
 
+  box_score_all %>% 
+  filter(wl == "W") %>% 
+  ggplot(aes(x = pts, y = season_year)) + 
+  geom_density_ridges(scale = .8, alpha = .5, fill = "blue", 
+                      quantile_lines = T, quantile_fun = mean) + 
+  geom_density_ridges(data = lose_game, aes(x = pts, y = season_year), 
+                      scale = .8, alpha = .5, fill = "salmon", 
+                      quantile_lines = T, quantile_fun = mean) + 
+  scale_fill_manual(name = "Team", values = cols) + 
+  xlim(65, 140) + 
+  labs(x = "Scores", 
+       y = "Season Year", 
+       title = "Score Distribution win and lose game")  
 
+```
 ### Variabls can affect the result of game {.tabset}
 
 
