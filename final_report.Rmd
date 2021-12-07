@@ -76,6 +76,8 @@ As I mentioned above, these data sets were scrapped from NBA website, the code t
 ### Data Wrangling(ref for scrapping) 
 
 First, the datasets in [NBA Stats](https://www.nba.com/stats/) don't have API, so we write a function to extract them using devtools.
+
+Then, apply the function to each dataset we want, select the variables we want and save all of them to local for tfurther use. Here is one example, box_score_all.
 ```{r, eval=FALSE,message=FALSE,warning=FALSE}
 scrapping_data = function(url) {
   headers = headers = c(
@@ -100,10 +102,7 @@ scrapping_data = function(url) {
 drop_last_column = function(df) {
   df = df %>% select(-names(df)[[length(names(df))]])
   return(df)}
-```
 
-Then, apply the function to each dataset we want, select the variables we want and save all of them to local for tfurther use. Here is one example, box_score_all.
-```{r, eval=FALSE, message=FALSE, warning=FALSE}
 season_years = c("2020-21", "2019-20", 
            "2018-19", "2017-18", 
            "2016-17", "2015-16", 
@@ -126,7 +125,7 @@ box_score_all = tibble(
 write_csv(box_score_all, "./data2/box_score_all.csv")
 ```
 
-Then, read them and select related variables. All the raw datasets are as following:
+Next, we read them and select related variables. All the raw datasets are as following:
 
 ```{r, message=FALSE, warning=FALSE}
 box_score_all = read_csv("./data2/box_score_all.csv") %>% 
@@ -1860,5 +1859,9 @@ ggdraw(rose_p) +
 
 
 ## Shiny App
+
+With all the data analysis and model exploration, we identified features that contribute to the number of winning in a season, game results and play scores. We think it's necessary for the fans to see how these feature changes in different seasons for different NBA teams, moreover, make comparisons between teams. Therefore, we created an interactive dashboard in Shiny app to achieve this purpose. 
+
+In this [Shiny App](https://jessiegao.shinyapps.io/shiny_app/), users can select different feature and team(s) to visualize the team(s) performance in this feature, make comparisons and get ranking predictions for the team(s) in the season of 2021-22. 
 
 ## Conclusion and Discussion
