@@ -202,8 +202,6 @@ Plot the threshold over last 20 years.
 ```{r,message=FALSE, warning=FALSE}
 eighth_wins =
   avg_df %>% 
-  group_by(season_year,conference) %>% 
-  mutate(conf_rank = row_number()) %>% 
   filter(conf_rank == 8)
 
 
@@ -355,20 +353,13 @@ And the overall trend of the three field goal attempt percentage has increased f
 
 ### Have a look at response variable and explanatory variables
 
-```{r}
+```{r,fig.asp=1, fig.width=10}
 predict_df %>% 
   select(-fg3a_total, -fg3m_total, -play_off_team, -conf_rank) %>% 
   ggpairs(columns = 4:16)
-
-cor_df = 
-  predict_df %>% 
-  ungroup() %>% 
-  select(-fg3a_total, -fg3m_total, -season_year, -team_abbreviation, -conference, -play_off_team, -conf_rank) 
-
-corrplot::corrplot(cor(cor_df), type = "upper", diag = FALSE)
 ```
 
-The correlation between predictors are not very high, which is important for preventing collinearity.
+The correlation between predictors are not very high(>0.7), which is important for preventing collinearity.
 
 ### Modelling
 
@@ -406,6 +397,8 @@ The adjusted R square got decreased to 0.5768, so the ast_avg should be kept in 
 ### Cross Validation
 With respect to the above three models, we want to see which model has the best generalizability. So in this section, cross validation is used to compare candidate model
 ```{r}
+set.seed(1000)
+
 predict_cv_df = 
   predict_df %>% 
   crossv_mc(100) %>% 
@@ -432,7 +425,7 @@ predict_cv_df %>%
   geom_boxplot()
   
 ```
-The results rmse distribution of the three model are very similar to each other, which indicates similar level of generalizability. Therefore, we still use the model2 for the final model 
+The results rmse distribution of the three model are very similar to each other, which indicates similar level of generalizability. Therefore, we still use the model2 for the final model.
 
 
 ### Model diagnostic
@@ -441,15 +434,12 @@ The results rmse distribution of the three model are very similar to each other,
 
 ```{r}
 ggplot(data = predict_df, aes(x = fg3_r, y = wins_revised)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
-
-
 ```
 
 
 2). to check if the error term is normally distributed with mean 0.
 ```{r}
 ggplot(data = model2, aes(x = model2$residuals)) + geom_histogram()
-plot(model2, which = 1)
 plot(model2, which = 2)
 ```
 
@@ -458,7 +448,6 @@ Condition 1 is met.
 3). to check if the error term is constants, independent of the dependent variable.
 ```{r}
 ggplot(data = model2, aes(x = model2$fitted.values, y = model2$residuals)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
-plot(model2, which = 3)
 ```
 
 Condition 2 is met as we cannot see an obvious tendency of errors as wins_revised increase.
@@ -467,10 +456,38 @@ Condition 2 is met as we cannot see an obvious tendency of errors as wins_revise
 ```{r}
 plot(model2, which = 4)
 ```
-There is no influencers that exist in our data
+There is no influencer that exist in our data
 
 ### Interpretation of model coefficients
 
+Final model is model 2.
+```{r}
+model2 %>% broom::tidy()
+```
+
+All variables selected are significant in this linear regression model.
+
+For each 2 additional point increase, there will be 1 extra wins.
+ 
+For each 1 additional average turnover, there will be 2 extra lose, which hurts badly.
+
+For each 5% additional increase in the proportion of three points attempt, there will be about 1 extra lose.
+ 
+For each 1% additional increase in three points shooting rate, there will be 2.8 extra wins, which helps the team a lot.
+ 
+For each 0.5 additional steal per game, there will be 3 extra wins, which is crazy. But average steal is below 10, and it is not easy to improve this ability.
+
+For each additional average block, there will be 1 extra win.
+
+For each additional average defensive rebound, there will be 3.31 extra wins! Thus, protecting the defensive rebound well is critical.
+
+For each additional transition per game, there will be 1.14 extra lose.
+
+For each additional isolation per game, there will be 0.45 extra win.
+
+For each additional pick and roll per game, there will be 0.75 extra lose.
+
+For each additional assist per game, there will be 0.57 extra lose.
 
 
 ### Use the model to predict whether the Knicks can get in the play-off season in 2021-2022 
@@ -646,7 +663,7 @@ prediction_21_22 =
 prediction_21_22 %>% 
   knitr::kable()
 ```
-Based on the boxscores of this season, we use model 2 to predict number of winnings for existing 30 teams. By arranging the predicted number of winnings, the Knicks is predicted to have 43.6 winnings this season and rank 8 in the season of 2021-22. According to this result, if the Knicks wants to secure a spot for playoff season, it has to improve its performance and tries to win more. 
+Based on the boxscores of this season, we use model 2 to predict number of winnings for existing 30 teams. By arranging the predicted number of winnings, the Knicks is predicted to have 43.6 winnings this season and rank 8 in the season of 2021-22. According to this result, if the Knicks wants to secure a spacet for playoff season, it has to improve its performance and tries to win more. 
 
 
 Let's see what Knicks can do to improve its performance and rush into playoff season

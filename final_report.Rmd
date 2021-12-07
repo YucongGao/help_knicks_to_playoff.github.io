@@ -8,6 +8,8 @@ library(tidyverse)
 library(patchwork)
 library(plotly)
 library(ggridges)
+library(GGally)
+library(modelr)
 
 knitr::opts_chunk$set(
   fig.height = 6,
@@ -170,7 +172,26 @@ trans_df =
 
 After read these half raw dataset, we need to prepare four dataframes for exploring data analysis, fit regression model.
 
-**1.avg_df**
+#### Average Data Frame
+The avg_df contains the number of wins by team and year in the last 20 years, which is used to analyse the distribution of threshold wins, and to further generate predict_df for regression.
+As data in box_score_all is documented by game, we need to summarise it into total and average stats. Detailed wrangling process:
+
+1).select the variables we are interested from box_score_all.
+
+2).define four new variables. 
+* `win`: 1 means winning and 0 means lost.<br>
+* `game_num`: constant 1 used to sum the number of games.<br>
+* `fg3a_p`: the percentage of 3 point field goal attempt.<br>
+* `conference`: west or east<br>
+
+3).
+* calculate total number of wins, total number of games, total number of field goal attempt, total number of field goal made, total number of 3 points field goal attempt and total number of 3 points field goal made by team and season.<br>
+* calculate average number of points, average number of assists and average number of turnovers by team and season.<br>
+* revised the number of wins in strike season and COVID-19 season.<br>
+* locate key variables at the first.<br>
+* arrange all data by season year and number of wins.<br>
+* calculate the rank in east or west conference by team and year<br>
+* marked whether or not a team entered into the playoff in that year<br>
 ```{r,message=FALSE, warning=FALSE}
 avg_df = 
   box_score_all %>% 
@@ -211,27 +232,12 @@ avg_df =
          ), 
          play_off_team = fct_relevel(play_off_team, c("playoff", "non-playoff")))
 ```
-The avg_df contains the number of wins by team and year in the last 20 years, which is used to analyse the distribution of threshold wins, and to further generate predict_df for regression.
-As data in box_score_all is documented by game, we need to summarise it into total and average stats. Detailed wrangling process:
 
-1).select the variables we are interested from box_score_all.
 
-2).define four new variables. 
-* `win`: 1 means winning and 0 means lost.
-* `game_num`: constant 1 used to sum the number of games.
-* `fg3a_p`: the percentage of 3 point field goal attempt.
-* `conference`: west or east
+#### Predict Data Frame
+The predict_df contain the average performance data with total number of games won in the last 8 years, which is used to build models and predict the number of winnings.
 
-3).
-* calculate total number of wins, total number of games, total number of field goal attempt, total number of field goal made, total number of 3 points field goal attempt and total number of 3 points field goal made by team and season.
-* calculate average number of points, average number of assists and average number of turnovers by team and season.
-* revised the number of wins in strike season and COVID-19 season.
-* locate key variables at the first.
-* arrange all data by season year and number of wins.
-* calculate the rank in east or west conference by team and year
-* marked whether or not a team entered into the playoff in that year
-
-**2.predict_df**
+Not only do we include the fundamental average stats like points, steals, blocks and turnovers from avg_df, but also we want to include playtype data and defensive data in the model. Thus, we combine the avg_df with 6 other dataframes.
 ```{r,message=FALSE, warning=FALSE}
 predict_df = 
   avg_df %>%
@@ -247,10 +253,12 @@ predict_df =
   ) %>% 
   select(-poss_prr, -poss_prb, -wins, -games, -games_should, -fgm_total, -fga_total)
 ```
-The predict_df contain the average performance data with total number of games won in the last 8 years, which is used to build models and predict the number of winnings.
-Not only do we include the fundamental average stats like points, steals, blocks and turnovers from avg_df, but also we want to include playtype data and denfensive data in the model. Thus, we combine the avg_df with 6 other dataframes.
 
-**3.box_score_viz*
+
+#### Box Score Data Frame for Visualization
+This dataframe contains 23476 observations in the last 8 years which is mainly used for analyzing the tendency of different stats between palyoff teams and non-playoff teams.
+
+To add the rank of a team, we joined it with the conf_rank in avg_df.
 ```{r,message=FALSE, warning=FALSE}
 box_score_viz = 
   box_score_all %>% 
@@ -288,11 +296,10 @@ box_score_viz =
          fg3p = fg3m / fg3a) %>% 
   relocate(season_year, team_abbreviation, conference, play_off_team)
 ```
-This dataframe contains 23476 observations in the last 8 years which is mainly used for analyzing the tendency of different stats between palyoff teams and non-playoff teams.
 
-To add the rank of a team, we joined it with the conf_rank in avg_df.
 
-**4,regre_df**
+#### Data Frame for Logistic Regression
+This dataframe contains stats per game, which is used for logistic regression. We exclude useless variables here and change win or lose to a factor variable.
 ```{r,message=FALSE, warning=FALSE}
 regre_df = 
   box_score_all %>%
@@ -301,7 +308,6 @@ regre_df =
   mutate(wl = recode(wl, "W" = 1, "L" = 0),
          wl = as.factor(wl)) 
 ```
-This dataframe contains stats per game, which is used for logistic regression. We exclude useless variables here and change win or lose to a factor variable.
 
 ### Data Description
 
@@ -360,6 +366,30 @@ These are some reasonable variables that should be added into the regression mod
 
 ## Exploratory Analysis
 In this part, we explore that on which variables, there would be difference between teams that get into play-off season and teams that not. In this way, we can get some insight on choosing potential parameters for model building. Specifically, we identify the trend in three point attempt by time in the past 10 seasons
+
+### Find the distribution of "threshold"
+
+Recall “threshold”: the number of games won by the 8th team in both west and east conference.
+
+Plot the threshold over last 20 years.
+```{r,message=FALSE, warning=FALSE}
+eighth_wins =
+  avg_df %>% 
+  filter(conf_rank == 8)
+
+
+ggplot(data = eighth_wins,aes(x = wins_revised)) + 
+  geom_bar() + 
+  theme_bw() 
+```
+
+```{r}
+summary(eighth_wins$wins_revised)
+```
+
+There are `r nrow(eighth_wins)` observations of threshold in the past 20 years, which follows a normal distribution with mean `r mean(eighth_wins$wins_revised)` and variance `r var(eighth_wins$wins_revised)`. 
+
+Then we are going to deep dive the factors associated with the number of wins per season for a team and try to find significant contributors to increase the number of wins. 
 
 ### Difference average scores
 Firstly, We wanted to look at how the scores of each play distributed in the last 10 seasons from the aspects of team which got into play-off season and team who didn't.From the figure below.
@@ -525,8 +555,6 @@ avg_viz_df %>%
          xaxis = list(title = 'Season Year'),
          yaxis = list(title = "Average Steal"))
 
-
-
 ```
 
 #### Turnover
@@ -571,39 +599,137 @@ avg_viz_df %>%
          yaxis = list(title = "Average Passes"))
 ```
 
+## Exploratory Analysis
+In this part, we explore each game in the past 20 years, try to find some important variables that might affect the result of the game. By this process, we also can get some insight on choosing potential parameters for model building.
+
+### Difference average scores
+
+Firstly, we take a look on the scores difference between the winning team and losing team in the past 20 years.
+
+We can see that if a team wants to win the game, the score they needs to achieve become much higher compared to the past years. The average score for the winning team has some up and down form 2001-2015 seasons, however, after entering the small ball revolution, the average score for winning keep increase and never fall down since 2015-16 season.
+
+So, it is obviously that if a team wants to win a game, they need to find a new techniques to earn more score. Next we will explore some factors we think might play a rule on the result of the game.
+
+```{r}
+lose_game=
+  box_score_all %>% 
+  filter(wl == "L") 
+
+  box_score_all %>% 
+  filter(wl == "W") %>% 
+  ggplot(aes(x = pts, y = season_year)) + 
+  geom_density_ridges(scale = .8, alpha = .5, fill = "blue", 
+                      quantile_lines = T, quantile_fun = mean) + 
+  geom_density_ridges(data = lose_game, aes(x = pts, y = season_year), 
+                      scale = .8, alpha = .5, fill = "salmon", 
+                      quantile_lines = T, quantile_fun = mean) + 
+  scale_fill_manual(name = "Team", values = cols) + 
+  xlim(65, 140) + 
+  labs(x = "Scores", 
+       y = "Season Year", 
+       title = "Score Distribution Win and Lose game")  
+
+```
+
+### Variables can affect the result of game {.tabset}
+
+As a team needs to gain more score for winning the game, to analyze the factors of game result, we first look at some variables that directly have influence on score. 
+We put both the plot of percentage and attempted together, so we can observe NBA's trend of scoring strategy in these 20 years.
+
+First, we can see that although the field goal attempted and percentage  didn't seems to  have much change through these 20 years,  the winning team have much stronger field goal percentage compare the team who lose. Also, we can see that the losing team have a slightly more field goal attempted than the winning team. 
+
+Secondly, we can see that the 3 point field goals's percentage didn't change much in these two decades.However, there is a really significant increase on the 3 point field goals attempted.
+After the small ball era at 2015, the 3 point field goals attempted grow up remarkably, also we can see that same pattern as field goal attempted, the losing team also have higher 3 point field goals attempted.
+
+Third, we can see that free throw attempted and percentage didn't have much change through these 20 years. The winning team have higher attempted and percentage.
+
+By inspect these variables, we can conclude that on the basketball field there are almost like a three points field goals fight after 2015, everyone throw as much as 3 points play as they can. 
+The most notable difference of attempted between winning team and losing team happened on the free throw attempted, this means that even that the free throw only contribute one point in the score, it still is a indicator of the game result.And the most outstanding difference of percentage between winning team and losing team happened on the field goal percentage,  this suggest that the to improve field goal percentage is one of the most critcal thing a team should consider if they want to win the game.
+
+So since 3 points field attempted become trend in every game,  we look up three of the most higher 3 points field attempted out liner on the plot. We find out it all made by Houston Rockets, so we took a look deeply, we find out in the top ten of the highest higher 3 points field in these 20 years, Houston Rockets occupy 8 of it and the other 2 is Atlanta Hawks.
 
 
-### Variabls can affect the result of game {.tabset}
-
-
-#### Field Goal Percentage
+#### Field Goal 
 
 ```{r,warning=FALSE}
+plot_ly( box_score_all, x = ~ season_year, y = ~ fga , color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Field Goal Attempted"))
+
 plot_ly( box_score_all, x = ~ season_year, y = ~ fg_pct, color = ~ wl, type = "box") %>% 
   layout(boxmode = "group", 
          xaxis = list(title = 'Season Year'),
-         yaxis = list(title = "Field Goal Percent"))
+         yaxis = list(title = "Field Goal Percentage"))
 ```
 
-#### 3 Point Field Goals Percentage
+#### 3 Point Field Goals 
 ```{r,warning=FALSE}
+plot_ly(box_score_all, x = ~ season_year, y = ~ fg3a, color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "3 Point Field Goals Attempted"))
+
 plot_ly(box_score_all, x = ~ season_year, y = ~ fg3_pct, color = ~ wl, type = "box") %>% 
   layout(boxmode = "group", 
          xaxis = list(title = 'Season Year'),
          yaxis = list(title = "3 Point Field Goals Percentage"))
 ```
 
-#### Free Throw Percentage
+#### Free Throw 
 ```{r,warning=FALSE}
+
+plot_ly(box_score_all, x = ~ season_year, y = ~ fta, color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Free Throw Attempted"))
+
 plot_ly(box_score_all, x = ~ season_year, y = ~ ft_pct, color = ~ wl, type = "box") %>% 
   layout(boxmode = "group", 
          xaxis = list(title = 'Season Year'),
          yaxis = list(title = "Free Throw Percent"))
+
+
+```
+
+### New York Knicks 3 Point Field Goals {.tabset}
+
+```{r}
+nyk= 
+  box_score_all %>% 
+  filter(team_abbreviation =="NYK")
+```
+#### 3 Point Field Goals Attempted
+```{r}
+
+plot_ly(nyk, x = ~ season_year, y = ~ fg3a, color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "3 Point Field Goals Attempted"))
+```
+#### 3 Point Field Goals Percentage
+```{r}
+
+plot_ly(nyk, x = ~ season_year, y = ~ fg3_pct, color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "3 Point Field Goals Percentage"))
+
+
 ```
 
 
-
 ### Offensive Level Parameters {.tabset}
+
+Next, we are going to explore the influence of some offensive strategies on the basketball field, to see what kind of techniques might play a role on the result of the game.
+
+The average offensive rebounds is slightly higher in the losing team. And in the average assists per game the winning team is significantly higher. 
+
+Average offensive rebounds are higher in the losing team seems like a same pattern as the attempted also higher in the losing team. We can hypothesize that when a team started to lose they will take more aggressive strategies compared to the team who keep leading .
+
+
+Average assists per games is significantly higher in the winning team might result from the assists is defined as scoring successfully, and more scoring means more possible to win.
+
 
 ```{r, include=FALSE}
 offensive_df = 
@@ -643,6 +769,12 @@ offensive_df %>%
 
 
 ### Defensive level Parameters {.tabset}
+
+In this part, we are going to explore the influence of some defensive level strategies on the basketball field, to see what kind of defensive techniques might play a role on the result of the game.
+
+Steals, Blocks, Defensive rebounds of each game is significantly higher in the winning team,  Personal foul and Turnovers of each game are slightly higher in the losig team.
+
+
 
 ```{r, include=FALSE}
 defensive_df = 
@@ -725,7 +857,398 @@ box_score_all %>%
 
 
 
-## Regression Related
+## Regression 
+
+In this part, we are going to use linear model to quantify the relationship between the number of wins and average performance parameters. Further, to know the factors influencing the result of a single game, we also use logistic regression to fit the box score data.
+
+### MLR exploration
+
+```{r,fig.asp=1, fig.width=10}
+predict_df %>% 
+  select(-fg3a_total, -fg3m_total, -play_off_team, -conf_rank) %>% 
+  ggpairs(columns = 4:16)
+```
+
+The pts_avg is kind of correlated with ast_avg, fg3_p, dreb and poss_trans. So this 
+The correlation between predictors are not very high, which is important for preventing collinearity.
+
+### Modeling
+
+We used backward elimination method to select the significant dependents. 
+
+Firstly, put all the potential variables into the linear model, to see the regression results.
+
+```{r,message=FALSE, warning=FALSE}
+model1 = lm(data = predict_df, wins_revised ~ pts_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr + ast_avg + passes_made)
+summary(model1)
+anova(model1)
+```
+
+The adjusted R square for the full model is 0.5767 that is to say 57.67% of variances in the response variable can be explained by the predictors. 
+
+Then, to get a better model with higher adjusted R square, we delete the less effective predictors with higher p-value, which is passes_made
+
+```{r}
+model2 = lm(data = predict_df, wins_revised ~ pts_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr + ast_avg)
+summary(model2)
+anova(model2)
+```
+
+The adjusted R square got improved to 0.5777. 57.77% of variances in the response variable can be explained by the predictors. 
+Then delete the ast_avg which has the highest p-value among the variables left to see if the adjusted R square could be better.
+
+```{r}
+model3 = lm(data = predict_df, wins_revised ~ pts_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr)
+summary(model3)
+anova(model3)
+```
+
+The adjusted R square got decreased to 0.5768, so the ast_avg should be kept in the model. Model2 is the final model.
+
+### Cross Validation
+With respect to the above three models, we want to see which model has the best generalizability. So in this section, cross validation is used to compare candidate model
+```{r}
+set.seed(1000)
+
+predict_cv_df = 
+  predict_df %>% 
+  crossv_mc(100) %>% 
+  mutate(train = map(train, as.tibble), 
+         test = map(test, as.tibble))
+
+predict_cv_df = 
+  predict_cv_df %>% 
+  mutate(model1 = map(train, ~lm(wins_revised ~ pts_avg + ast_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + passes_made + poss_iso + poss_pr, data = .x)),  
+         model2 = map(train, ~lm(wins_revised ~ pts_avg + ast_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr, data = .x)), 
+         model3 = map(train, ~lm(wins_revised ~ pts_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr, data = .x))) %>% 
+  mutate(rmse1 = map2_dbl(model1, test, ~rmse(model = .x, data = .y)), 
+         rmse2 = map2_dbl(model2, test, ~rmse(model = .x, data = .y)), 
+         rmse3 = map2_dbl(model3, test, ~rmse(model = .x, data = .y)))
+  
+
+predict_cv_df %>% 
+  select(starts_with("rmse")) %>% 
+  pivot_longer(everything(), 
+               names_to = "model", 
+               names_prefix = "rmse", 
+               values_to = "rmse") %>% 
+  ggplot(aes(x = model, y = rmse, fill = model)) + 
+  geom_boxplot(alpha = .6)
+  
+```
+The results rmse distribution of the three model are very similar to each other, which indicates similar level of generalizability. Therefore, we still use the model2 for the final model.
+
+
+### Model diagnostic
+
+We can see that Residuals vs Fitted is approximately normally distributed around 0. On the other hand, heteroscedasticity is not a problem in this model. And there is no out-lier that have big impact on the model fit. 
+```{r}
+par(mfrow=c(2,2))
+plot(model2, which = 1)
+plot(model2, which = 2)
+plot(model2, which = 3)
+plot(model2, which = 4)
+```
+
+
+### Interpretation of model coefficients
+
+Final model is model 2.
+```{r}
+model2 %>% broom::tidy()
+```
+
+All variables selected are significant in this linear regression model. 
+
+For each 2 additional point increase, there will be 1 extra wins.
+ 
+For each 1 additional average turnover, there will be 2 extra lose, which hurts badly.
+
+For each 5% additional increase in the proportion of three points attempt, there will be about 1 extra lose.
+ 
+For each 1% additional increase in three points shooting rate, there will be 2.8 extra wins, which helps the team a lot.
+ 
+For each 0.5 additional steal per game, there will be 3 extra wins, which is crazy. But average steal is below 10, and it is not easy to improve this ability.
+
+For each additional average block, there will be 1 extra win.
+
+For each additional average defensive rebound, there will be 3.31 extra wins! Thus, protecting the defensive rebound well is critical.
+
+For each additional transition per game, there will be 1.14 extra lose.
+
+For each additional isolation per game, there will be 0.45 extra win.
+
+For each additional pick and roll per game, there will be 0.75 extra lose.
+
+For each additional assist per game, there will be 0.57 extra lose.
+
+
+## Predictions on Knicks
+
+Based on the boxscores of this season, we use model 2 to predict number of winnings for existing 30 teams. By arranging the predicted number of winnings, the Knicks is predicted to have 43.6 winnings this season and rank 8 in the season of 2021-22. According to this result, if the Knicks wants to secure a space for playoff season, it has to improve its performance and tries to win more. 
+
+```{r scrapping and cleaning, include=FALSE}
+library(httr)
+library(jsonlite)
+scrapping_data = function(url) {
+  headers = headers = c(
+  `Connection` = 'keep-alive',
+  `Accept` = 'application/json, text/plain, */*',
+  `x-nba-stats-token` = 'true',
+  `X-NewRelic-ID` = 'VQECWF5UChAHUlNTBwgBVw==',
+  `User-Agent` = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36', 
+  `x-nba-stats-origin` = 'stats',
+  `Sec-Fetch-Site` = 'same-origin',
+  `Sec-Fetch-Mode` = 'cors',
+  `Referer` = 'https://stats.nba.com/players/leaguedashplayerbiostats/',
+  `Accept-Encoding` = 'gzip, deflate, br',
+  `Accept-Language` = 'en-US,en;q=0.9')
+  response = GET(url, add_headers(headers))
+  data = fromJSON(content(response, as = "text"))
+  df = data.frame(data$resultSets$rowSet[[1]], stringAsFactors = FALSE)
+  names(df) = tolower(data$resultSets$headers[[1]])
+  return(df)
+}
+
+drop_last_column = function(df) {
+  df = df %>% select(- names(df)[[length(names(df))]])
+  return(df)
+}
+
+
+
+
+url_new = "https://stats.nba.com/stats/teamgamelogs?DateFrom=&DateTo=&GameSegment=&LastNGames=0&LeagueID=00&Location=&MeasureType=Base&Month=0&OpponentTeamID=0&Outcome=&PORound=0&PaceAdjust=N&PerMode=Totals&Period=0&PlusMinus=N&Rank=N&Season=2021-22&SeasonSegment=&SeasonType=Regular+Season&ShotClockRange=&VsConference=&VsDivision="
+
+box_score_21_22 = 
+  scrapping_data(url_new) %>% 
+  drop_last_column()
+
+transition_21_22 = scrapping_data("https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&PerMode=PerGame&PlayType=Transition&PlayerOrTeam=T&SeasonType=Regular+Season&SeasonYear=2021-22&TypeGrouping=offensive") %>% 
+  drop_last_column() %>% 
+  mutate(season_year = "2021-22")
+
+iso_21_22 = scrapping_data("https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&PerMode=PerGame&PlayType=Isolation&PlayerOrTeam=T&SeasonType=Regular+Season&SeasonYear=2021-22&TypeGrouping=offensive") %>% drop_last_column()%>% 
+  mutate(season_year = "2021-22")
+
+prbh_21_22 = scrapping_data(("https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&PerMode=PerGame&PlayType=PRBallHandler&PlayerOrTeam=T&SeasonType=Regular+Season&SeasonYear=2021-22&TypeGrouping=offensive")) %>% drop_last_column()%>% 
+  mutate(season_year = "2021-22")
+
+prrm_21_22 = scrapping_data("https://stats.nba.com/stats/synergyplaytypes?LeagueID=00&PerMode=PerGame&PlayType=PRRollman&PlayerOrTeam=T&SeasonType=Regular+Season&SeasonYear=2021-22&TypeGrouping=offensive") %>% drop_last_column()%>% 
+  mutate(season_year = "2021-22")
+
+defend_21_22 = scrapping_data("https://stats.nba.com/stats/leaguedashptstats?College=&Conference=&Country=&DateFrom=&DateTo=&Division=&DraftPick=&DraftYear=&GameScope=&GameSegment=&Height=&LastNGames=0&LeagueID=00&Location=&Month=0&OpponentTeamID=0&Outcome=&PORound=0&PerMode=PerGame&Period=0&PlayerExperience=&PlayerOrTeam=Team&PlayerPosition=&PtMeasureType=Defense&Season=2021-22&SeasonSegment=&SeasonType=Regular+Season&StarterBench=&TeamID=0&VsConference=&VsDivision=&Weight=") %>% 
+  drop_last_column() %>% 
+  mutate(season_year = "2021-22")
+
+pass_21_22 = scrapping_data("https://stats.nba.com/stats/leaguedashptstats?College=&Conference=&Country=&DateFrom=&DateTo=&Division=&DraftPick=&DraftYear=&GameScope=&GameSegment=&Height=&LastNGames=0&LeagueID=00&Location=&Month=0&OpponentTeamID=0&Outcome=&PORound=0&PerMode=PerGame&Period=0&PlayerExperience=&PlayerOrTeam=Team&PlayerPosition=&PtMeasureType=Passing&Season=2021-22&SeasonSegment=&SeasonType=Regular+Season&StarterBench=&TeamID=0&VsConference=&VsDivision=&Weight=") %>% 
+  drop_last_column() %>% 
+  mutate(season_year = "2021-22")
+  
+```
+
+```{r wrangling for new season, include=FALSE}
+box_score_21_22 = 
+  box_score_21_22 %>% 
+  select(
+    season_year, 
+    team_abbreviation, 
+    wl, 
+    pts, 
+    ast, 
+    tov, 
+    fgm, 
+    fga, 
+    fg3m, 
+    fg3a
+    ) %>%
+  mutate(
+    win = case_when(wl == "W" ~ 1, TRUE~0),
+    game_num = 1,
+    fg3a_p = round(as.numeric(fg3a)/as.numeric(fga), digits = 3),
+    conference = case_when(
+      team_abbreviation %in% c("UTA","PHX","LAC","DEN","DAL","LAL","POR","GSW","SAS","MEM","NOP","SAC","MIN","OKC","HOU","NOH","SEA","NOK","CHH")~"west",
+      team_abbreviation %in% c("PHI","BKN","MIL","ATL","NYK","MIA","BOS","IND","WAS","CHI","TOR","CLE","ORL","DET","NJN","CHA")~"east") # divide into east and west conference
+    ) %>% 
+  group_by(season_year, team_abbreviation, conference) %>% 
+  summarise(
+    wins = sum(win), 
+    games = sum(game_num), 
+    pts_avg = round(mean(as.numeric(pts)), digits = 1), 
+    ast_avg = round(mean(as.numeric(ast)), digits = 1),
+    tov_avg = round(mean(as.numeric(tov)), digits = 1),
+    fgm_total = sum(as.numeric(fgm)), 
+    fga_total = sum(as.numeric(fga)), 
+    fg3m_total = sum(as.numeric(fg3m)), 
+    fg3a_total = sum(as.numeric(fg3a))
+    ) %>% 
+  relocate(season_year, team_abbreviation, conference, wins, everything()) %>% 
+  arrange(desc(season_year),desc(wins))
+
+box_score_21_22 = 
+  box_score_21_22  %>% 
+  mutate(fg3_p = fg3a_total/fga_total, fg3_r = fg3m_total/fg3a_total) %>%
+  select(season_year, team_abbreviation, conference, pts_avg, ast_avg, tov_avg,fg3_p, fg3_r, fg3a_total, fg3m_total)
+```
+
+```{r wrangling 2, include=FALSE}
+trans_df = 
+  transition_21_22 %>% 
+  janitor::clean_names() %>% 
+  select(season_year, team_abbreviation, poss) %>% 
+  rename(poss_trans = poss)
+
+pass_df = 
+  pass_21_22 %>% 
+  janitor::clean_names() %>% 
+  select(season_year, team_abbreviation, passes_made)
+
+isol_df = iso_21_22 %>% 
+  janitor::clean_names() %>% 
+  select(season_year, team_abbreviation, poss) %>%
+  rename(poss_iso = poss)
+
+prbh_df = 
+  prbh_21_22 %>% 
+  janitor::clean_names() %>% 
+  select(season_year, team_abbreviation, poss) %>% 
+  rename(poss_prb = poss)
+
+prrm_df = 
+  prrm_21_22 %>% 
+  janitor::clean_names() %>% 
+  select(season_year, team_abbreviation, poss) %>% 
+  rename(poss_prr = poss)
+
+defend_df = 
+  defend_21_22 %>% 
+  janitor::clean_names() %>% 
+  select(season_year, team_abbreviation, stl, blk, dreb)
+
+new_season_df = 
+  box_score_21_22 %>%
+  left_join(defend_df, by = c("season_year","team_abbreviation")) %>% 
+  left_join(prrm_df, by = c("season_year","team_abbreviation")) %>% 
+  left_join(prbh_df, by = c("season_year","team_abbreviation")) %>%
+  left_join(isol_df, by = c("season_year","team_abbreviation")) %>% 
+  left_join(pass_df, by = c("season_year","team_abbreviation")) %>%
+  left_join(trans_df, by = c("season_year","team_abbreviation")) %>% 
+  drop_na(poss_trans, passes_made, poss_iso, poss_prb, poss_prr, stl, blk, dreb) %>% 
+  mutate(
+    poss_pr = as.numeric(poss_prr) + as.numeric(poss_prb)
+  ) %>% 
+  select(-poss_prr, -poss_prb) %>% 
+  mutate(stl = as.numeric(stl), 
+         blk = as.numeric(blk), 
+         dreb = as.numeric(dreb), 
+         poss_iso = as.numeric(poss_iso), 
+         passes_made = as.numeric(passes_made), 
+         poss_trans = as.numeric(poss_trans))
+
+rank = c(1:15)
+prediction_21_22 = 
+  modelr::add_predictions(new_season_df, model2) %>% select(conference, pred) %>% 
+  filter(conference == "east") %>% 
+  arrange(desc(pred)) 
+```
+
+```{r top8 in east}
+top8_east = 
+  prediction_21_22 %>% 
+  head(8) %>% 
+  left_join(new_season_df, by = c("season_year", "team_abbreviation", "conference")) %>% 
+  group_by(season_year) %>% 
+  mutate(ranking = row_number())
+
+top8_east %>% 
+  select(season_year, team_abbreviation, conference, ranking) %>% 
+  knitr::kable("simple")
+```
+
+### Gaps in Performance {.tabset}
+Let's see what Knicks can do to improve its performance and rush into playoff season
+
+#### Turnover
+```{r}
+top8_east %>% 
+  ggplot(aes(x = reorder(team_abbreviation, tov_avg), y = tov_avg, fill = team_abbreviation)) + 
+  geom_bar(stat="identity") + 
+  labs(
+    x = "Team", 
+    y = "Average Turnover per Game", 
+    title = "Top 8 Team Average Turnover (East)"
+  )
+```
+
+#### 3 Field Goal Attempt Percentage
+```{r}
+top8_east %>% 
+  ggplot(aes(x = reorder(team_abbreviation, fg3_p), y = fg3_p, fill = team_abbreviation)) + 
+  geom_bar(stat="identity") + 
+  labs(
+    x = "Team",
+    y = "Three Pointer Rate",
+    title = "Top 8 Team Three Field Goal Attempt (East)"
+  )
+```
+
+#### 3 Pointer Rate
+```{r}
+top8_east %>% 
+  ggplot(aes(x = reorder(team_abbreviation, fg3_r), y = fg3_r, fill = team_abbreviation)) + 
+  geom_bar(stat="identity") + 
+  labs(
+    x = "Team",
+    y = "Three Pointer Rate",
+    title = "Top 8 Team Three Pointer Rate (East)"
+  )
+```
+
+#### Steal
+```{r}
+top8_east %>% 
+  ggplot(aes(x = reorder(team_abbreviation, stl), y = stl, fill = team_abbreviation)) + 
+  geom_bar(stat="identity") + 
+  labs(
+    x = "Team", 
+    y = "Average Steal per Game"
+  )
+```
+
+
+#### Defensive Rebound
+```{r}
+top8_east %>% 
+  ggplot(aes(x = reorder(team_abbreviation, dreb), y = dreb, fill = team_abbreviation)) + 
+  geom_bar(stat="identity") + 
+  labs(
+    x = "Team", 
+    y = "Average Defensive Rebound"
+  )
+```
+
+#### Isolation
+```{r}
+top8_east %>% 
+  ggplot(aes(x = reorder(team_abbreviation, poss_iso), y = poss_iso, fill = team_abbreviation)) + 
+  geom_bar(stat="identity") + 
+  labs(x = "Team", 
+       y = "Average Isolation")
+```
+
+#### Pick and Roll
+```{r}
+top8_east %>% 
+  ggplot(aes(x = reorder(team_abbreviation, poss_pr), y = poss_pr, fill = team_abbreviation)) + 
+  geom_bar(stat="identity") + 
+  labs(x = "Team", 
+       y = "Average Pick and Roll")
+```
+
+<br>
+From the above plots, we can conclude that Knicks has to improve its performance in the aspects of turnover and three points. As the model shows, the number of turnover is negatively associated with the number of winning. However, Knicks currently has the second highest number of turnover per game. In addition, its high percentage of three field goal attempt and low three pointer rate among the top 8 of east conference prevent it from getting a good prediction result. 
+
+As we mentioned before, three points has become a important parameter in wining a game, we want to use the shooting log data to see Knicks' performance in three point on the court. 
 
 
 
