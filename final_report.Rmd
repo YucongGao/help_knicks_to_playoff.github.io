@@ -305,12 +305,64 @@ This dataframe contains stats per game, which is used for logistic regression. W
 
 ### Data Description
 
+We are going to do two regression model with the data above. One is to fit the number of wins of a season with average performance. The other is to fit win or loss of a single game with the data in a single game. 
+
+1.Predict the number of wins
+
+Dependent variable is the number of wins by team and season, denoted by wins_revised.
+
+Independent variables are selected from both offensive aspect and defensive part.
+
+The typical attributes of "small ball era" is more three points shooting and quicker speed. So we select the following variables representing offensive level of a team:
+* fg3_p: proportion of three points shooting
+* fg3_r: three points shooting rate
+* pts_avg: average points per game
+* tov_avg: average number of turnovers per game
+* ast_avg: average number of assists per game
+* poss_trans: average number of transitions
+* passes_made: average number of passes per game
+* poss_iso: average number of isolations per game 
+* poss_pr: average number of pick and rolls
+
+As for the defensive level, variables include:
+
+* stl: average steals per game
+* blk: average blocks per game
+* dreb: average defensive rebounds per game
+
+2.Predict the win or lose of a game
+
+These are some reasonable variables that should be added into the regression model:
+
+* wl: Win/Loss
+* min: minutes
+* pts: Points
+* fgm: Field Goals Made
+* fga: Field Goals Attempted
+* fg_pct: Field Goal Percentage
+* fg3m: 3 Point Field Goals Made
+* fg3a: 3 Point Field Goals Attempted
+* fg3_pct: 3 Point Field Goals Percentage
+* ftm: Free Throws Made
+* fta: Free Throws Attempted
+* ft_pct: Free Throw Percentage
+* oreb: Offensive Rebounds
+* dreb: Defensive Rebounds
+* reb: Rebounds
+* ast: Assists
+* stl: STL
+* blk: Blocks 
+* blka: Blocks Attempted
+* tov: Turnovers
+* pf: Personal Fouls
+* pfd: Personal Fouls Drawn
+* plus_minus: Plus-Minus
 
 ## Exploratory Analysis
 In this part, we explore that on which variables, there would be difference between teams that get into play-off season and teams that not. In this way, we can get some insight on choosing potential parameters for model building. Specifically, we identify the trend in three point attempt by time in the past 10 seasons
 
-### Difference in Score between Play-off Team and Regular Team
-Firstly, We wanted to look at how the scores of each play distributed in the last 10 seasons from the aspects of team which got into play-off season and team who didn't.From the figure below, team who got into the playoff season have higher score compared to team who did not get into playoff season. Moreover, in the last 10 regular seasons, score of each play display an increasing trend. 
+### Difference average scores
+Firstly, We wanted to look at how the scores of each play distributed in the last 10 seasons from the aspects of team which got into play-off season and team who didn't.From the figure below.
 ```{r}
 non_play_off = 
   box_score_viz %>% 
@@ -332,12 +384,19 @@ box_score_viz %>%
 
 ```
 
+Two things are obvious. 
+
+Firstly, in the last 10 regular seasons, score of each play displays an increasing trend. Secondly, team who got into the playoff season have higher average scores compared to team who did not get into playoff season. 
+
+Its easy to understand the second tendency that playoff teams outscore the non-plyoff ones because higher scores let them win more. As for the rising of average score for all NBA teams, that is due to the small ball revolution, in which teams are going to speed up, get more shooting chances and increase the percentage of three points shooting.
 
 ### Three Point Parameters {.tabset}
 
 Next, we use the Boxscore data and team average data to deep dive potential variables that contribute to the wining of plays. 
 
-It is clear that team who got into playoff season have more **three field goal attempt** during a game. On the other hand, we can see that the percentage of three field goal attempts in all filed goal attempt was increasing in the last 10 seasons, which corresponds to the phenomenon of "Small Ball Revolution" and our analysis that score of each play was increasing in last 10 regular seasons. In addition, teams who got into playoff season were more likely to score at three filed goal, 
+It is clear that the percentage of three point field goal attempt in all field goal attempt were increasing in the last 10 seasons, which corresponds to the phenomenon of "Small Ball Revolution" and our analysis that score of each play was increasing in last 10 regular seasons. On the other hand,  team who got into playoff season have more **three point shooting attempt** during a game, which means the three point shooting attempt percent might be a contributor to the number of game wins.
+
+It is also apparent that the three point shooting rate is higher among playoff teams than non-playoff teams. That is because high shooting rate corresponds to higher scores of a game. Another tendency from this plot is that the variation of three point shooting rate narrows down. That reflects the attention that teams paid to three point shooting. If players were trained more on shooting, their shooting would become more stable.
 
 #### Three Field Goal Attempt Percent
 
@@ -348,13 +407,15 @@ plot_ly(box_score_viz, x = ~ season_year, y = ~ fg3a_p, color = ~ play_off_team,
          yaxis = list(title = "Three Field Goal Attempt Percent"))
 ```
 
-#### Three Pointer Rate
+
+#### Three Point shooting Rate
 ```{r, three pointer rate}
 plot_ly(box_score_viz, x = ~ season_year, y = ~ fg3p, color = ~ play_off_team, type = "box") %>% 
   layout(boxmode = "group", 
          xaxis = list(title = 'Season Year'),
          yaxis = list(title = "Three Pointer Rate"))
 ```
+
 
 ### Offensive Play Type {.tabset}
 ```{r, include=FALSE}
@@ -364,6 +425,14 @@ play_tp_df =
          conf_rank, play_off_team, poss_iso, poss_trans, poss_pr)
 ```
 
+Then, we are going to explore the influence that playtypes have on the average wins. If a playtype can apparently contribute to the number of wins of a team, we would suggest Knicks to design more offense in that type.
+
+
+The average isolations per game in playoff teams are almost rqual from 2013-14 seasaon to now, while the average isolations per game for non-playoff teams tended to decrease overtime. Super star group might account for this phenomenon, because super stars are able to conduct more isolation. As super stars joined the playoff team, the isolation of non-playoff teams decreased.
+
+Pick and roll is a common offensive team work. We can see from Pick and Roll plot that the average pick and rolls per game tended to increase in the last 8 years, and that of playoff teams was lower than that of non-playoff teams, which matched the phenomenon of isolation a lot.
+
+Transition means the defensive team immediately launches a fast break after getting the rebound or stealing the ball without waiting for the new defensive team to be seated. It is an important way to speed up and score easily and quickly. Average transitions rose gradually because it is more efficient. And non-playoff teams seemed to conduct more transitions than playoff teams. But that didn't mean more transitions less wins, instead it was likely that due to the team was non-playoff team, it has lower power in seated offense thus they tended to do more transitions. 
 
 #### Isolation
 ```{r}
@@ -380,7 +449,6 @@ play_tp_df %>%
 ```
 
 #### Pick and Roll
-
 ```{r}
 play_tp_df %>% 
   group_by(season_year, play_off_team) %>% 
@@ -393,6 +461,7 @@ play_tp_df %>%
          xaxis = list(title = 'Season Year'),
          yaxis = list(title = "Average Pick and Roll"))
 ```
+
 
 #### Transition
 ```{r}
@@ -412,13 +481,22 @@ play_tp_df %>%
 
 ### Season Average Movement Parameters {.tabset}
 
-
 ```{r, include=FALSE}
 avg_viz_df = 
   predict_df %>% 
   left_join(conf_rank, by = c("season_year", "team_abbreviation", "conference")) %>% 
   ungroup()
 ```
+
+Block is a key defense parameter. Higher blocks mean that your opponents have lower chance to score on you. Playoff teams played better on blocks than non-playoff teams.
+
+Steal is also a defense parameter, which is accompanied by turnovers of opponents. There was no apparent tendency in steal over time. 
+
+Too many turnovers would let a team lose a game. The turnover plot shows that the average turnovers in playoff teams were lower than the average turnovers in non-playoff teams.
+
+Defensive rebounds could prevent the opponent's second attack so that reduce its scores. As we can see, palyoff teams could grab more defensive rebounds than non-playoff teams.
+
+The number of passing per game reflect the offense fluency. Adequate number of passes could bring create good shooting opportunities, but no good shooting opportunity created after too many passes represents bad offense ability. From the passes plot, non-playoff teams had higher average passes per game than playoff teams.
 
 #### Block
 ```{r}
@@ -495,8 +573,160 @@ avg_viz_df %>%
 
 
 
+### Variabls can affect the result of game {.tabset}
+
+
+#### Field Goal Percentage
+
+```{r,warning=FALSE}
+plot_ly( box_score_all, x = ~ season_year, y = ~ fg_pct, color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Field Goal Percent"))
+```
+
+#### 3 Point Field Goals Percentage
+```{r,warning=FALSE}
+plot_ly(box_score_all, x = ~ season_year, y = ~ fg3_pct, color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "3 Point Field Goals Percentage"))
+```
+
+#### Free Throw Percentage
+```{r,warning=FALSE}
+plot_ly(box_score_all, x = ~ season_year, y = ~ ft_pct, color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Free Throw Percent"))
+```
+
+
+
+### Offensive Level Parameters {.tabset}
+
+```{r, include=FALSE}
+offensive_df = 
+  box_score_all %>% 
+  select(season_year,wl, oreb, ast)
+```
+
+
+
+#### Average offensive rebounds per game
+
+
+```{r,warning=FALSE}
+offensive_df %>% 
+  group_by(season_year, wl) %>% 
+  summarise(oreb= mean(oreb)) %>% 
+  plot_ly(x = ~ season_year, y = ~ oreb, type = "bar",
+    color = ~wl, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Average offensive rebounds of each game"))
+```
+#### Aaverage assists per games
+
+```{r,warning=FALSE}
+offensive_df %>% 
+  group_by(season_year, wl) %>% 
+  summarise(ast= mean(ast)) %>% 
+  plot_ly(x = ~ season_year, y = ~ ast, type = "bar",
+    color = ~wl, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Aaverage assists of each game"))
+```
+
+
+
+
+### Defensive level Parameters {.tabset}
+
+```{r, include=FALSE}
+defensive_df = 
+  box_score_all %>% 
+  select(season_year,wl,stl,blk,dreb,tov, pf)
+```
+
+
+#### Steals of each game
+
+
+```{r,warning=FALSE}
+box_score_all %>% 
+  group_by(season_year, wl) %>% 
+  summarise(stl= mean(stl)) %>% 
+  plot_ly(x = ~ season_year, y = ~ stl, type = "bar",
+    color = ~wl, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Aaverage steals of each game"))
+```
+
+#### Blocks of each game
+
+```{r,warning=FALSE}
+box_score_all %>% 
+  group_by(season_year, wl) %>% 
+  summarise(blk= mean(blk)) %>% 
+  plot_ly(x = ~ season_year, y = ~ blk, type = "bar",
+    color = ~wl, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Aaverage blocks of each game"))
+```
+
+#### Defensive rebounds of each game
+
+```{r,warning=FALSE}
+
+box_score_all %>% 
+  group_by(season_year, wl) %>% 
+  summarise(dreb= mean(dreb)) %>% 
+  plot_ly(x = ~ season_year, y = ~ dreb, type = "bar",
+    color = ~wl, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Aaverage defensive rebounds of each game"))
+
+```
+
+#### Turnovers of each game
+
+```{r,warning=FALSE}
+
+box_score_all %>% 
+  group_by(season_year, wl) %>% 
+  summarise(tov= mean(tov)) %>% 
+  plot_ly(x = ~ season_year, y = ~ tov, type = "bar",
+    color = ~wl, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Aaverage turnovers of each game"))
+
+```
+
+#### Personal foul of each game
+
+```{r,warning=FALSE}
+
+box_score_all %>% 
+  group_by(season_year, wl) %>% 
+  summarise(pf= mean(pf)) %>% 
+  plot_ly(x = ~ season_year, y = ~ pf, type = "bar",
+    color = ~wl, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Aaverage personal foul of each game"))
+
+```
+
+
 
 ## Regression Related
+
 
 
 
