@@ -202,8 +202,6 @@ Plot the threshold over last 20 years.
 ```{r,message=FALSE, warning=FALSE}
 eighth_wins =
   avg_df %>% 
-  group_by(season_year,conference) %>% 
-  mutate(conf_rank = row_number()) %>% 
   filter(conf_rank == 8)
 
 
@@ -355,17 +353,10 @@ And the overall trend of the three field goal attempt percentage has increased f
 
 ### Have a look at response variable and explanatory variables
 
-```{r}
+```{r,fig.asp=1, fig.width=10}
 predict_df %>% 
   select(-fg3a_total, -fg3m_total, -play_off_team, -conf_rank) %>% 
   ggpairs(columns = 4:16)
-
-cor_df = 
-  predict_df %>% 
-  ungroup() %>% 
-  select(-fg3a_total, -fg3m_total, -season_year, -team_abbreviation, -conference, -play_off_team, -conf_rank) 
-
-corrplot::corrplot(cor(cor_df), type = "upper", diag = FALSE)
 ```
 
 The correlation between predictors are not very high, which is important for preventing collinearity.

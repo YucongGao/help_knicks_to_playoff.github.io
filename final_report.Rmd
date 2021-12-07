@@ -8,6 +8,7 @@ library(tidyverse)
 library(patchwork)
 library(plotly)
 library(ggridges)
+library(GGally)
 
 knitr::opts_chunk$set(
   fig.height = 6,
@@ -361,6 +362,30 @@ These are some reasonable variables that should be added into the regression mod
 ## Exploratory Analysis
 In this part, we explore that on which variables, there would be difference between teams that get into play-off season and teams that not. In this way, we can get some insight on choosing potential parameters for model building. Specifically, we identify the trend in three point attempt by time in the past 10 seasons
 
+### Find the distribution of "threshold"
+
+Recall “threshold”: the number of games won by the 8th team in both west and east conference.
+
+Plot the threshold over last 20 years.
+```{r,message=FALSE, warning=FALSE}
+eighth_wins =
+  avg_df %>% 
+  filter(conf_rank == 8)
+
+
+ggplot(data = eighth_wins,aes(x = wins_revised)) + 
+  geom_bar() + 
+  theme_bw() 
+```
+
+```{r}
+summary(eighth_wins$wins_revised)
+```
+
+There are `r nrow(eighth_wins)` observations of threshold in the past 20 years, which follows a normal distribution with mean `r mean(eighth_wins$wins_revised)` and variance `r var(eighth_wins$wins_revised)`. 
+
+Then we are going to deep dive the factors associated with the number of wins per season for a team and try to find significant contributors to increase the number of wins. 
+
 ### Difference average scores
 Firstly, We wanted to look at how the scores of each play distributed in the last 10 seasons from the aspects of team which got into play-off season and team who didn't.From the figure below.
 ```{r}
@@ -574,7 +599,7 @@ avg_viz_df %>%
 ```{r}
 lose_game = 
   box_score_all %>% 
-  filter(wl== "L") 
+  filter(wl == "L") 
 
   box_score_all %>% 
   filter(wl == "W") %>% 
@@ -743,8 +768,19 @@ box_score_all %>%
 
 
 
-## Regression Related
+## Regression and Prediction
 
+In this part, we are going to use linear model to quantify the relationship between the number of wins and average performance parameters. Further, to know the factors influencing the result of a single game, we also use logistic regression to fit the box score data.
+
+### MLR exploration
+
+```{r,fig.asp=1, fig.width=10}
+predict_df %>% 
+  select(-fg3a_total, -fg3m_total, -play_off_team, -conf_rank) %>% 
+  ggpairs(columns = 4:16)
+```
+
+The correlation between predictors are not very high, which is important for preventing collinearity.
 
 
 
