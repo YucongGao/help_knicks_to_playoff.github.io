@@ -9,6 +9,7 @@ library(patchwork)
 library(plotly)
 library(ggridges)
 library(GGally)
+library(modelr)
 
 knitr::opts_chunk$set(
   fig.height = 6,
@@ -550,8 +551,6 @@ avg_viz_df %>%
          xaxis = list(title = 'Season Year'),
          yaxis = list(title = "Average Steal"))
 
-
-
 ```
 
 #### Turnover
@@ -689,13 +688,9 @@ plot_ly(box_score_all, x = ~ season_year, y = ~ ft_pct, color = ~ wl, type = "bo
 
 ```
 
-
-
 ### New York Knicks 3 Point Field Goals {.tabset}
 
-
 ```{r}
-
 nyk= 
   box_score_all %>% 
   filter(team_abbreviation =="NYK")
@@ -870,9 +865,136 @@ predict_df %>%
   ggpairs(columns = 4:16)
 ```
 
+The pts_avg is kind of correlated with ast_avg, fg3_p, dreb and poss_trans. So this 
 The correlation between predictors are not very high, which is important for preventing collinearity.
 
+### Modelling
 
+We used backward elimination method to select the significant dependents. 
+
+Firstly, put all the potential variables into the linear model, to see the regression results.
+
+```{r,message=FALSE, warning=FALSE}
+model1 = lm(data = predict_df, wins_revised ~ pts_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr + ast_avg + passes_made)
+summary(model1)
+anova(model1)
+```
+
+The adjusted R square for the full model is 0.5767 that is to say 57.67% of variances in the response variable can be explained by the predictors. 
+
+Then, to get a better model with higher adjusted R square, we delete the less effective predictors with higher p-value, which is passes_made
+
+```{r}
+model2 = lm(data = predict_df, wins_revised ~ pts_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr + ast_avg)
+summary(model2)
+anova(model2)
+```
+
+The adjusted R square got improved to 0.5777. 57.77% of variances in the response variable can be explained by the predictors. 
+Then delete the ast_avg which has the highest p-value among the variables left to see if the adjusted R square could be better.
+
+```{r}
+model3 = lm(data = predict_df, wins_revised ~ pts_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr)
+summary(model3)
+anova(model3)
+```
+
+The adjusted R square got decreased to 0.5768, so the ast_avg should be kept in the model. Model2 is the final model.
+
+### Cross Validation
+With respect to the above three models, we want to see which model has the best generalizability. So in this section, cross validation is used to compare candidate model
+```{r}
+set.seed(1000)
+
+predict_cv_df = 
+  predict_df %>% 
+  crossv_mc(100) %>% 
+  mutate(train = map(train, as.tibble), 
+         test = map(test, as.tibble))
+
+predict_cv_df = 
+  predict_cv_df %>% 
+  mutate(model1 = map(train, ~lm(wins_revised ~ pts_avg + ast_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + passes_made + poss_iso + poss_pr, data = .x)),  
+         model2 = map(train, ~lm(wins_revised ~ pts_avg + ast_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr, data = .x)), 
+         model3 = map(train, ~lm(wins_revised ~ pts_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr, data = .x))) %>% 
+  mutate(rmse1 = map2_dbl(model1, test, ~rmse(model = .x, data = .y)), 
+         rmse2 = map2_dbl(model2, test, ~rmse(model = .x, data = .y)), 
+         rmse3 = map2_dbl(model3, test, ~rmse(model = .x, data = .y)))
+  
+
+predict_cv_df %>% 
+  select(starts_with("rmse")) %>% 
+  pivot_longer(everything(), 
+               names_to = "model", 
+               names_prefix = "rmse", 
+               values_to = "rmse") %>% 
+  ggplot(aes(x = model, y = rmse)) + 
+  geom_boxplot()
+  
+```
+The results rmse distribution of the three model are very similar to each other, which indicates similar level of generalizability. Therefore, we still use the model2 for the final model.
+
+
+### Model diagnostic
+
+1). to check the linearity between wins_revised and dependent variable.
+
+```{r}
+ggplot(data = predict_df, aes(x = fg3_r, y = wins_revised)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+```
+
+
+2). to check if the error term is normally distributed with mean 0.
+```{r}
+ggplot(data = model2, aes(x = model2$residuals)) + geom_histogram()
+plot(model2, which = 2)
+```
+
+Condition 1 is met.
+
+3). to check if the error term is constants, independent of the dependent variable.
+```{r}
+ggplot(data = model2, aes(x = model2$fitted.values, y = model2$residuals)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+```
+
+Condition 2 is met as we cannot see an obvious tendency of errors as wins_revised increase.
+
+4) to check if there is any outliers or influencers in our data
+```{r}
+plot(model2, which = 4)
+```
+There is no influencer that exist in our data
+
+### Interpretation of model coefficients
+
+Final model is model 2.
+```{r}
+model2 %>% broom::tidy()
+```
+
+All variables selected are significant in this linear regression model.
+
+For each 2 additional point increase, there will be 1 extra wins.
+ 
+For each 1 additional average turnover, there will be 2 extra lose, which hurts badly.
+
+For each 5% additional increase in the proportion of three points attempt, there will be about 1 extra lose.
+ 
+For each 1% additional increase in three points shooting rate, there will be 2.8 extra wins, which helps the team a lot.
+ 
+For each 0.5 additional steal per game, there will be 3 extra wins, which is crazy. But average steal is below 10, and it is not easy to improve this ability.
+
+For each additional average block, there will be 1 extra win.
+
+For each additional average defensive rebound, there will be 3.31 extra wins! Thus, protecting the defensive rebound well is critical.
+
+For each additional transition per game, there will be 1.14 extra lose.
+
+For each additional isolation per game, there will be 0.45 extra win.
+
+For each additional pick and roll per game, there will be 0.75 extra lose.
+
+For each additional assist per game, there will be 0.57 extra lose.
 
 ## Shiny App
 
