@@ -40,7 +40,6 @@ As we are about to predicting the number of wins using the average performance o
 
 ### Box Score dataset
 
-Read the box_score dataset.
 ```{r,message=FALSE, warning=FALSE}
 box_score_all = read_csv("./data2/box_score_all.csv") %>% 
   janitor::clean_names() %>% 
@@ -51,7 +50,7 @@ The box_score_all dataset contains statistics in individual games. Totally `r nr
 
 ### Other dataset
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 box_score_all = read_csv("./data2/box_score_all.csv") %>% 
   janitor::clean_names() %>% 
   select(-contains("rank"))
@@ -92,8 +91,8 @@ trans_df =
 * pick_roll_baller_df: average pick and roll for ball handler by team and season.
 * pick_roll_roller_df: average pick and roll for roll man by team and season.
 
-### Huge wrangling to get avg_df, predict_df
-
+#### Average Data Frame
+The avg_df contains the number of wins by team and year in the last 20 years, which is used to analyse the distribution of threshold wins, and to further generate predict_df for regression.
 ```{r,message=FALSE, warning=FALSE}
 avg_df = 
   box_score_all %>% 
@@ -135,24 +134,8 @@ avg_df =
          play_off_team = fct_relevel(play_off_team, c("playoff", "non-playoff")))
 ```
 
-```{r,message=FALSE, warning=FALSE}
-predict_df = 
-  avg_df %>%
-  left_join(defend_df, by = c("season_year","team_abbreviation")) %>% 
-  left_join(prrm_df, by = c("season_year","team_abbreviation")) %>% 
-  left_join(prbh_df, by = c("season_year","team_abbreviation")) %>%
-  left_join(isol_df, by = c("season_year","team_abbreviation")) %>% 
-  left_join(pass_df, by = c("season_year","team_abbreviation")) %>%
-  left_join(trans_df, by = c("season_year","team_abbreviation")) %>% 
-  drop_na(poss_trans, passes_made, poss_iso, poss_prb, poss_prr, stl, blk, dreb) %>% 
-  mutate(
-    poss_pr = poss_prr + poss_prb
-  ) %>% 
-  select(-poss_prr, -poss_prb, -wins, -games, -games_should, -fgm_total, -fga_total)
-```
 
-The avg_df contains the number of wins by team and year in the last 20 years, which is used to analyse the distribution of threshold wins, and to further generate predict_df for regression.
-As data in box_score_all is documented by game, we need to summarise it into total and average stats. Detailed wrangling process:
+Detailed wrangling process:
 
 1).select the variables we are interested from box_score_all.
 
@@ -171,9 +154,63 @@ As data in box_score_all is documented by game, we need to summarise it into tot
 * calculate the rank in east or west conference by team and year<br>
 * marked whether or not a team entered into the playoff in that year<br>
 
-The predict_df contain the average performance data with total number of games won in the last 8 years, which is used to build models and predict the number of winnings.
+#### Predict Data Frame
+The predict_df contain the average performance data with total number of games won in the last 8 years, which is used to build models and predict the number of winnings. Not only do we include the fundamental average stats like points, steals, blocks and turnovers from avg_df, but also we combined the avg_df with 6 other dataframes to include playtype data and defensive data.
+```{r,message=FALSE, warning=FALSE}
+predict_df = 
+  avg_df %>%
+  left_join(defend_df, by = c("season_year","team_abbreviation")) %>% 
+  left_join(prrm_df, by = c("season_year","team_abbreviation")) %>% 
+  left_join(prbh_df, by = c("season_year","team_abbreviation")) %>%
+  left_join(isol_df, by = c("season_year","team_abbreviation")) %>% 
+  left_join(pass_df, by = c("season_year","team_abbreviation")) %>%
+  left_join(trans_df, by = c("season_year","team_abbreviation")) %>% 
+  drop_na(poss_trans, passes_made, poss_iso, poss_prb, poss_prr, stl, blk, dreb) %>% 
+  mutate(
+    poss_pr = poss_prr + poss_prb
+  ) %>% 
+  select(-poss_prr, -poss_prb, -wins, -games, -games_should, -fgm_total, -fga_total)
+```
 
-Not only do we include the fundamental average stats like points, steals, blocks and turnovers from avg_df, but also we want to include playtype data and defensive data in the model. Thus, we combine the avg_df with 6 other dataframes.
+#### Box Score Data Frame for Visualization
+This dataframe contains 23476 observations in the last 8 years which is mainly used for analyzing the tendency of different stats between playoff teams and non-playoff teams.
+```{r,message=FALSE, warning=FALSE}
+box_score_viz = 
+  box_score_all %>% 
+  filter(season_year %in% c("2011-12", "2012-13", "2013-14", "2014-15", "2015-16", "2016-17", "2017-18", "2018-19", "2019-20", "2020-21")) %>% 
+  mutate(team_abbreviation = str_replace(team_abbreviation, "NOH", "NOP"), 
+    team_abbreviation = str_replace(team_abbreviation, "NJN", "BKN")) %>% 
+  select(season_year, team_abbreviation, wl, pts, ast, tov, fgm, fga, fg3m, fg3a, stl, blk, dreb) %>%
+  mutate(
+    win = case_when(wl == "W" ~ 1, TRUE~0),
+    game_num = 1, 
+    conference = case_when(
+      team_abbreviation %in% c("UTA","PHX","LAC","DEN","DAL","LAL","POR","GSW","SAS","MEM","NOP","SAC","MIN","OKC","HOU","SEA","NOK","CHH")~"west",
+      team_abbreviation %in% c("PHI","BKN","MIL","ATL","NYK","MIA","BOS","IND","WAS","CHI","TOR","CLE","ORL","DET","CHA")~"east"), # divide into east and west conference
+    fg3a_p = round(fg3a/fga, digits = 3),
+    fg3_r = round(fg3m/fg3a, digits = 3)
+    ) %>% 
+  relocate(season_year, team_abbreviation, conference)
+
+conf_rank = 
+  avg_df %>% 
+  filter(season_year %in% c("2011-12", "2012-13", "2013-14", "2014-15", "2015-16", "2016-17", "2017-18", "2018-19", "2019-20", "2020-21")) %>% 
+  ungroup() %>% 
+  select(season_year, team_abbreviation, conference, conf_rank)
+
+
+#join the two table together
+box_score_viz = 
+  box_score_viz %>% 
+  left_join(conf_rank, by = c("season_year", "team_abbreviation", "conference")) %>% 
+  mutate(play_off_team = case_when(
+           conf_rank <= 8 ~ "playoff", 
+           conf_rank > 8 ~ "non-playoff"
+         ), 
+         play_off_team = fct_relevel(play_off_team, c("playoff", "non-playoff")), 
+         fg3p = fg3m / fg3a) %>% 
+  relocate(season_year, team_abbreviation, conference, play_off_team)
+```
 
 ### Variable description
 
@@ -227,8 +264,6 @@ Then we are going to deep dive the factors associated with the number of wins pe
 ### EDA on average performance
 
 Is there any difference in three field goal percent, scores, block, steal, turnover, passing between regular season team and playoff season team in each game?
-
-This dataframe contains 23476 observations in the last 8 years which is mainly used for analyzing the tendency of different stats between playoff teams and non-playoff teams.
 
 To add the rank of a team, we joined it with the conf_rank in avg_df.
 ```{r, warning=FALSE}
@@ -291,7 +326,6 @@ plot_ly(box_score_viz, x = ~ season_year, y = ~ fg3a, color = ~ play_off_team, t
          yaxis = list(title = "Three Point Attempt"))
 ```
 
-
 3. steal
 There is no obvious pattern in steal data when comparing playoff season team and regular season team
 ```{r}
@@ -336,7 +370,6 @@ predict_df %>%
 
 ```
 
-
 8. Passes made
 No obvious pattern
 ```{r}
@@ -354,12 +387,11 @@ predict_df %>%
 ```
 
 Results of EDA
-1. 哪些变量是季后赛球队和非季后赛球队有明显差异的<br>
+1. 
 According to above figures, we can conclude that teams which got into the play-off season each year have higher three pointer rate, three field goal attempt percentage and more defensive rebounds in each game.
 
-2. 三分球出手率逐年上升，说明三分球越来越重要
-And the overall trend of the three field goal attempt percentage has increased from 2012-13 season to 2020-21 season, which means that three point is a key to get into play-off season
-
+2. 
+And the overall trend of the three field goal attempt percentage has increased from 2012-13 season to 2020-21 season, which means that three point is a key to get into play-off season.
 
 ### Have a look at response variable and explanatory variables
 
@@ -376,33 +408,27 @@ The correlation between predictors are not very high(>0.7), which is important f
 We used backward elimination method to select the significant dependents. 
 
 Firstly, put all the potential variables into the linear model, to see the regression results.
-
 ```{r,message=FALSE, warning=FALSE}
 model1 = lm(data = predict_df, wins_revised ~ pts_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr + ast_avg + passes_made)
-summary(model1)
-anova(model1)
+model1 %>% broom::tidy() %>% knitr::kable()
 ```
 
-The adjusted R square for the full model is 0.5767 that is to say 57.67% of variances in the response variable can be explained by the predictors. 
-
-Then, to get a better model with higher adjusted R square, we delete the less effective predictors with higher p-value, which is passes_made
-
+The adjusted R square for the full model is 0.5767 that is to say 57.67% of variances in the response variable can be explained by the predictors. <br>
+Then, to get a better model with higher adjusted R square, we delete the less effective predictors with higher p-value, which is passes_made.
 ```{r}
 model2 = lm(data = predict_df, wins_revised ~ pts_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr + ast_avg)
-summary(model2)
-anova(model2)
+model2 %>% broom::tidy() %>% knitr::kable()
 ```
 
-The adjusted R square got improved to 0.5777. 57.77% of variances in the response variable can be explained by the predictors. 
+The adjusted R square got improved to 0.5777. 57.77% of variances in the response variable can be explained by the predictors. <br>
 Then delete the ast_avg which has the highest p-value among the variables left to see if the adjusted R square could be better.
-
 ```{r}
 model3 = lm(data = predict_df, wins_revised ~ pts_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr)
-summary(model3)
-anova(model3)
+model3 %>% broom::tidy() %>% knitr::kable()
 ```
 
-The adjusted R square got decreased to 0.5768, so the ast_avg should be kept in the model. Model2 is the final model.
+The adjusted R square got decreased to 0.5768, but the difference is little. <br>
+The next predictor with the highest p-value is blk, which is quite significant in baskketball game. So We will not exclude it from our model.
 
 ### Cross Validation
 With respect to the above three models, we want to see which model has the best generalizability. So in this section, cross validation is used to compare candidate model
@@ -435,8 +461,7 @@ predict_cv_df %>%
   geom_boxplot()
   
 ```
-The results rmse distribution of the three model are very similar to each other, which indicates similar level of generalizability. Therefore, we still use the model2 for the final model.
-
+The results rmse distribution of the three model are very similar to each other, which indicates similar level of generalizability. Therefore, according to parsimony, we used model3 as our final model.
 
 ### Model diagnostic
 
@@ -470,35 +495,17 @@ There is no influencer that exist in our data
 
 ### Interpretation of model coefficients
 
-Final model is model 2.
+Final model is model 3.
 ```{r}
-model2 %>% broom::tidy()
+model3 %>% broom::tidy()
 ```
 
-All variables selected are significant in this linear regression model.
+All variables selected are significant in this linear regression model. <br>
+Considering the unit of the predictors, it's not easy for some variables to get improved a lot. Instead, just normal fluctuation of tov_avg, fg3_r, and dreb could influence the results.
 
-For each 2 additional point increase, there will be 1 extra wins.
- 
-For each 1 additional average turnover, there will be 2 extra lose, which hurts badly.
-
-For each 5% additional increase in the proportion of three points attempt, there will be about 1 extra lose.
- 
-For each 1% additional increase in three points shooting rate, there will be 2.8 extra wins, which helps the team a lot.
- 
-For each 0.5 additional steal per game, there will be 3 extra wins, which is crazy. But average steal is below 10, and it is not easy to improve this ability.
-
-For each additional average block, there will be 1 extra win.
-
-For each additional average defensive rebound, there will be 3.31 extra wins! Thus, protecting the defensive rebound well is critical.
-
-For each additional transition per game, there will be 1.14 extra lose.
-
-For each additional isolation per game, there will be 0.45 extra win.
-
-For each additional pick and roll per game, there will be 0.75 extra lose.
-
-For each additional assist per game, there will be 0.57 extra lose.
-
+For each 1 additional average turnover, there will be 2 extra lose, which hurts badly. <br>
+For each 1% additional increase in three points shooting rate, there will be 2.7 extra wins, which helps the team a lot. <br>
+For each 1 additional average defensive rebound, there will be 3.34 extra wins! Protecting the defensive rebound well is critical.<br>
 
 ### Use the model to predict whether the Knicks can get in the play-off season in 2021-2022 
 
@@ -666,14 +673,14 @@ new_season_df =
 ```{r}
 rank = c(1:15)
 prediction_21_22 = 
-  modelr::add_predictions(new_season_df, model2) %>% select(conference, pred) %>% 
+  modelr::add_predictions(new_season_df, model3) %>% select(conference, pred) %>% 
   filter(conference == "east") %>% 
   arrange(desc(pred)) 
 
 prediction_21_22 %>% 
   knitr::kable()
 ```
-Based on the boxscores of this season, we use model 2 to predict number of winnings for existing 30 teams. By arranging the predicted number of winnings, the Knicks is predicted to have 43.6 winnings this season and rank 8 in the season of 2021-22. According to this result, if the Knicks wants to secure a spacet for playoff season, it has to improve its performance and tries to win more. 
+Based on the boxscores of this season, we use model 3 to predict number of winnings for existing 30 teams. By arranging the predicted number of winnings, the Knicks is predicted to have 43.6 winnings this season and rank 8 in the season of 2021-22. According to this result, if the Knicks wants to secure a spacet for playoff season, it has to improve its performance and tries to win more. 
 
 
 Let's see what Knicks can do to improve its performance and rush into playoff season
@@ -1400,6 +1407,13 @@ Alec Burks, Kemba Walker and Derrick Rose are the three point leader in Knicks. 
 
 ### Conclusion
 
+Firstly, in order to enter playoff, Knicks is supposed to win about 43 games in a regular season. 
+
+Then, variables positively influencing the number of winnings a lot are mainly three points shooting rate and the average number of defense rebounds. variable negatively influencing the number o winnings a lot is the average number of turnovers.
+
+What's more, New York Knicks ranked second among top eight teams in the number of turnovers per game and fifth among top eight teams in the three point shooting rate. Both of the two stats are the shortage of New York Knicks. Specifically, the top three points shooting rate is slightly lower than the league average, and the corner three shooting rate is highly lower than the league average. Leading players like Alec Burks, Kemba Walker, and Derick Rose account for the low three point shooting rate.
+
+Finally, to get more wins, we highly suggest Knicks taking advantage of the hot area, deploying more tactics in for wing three shooting. And in the training, players should practice more on corner threes. Besides, more team training is needed to avoid turnovers.
 
 
 

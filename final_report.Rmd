@@ -885,10 +885,10 @@ The predicting model for the number of games won by a team is:
 We can see that Residuals vs Fitted is approximately normally distributed around 0. On the other hand, heteroscedasticity is not a problem in this model. And there is no outlier that have big impact on the model fit. 
 ```{r}
 par(mfrow = c(2,2))
-plot(model2, which = 1)
-plot(model2, which = 2)
-plot(model2, which = 3)
-plot(model2, which = 4)
+plot(model3, which = 1)
+plot(model3, which = 2)
+plot(model3, which = 3)
+plot(model3, which = 4)
 ```
 
 
@@ -898,8 +898,8 @@ All variables selected are significant in this linear regression model. <br>
 Considering the unit of the predictors, it's not easy for some variables to get improved a lot. Instead, just normal fluctuation of tov_avg, fg3_r, and dreb could influence the results.
 
 For each 1 additional average turnover, there will be 2 extra lose, which hurts badly. <br>
-For each 1% additional increase in three points shooting rate, there will be 2.8 extra wins, which helps the team a lot. <br>
-For each 1 additional average defensive rebound, there will be 3.31 extra wins! Protecting the defensive rebound well is critical.<br>
+For each 1% additional increase in three points shooting rate, there will be 2.7 extra wins, which helps the team a lot. <br>
+For each 1 additional average defensive rebound, there will be 3.34 extra wins! Protecting the defensive rebound well is critical.<br>
 
 ## Predictions on Knicks
 
@@ -1065,7 +1065,7 @@ new_season_df =
 
 rank = c(1:15)
 prediction_21_22 = 
-  modelr::add_predictions(new_season_df, model2) %>% select(conference, pred) %>% 
+  modelr::add_predictions(new_season_df, model3) %>% select(conference, pred) %>% 
   filter(conference == "east") %>% 
   arrange(desc(pred)) 
 ```
