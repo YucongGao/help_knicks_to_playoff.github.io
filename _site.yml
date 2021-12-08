@@ -8,7 +8,7 @@ navbar:
     - text: "Regression"
       menu:
         - text: 'Regression for playoff'
-          href: test_here.html
+          href: MLR_nwins.html
         - text: 'Regression for win or lose'
           href: second_regression.html
         - text: 'Regression for score'
