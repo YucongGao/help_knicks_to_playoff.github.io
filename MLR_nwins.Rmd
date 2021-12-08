@@ -1,5 +1,5 @@
 ---
-title: "MLR_nwins"
+title: "Predict Number of Winings"
 output: html_document
 ---
 
@@ -73,7 +73,7 @@ trans_df =
 ```
 
 
-```{r wrangling 1,message=FALSE, warning=FALSE}
+```{r wrangling 1,message=FALSE, warning=FALSE, include=FALSE}
 avg_df = 
   box_score_all %>% 
   select(season_year, team_abbreviation, wl, pts, ast, tov, fgm, fga, fg3m, fg3a) %>%
@@ -114,7 +114,7 @@ avg_df =
          play_off_team = fct_relevel(play_off_team, c("playoff", "non-playoff")))
 ```
 
-```{r wrangling 2,message=FALSE, warning=FALSE}
+```{r wrangling 2,message=FALSE, warning=FALSE, include=FALSE}
 predict_df = 
   avg_df %>%
   left_join(defend_df, by = c("season_year","team_abbreviation")) %>% 
@@ -153,5 +153,102 @@ As for the defensive level, variables include:
 * dreb: average defensive rebounds per game
 
 ### Correlation Matrix 
+
+```{r,fig.asp=1, fig.width=10}
+predict_df %>% 
+  select(-fg3a_total, -fg3m_total, -play_off_team, -conf_rank) %>% 
+  ggpairs(columns = 4:16)
+```
+
+The correlation between predictors are not very high, which is important for preventing collinearity.
+
+We used backward elimination method to select the significant dependents. <br>
+
+Firstly, put all the potential variables into the linear model, to see the regression results 
+
+```{r}
+model1 = lm(data = predict_df, wins_revised ~ pts_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr + ast_avg + passes_made)
+model1 %>% broom::tidy() %>% knitr::kable()
+```
+
+The adjusted R square for the full model is 0.5767 that is to say 57.67% of variances in the response variable can be explained by the predictors.
+
+Then, to get a better model with higher adjusted R square, we delete the less effective predictors with higher p-value, which is passes_made.
+
+```{r}
+model2 = lm(data = predict_df, wins_revised ~ pts_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr + ast_avg)
+model2 %>% broom::tidy() %>% knitr::kable()
+```
+The adjusted R square got improved to 0.5777. 57.77% of variances in the response variable can be explained by the predictors.
+
+The result shows that assistance may not be a variable that significantly impacts the number of winings, so we decide to delete this variable from our model
+
+```{r}
+model3 = lm(data = predict_df, wins_revised ~ pts_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr)
+model3 %>% broom::tidy() %>% knitr::kable()
+```
+The adjusted R square got decreased to 0.5768, but the difference is not significant. But consider the criteria of parsimony, we still exclude assistance from our model. In addition, block is also a variable that has a high p value. However, consider blocks is a important parameter in evaluating the defense level, it would be included in our model. 
+
+### Cross Validation
+With respect to the above three models, we want to see which model has the best generalizability. So in this part, cross validation is used to compare candidate model
+```{r, message=FALSE, warning=FALSE}
+set.seed(1000)
+
+predict_cv_df = 
+  predict_df %>% 
+  crossv_mc(100) %>% 
+  mutate(train = map(train, as.tibble), 
+         test = map(test, as.tibble))
+
+predict_cv_df = 
+  predict_cv_df %>% 
+  mutate(model1 = map(train, ~lm(wins_revised ~ pts_avg + ast_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + passes_made + poss_iso + poss_pr, data = .x)),  
+         model2 = map(train, ~lm(wins_revised ~ pts_avg + ast_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr, data = .x)), 
+         model3 = map(train, ~lm(wins_revised ~ pts_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr, data = .x))) %>% 
+  mutate(rmse1 = map2_dbl(model1, test, ~rmse(model = .x, data = .y)), 
+         rmse2 = map2_dbl(model2, test, ~rmse(model = .x, data = .y)), 
+         rmse3 = map2_dbl(model3, test, ~rmse(model = .x, data = .y)))
+  
+
+predict_cv_df %>% 
+  select(starts_with("rmse")) %>% 
+  pivot_longer(everything(), 
+               names_to = "model", 
+               names_prefix = "rmse", 
+               values_to = "rmse") %>% 
+  ggplot(aes(x = model, y = rmse, fill = model)) + 
+  geom_boxplot(alpha = .6)
+  
+```
+The resulted rmse distribution of the three model are very similar to each other, which indicates similar level of generalizability. Therefore, we still use the model3 for the final model.
+
+## Final MLR
+As stated above, we decide to use Model 3 for predicting number of winings in NBA regular seasons:
+
+_Wins ~ pts_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr_
+
+### Model Dignostics
+We can see that Residuals vs Fitted is approximately normally distributed around 0. On the other hand, heteroscedasticity is not a problem in this model. And there is no out-lier that have big impact on the model fit. 
+```{r, fig.asp= 1, fig.width=10}
+par(mfrow=c(2,2))
+plot(model2, which = 1)
+plot(model2, which = 2)
+plot(model2, which = 3)
+plot(model2, which = 4)
+```
+
+### Model Conclusion
+
+All variables selected are significant in this linear regression model.
+Considering the unit of the predictors, it’s not easy for some variables to get improved a lot. Instead, just normal fluctuation of tov_avg, fg3_r, and dreb could influence the results.
+
+For each 1 additional average turnover, there will be 2 extra lose, which hurts badly.
+For each 1% additional increase in three points shooting rate, there will be 2.7 extra wins, which helps the team a lot.
+For each 1 additional average defensive rebound, there will be 3.34 extra wins! Protecting the defensive rebound well is critical.
+
+
+
+
+
 
 

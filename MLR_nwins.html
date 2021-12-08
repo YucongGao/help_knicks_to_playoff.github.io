@@ -11,7 +11,7 @@
 
 
 
-<title>MLR_nwins</title>
+<title>Predict Number of Winings</title>
 
 <script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -382,62 +382,11 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">MLR_nwins</h1>
+<h1 class="title toc-ignore">Predict Number of Winings</h1>
 
 </div>
 
 
-<pre class="r"><code>avg_df = 
-  box_score_all %&gt;% 
-  select(season_year, team_abbreviation, wl, pts, ast, tov, fgm, fga, fg3m, fg3a) %&gt;%
-  mutate(
-    win = case_when(wl == &quot;W&quot; ~ 1, TRUE~0),
-    game_num = 1,
-    fg3a_p = round(fg3a/fga, digits = 3),
-    team_abbreviation = str_replace(team_abbreviation, &quot;NOH&quot;, &quot;NOP&quot;), 
-    team_abbreviation = str_replace(team_abbreviation, &quot;NJN&quot;, &quot;BKN&quot;),
-    conference = case_when(
-      team_abbreviation %in% c(&quot;UTA&quot;,&quot;PHX&quot;,&quot;LAC&quot;,&quot;DEN&quot;,&quot;DAL&quot;,&quot;LAL&quot;,&quot;POR&quot;,&quot;GSW&quot;,&quot;SAS&quot;,&quot;MEM&quot;,&quot;NOP&quot;,&quot;SAC&quot;,&quot;MIN&quot;,&quot;OKC&quot;,&quot;HOU&quot;,&quot;SEA&quot;,&quot;NOK&quot;,&quot;CHH&quot;)~&quot;west&quot;,
-      team_abbreviation %in% c(&quot;PHI&quot;,&quot;BKN&quot;,&quot;MIL&quot;,&quot;ATL&quot;,&quot;NYK&quot;,&quot;MIA&quot;,&quot;BOS&quot;,&quot;IND&quot;,&quot;WAS&quot;,&quot;CHI&quot;,&quot;TOR&quot;,&quot;CLE&quot;,&quot;ORL&quot;,&quot;DET&quot;,&quot;CHA&quot;)~&quot;east&quot;) # divide into east and west conference
-    ) %&gt;% 
-  group_by(season_year, team_abbreviation, conference) %&gt;% 
-  summarise(
-    wins = sum(win), 
-    games = sum(game_num), 
-    games_should = 82, 
-    pts_avg = round(mean(pts), digits = 1), 
-    ast_avg = round(mean(ast), digits = 1),
-    tov_avg = round(mean(tov), digits = 1),
-    fgm_total = sum(fgm), 
-    fga_total = sum(fga), 
-    fg3m_total = sum(fg3m), 
-    fg3a_total = sum(fg3a)
-    ) %&gt;% 
-  mutate(wins_revised = round(wins/games*games_should,0)) %&gt;% # due to labor negotiation in 2011-12, COVID-19.
-  relocate(season_year, team_abbreviation, conference, wins, wins_revised, everything()) %&gt;% 
-  arrange(desc(season_year),desc(wins)) %&gt;% 
-  mutate(fg3_p = fg3a_total/fga_total, fg3_r = fg3m_total/fg3a_total) %&gt;% 
-  group_by(season_year,conference) %&gt;% 
-  mutate(
-    conf_rank = row_number(),
-    play_off_team = case_when(
-           conf_rank &lt;= 8 ~ &quot;playoff&quot;, 
-           conf_rank &gt; 8 ~ &quot;non-playoff&quot;
-         ), 
-         play_off_team = fct_relevel(play_off_team, c(&quot;playoff&quot;, &quot;non-playoff&quot;)))</code></pre>
-<pre class="r"><code>predict_df = 
-  avg_df %&gt;%
-  left_join(defend_df, by = c(&quot;season_year&quot;,&quot;team_abbreviation&quot;)) %&gt;% 
-  left_join(prrm_df, by = c(&quot;season_year&quot;,&quot;team_abbreviation&quot;)) %&gt;% 
-  left_join(prbh_df, by = c(&quot;season_year&quot;,&quot;team_abbreviation&quot;)) %&gt;%
-  left_join(isol_df, by = c(&quot;season_year&quot;,&quot;team_abbreviation&quot;)) %&gt;% 
-  left_join(pass_df, by = c(&quot;season_year&quot;,&quot;team_abbreviation&quot;)) %&gt;%
-  left_join(trans_df, by = c(&quot;season_year&quot;,&quot;team_abbreviation&quot;)) %&gt;% 
-  drop_na(poss_trans, passes_made, poss_iso, poss_prb, poss_prr, stl, blk, dreb) %&gt;% 
-  mutate(
-    poss_pr = poss_prr + poss_prb
-  ) %&gt;% 
-  select(-poss_prr, -poss_prb, -wins, -games, -games_should, -fgm_total, -fga_total)</code></pre>
 <div id="regression-exploration" class="section level2">
 <h2>Regression Exploration</h2>
 <p>The resulting data frame of predict_df contains 240 observations and 20 variables. Each observations represent a team’s average data in one regular season. Dependent variable is the number of wins by team and season, denoted by wins_revised. Independent variables are selected from both offensive aspect and defensive part.</p>
@@ -450,6 +399,366 @@ div.tocify {
 </ul>
 <div id="correlation-matrix" class="section level3">
 <h3>Correlation Matrix</h3>
+<pre class="r"><code>predict_df %&gt;% 
+  select(-fg3a_total, -fg3m_total, -play_off_team, -conf_rank) %&gt;% 
+  ggpairs(columns = 4:16)</code></pre>
+<p><img src="MLR_nwins_files/figure-html/unnamed-chunk-1-1.png" width="90%" /></p>
+<p>The correlation between predictors are not very high, which is important for preventing collinearity.</p>
+<p>We used backward elimination method to select the significant dependents. <br></p>
+<p>Firstly, put all the potential variables into the linear model, to see the regression results</p>
+<pre class="r"><code>model1 = lm(data = predict_df, wins_revised ~ pts_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr + ast_avg + passes_made)
+model1 %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std.error</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">-175.9904862</td>
+<td align="right">25.5821030</td>
+<td align="right">-6.8794378</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">pts_avg</td>
+<td align="right">0.4248489</td>
+<td align="right">0.2300268</td>
+<td align="right">1.8469537</td>
+<td align="right">0.0660553</td>
+</tr>
+<tr class="odd">
+<td align="left">tov_avg</td>
+<td align="right">-1.9412208</td>
+<td align="right">0.5782420</td>
+<td align="right">-3.3571076</td>
+<td align="right">0.0009234</td>
+</tr>
+<tr class="even">
+<td align="left">fg3_p</td>
+<td align="right">-20.4273068</td>
+<td align="right">11.7774507</td>
+<td align="right">-1.7344421</td>
+<td align="right">0.0841971</td>
+</tr>
+<tr class="odd">
+<td align="left">fg3_r</td>
+<td align="right">279.4294992</td>
+<td align="right">37.7656012</td>
+<td align="right">7.3990481</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">stl</td>
+<td align="right">5.8353408</td>
+<td align="right">0.8579365</td>
+<td align="right">6.8015999</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="odd">
+<td align="left">blk</td>
+<td align="right">1.0691064</td>
+<td align="right">0.8141688</td>
+<td align="right">1.3131262</td>
+<td align="right">0.1904663</td>
+</tr>
+<tr class="even">
+<td align="left">dreb</td>
+<td align="right">3.3156286</td>
+<td align="right">0.4585373</td>
+<td align="right">7.2308805</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="odd">
+<td align="left">poss_trans</td>
+<td align="right">-1.1801113</td>
+<td align="right">0.3087443</td>
+<td align="right">-3.8222933</td>
+<td align="right">0.0001708</td>
+</tr>
+<tr class="even">
+<td align="left">poss_iso</td>
+<td align="right">0.3654577</td>
+<td align="right">0.3299898</td>
+<td align="right">1.1074820</td>
+<td align="right">0.2692577</td>
+</tr>
+<tr class="odd">
+<td align="left">poss_pr</td>
+<td align="right">-0.7894520</td>
+<td align="right">0.1874078</td>
+<td align="right">-4.2124817</td>
+<td align="right">0.0000364</td>
+</tr>
+<tr class="even">
+<td align="left">ast_avg</td>
+<td align="right">-0.5135479</td>
+<td align="right">0.4708884</td>
+<td align="right">-1.0905937</td>
+<td align="right">0.2766080</td>
+</tr>
+<tr class="odd">
+<td align="left">passes_made</td>
+<td align="right">-0.0240122</td>
+<td align="right">0.0349037</td>
+<td align="right">-0.6879561</td>
+<td align="right">0.4921828</td>
+</tr>
+</tbody>
+</table>
+<p>The adjusted R square for the full model is 0.5767 that is to say 57.67% of variances in the response variable can be explained by the predictors.</p>
+<p>Then, to get a better model with higher adjusted R square, we delete the less effective predictors with higher p-value, which is passes_made.</p>
+<pre class="r"><code>model2 = lm(data = predict_df, wins_revised ~ pts_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr + ast_avg)
+model2 %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std.error</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">-185.2086957</td>
+<td align="right">21.7670062</td>
+<td align="right">-8.508689</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">pts_avg</td>
+<td align="right">0.4602455</td>
+<td align="right">0.2239396</td>
+<td align="right">2.055222</td>
+<td align="right">0.0409972</td>
+</tr>
+<tr class="odd">
+<td align="left">tov_avg</td>
+<td align="right">-2.0249356</td>
+<td align="right">0.5646398</td>
+<td align="right">-3.586243</td>
+<td align="right">0.0004104</td>
+</tr>
+<tr class="even">
+<td align="left">fg3_p</td>
+<td align="right">-22.0534727</td>
+<td align="right">11.5244711</td>
+<td align="right">-1.913621</td>
+<td align="right">0.0569209</td>
+</tr>
+<tr class="odd">
+<td align="left">fg3_r</td>
+<td align="right">278.0997445</td>
+<td align="right">37.6725137</td>
+<td align="right">7.382033</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">stl</td>
+<td align="right">5.8153684</td>
+<td align="right">0.8564542</td>
+<td align="right">6.790052</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="odd">
+<td align="left">blk</td>
+<td align="right">1.0002139</td>
+<td align="right">0.8070530</td>
+<td align="right">1.239341</td>
+<td align="right">0.2164934</td>
+</tr>
+<tr class="even">
+<td align="left">dreb</td>
+<td align="right">3.3142055</td>
+<td align="right">0.4580027</td>
+<td align="right">7.236214</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="odd">
+<td align="left">poss_trans</td>
+<td align="right">-1.1358662</td>
+<td align="right">0.3016225</td>
+<td align="right">-3.765854</td>
+<td align="right">0.0002113</td>
+</tr>
+<tr class="even">
+<td align="left">poss_iso</td>
+<td align="right">0.4524495</td>
+<td align="right">0.3044489</td>
+<td align="right">1.486126</td>
+<td align="right">0.1386271</td>
+</tr>
+<tr class="odd">
+<td align="left">poss_pr</td>
+<td align="right">-0.7538689</td>
+<td align="right">0.1799207</td>
+<td align="right">-4.190005</td>
+<td align="right">0.0000399</td>
+</tr>
+<tr class="even">
+<td align="left">ast_avg</td>
+<td align="right">-0.5648641</td>
+<td align="right">0.4644055</td>
+<td align="right">-1.216317</td>
+<td align="right">0.2251221</td>
+</tr>
+</tbody>
+</table>
+<p>The adjusted R square got improved to 0.5777. 57.77% of variances in the response variable can be explained by the predictors.</p>
+<p>The result shows that assistance may not be a variable that significantly impacts the number of winings, so we decide to delete this variable from our model</p>
+<pre class="r"><code>model3 = lm(data = predict_df, wins_revised ~ pts_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr)
+model3 %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std.error</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">-185.1802187</td>
+<td align="right">21.7897670</td>
+<td align="right">-8.498495</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">pts_avg</td>
+<td align="right">0.3251935</td>
+<td align="right">0.1946784</td>
+<td align="right">1.670414</td>
+<td align="right">0.0962036</td>
+</tr>
+<tr class="odd">
+<td align="left">tov_avg</td>
+<td align="right">-2.0555801</td>
+<td align="right">0.5646676</td>
+<td align="right">-3.640337</td>
+<td align="right">0.0003366</td>
+</tr>
+<tr class="even">
+<td align="left">fg3_p</td>
+<td align="right">-22.3063836</td>
+<td align="right">11.5346505</td>
+<td align="right">-1.933859</td>
+<td align="right">0.0543629</td>
+</tr>
+<tr class="odd">
+<td align="left">fg3_r</td>
+<td align="right">270.4523865</td>
+<td align="right">37.1830136</td>
+<td align="right">7.273547</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">stl</td>
+<td align="right">5.6946036</td>
+<td align="right">0.8515696</td>
+<td align="right">6.687185</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="odd">
+<td align="left">blk</td>
+<td align="right">0.9850197</td>
+<td align="right">0.8078006</td>
+<td align="right">1.219385</td>
+<td align="right">0.2239526</td>
+</tr>
+<tr class="even">
+<td align="left">dreb</td>
+<td align="right">3.3423210</td>
+<td align="right">0.4578976</td>
+<td align="right">7.299276</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="odd">
+<td align="left">poss_trans</td>
+<td align="right">-1.1493701</td>
+<td align="right">0.3017334</td>
+<td align="right">-3.809223</td>
+<td align="right">0.0001791</td>
+</tr>
+<tr class="even">
+<td align="left">poss_iso</td>
+<td align="right">0.6970955</td>
+<td align="right">0.2287848</td>
+<td align="right">3.046949</td>
+<td align="right">0.0025830</td>
+</tr>
+<tr class="odd">
+<td align="left">poss_pr</td>
+<td align="right">-0.6435787</td>
+<td align="right">0.1555634</td>
+<td align="right">-4.137083</td>
+<td align="right">0.0000494</td>
+</tr>
+</tbody>
+</table>
+<p>The adjusted R square got decreased to 0.5768, but the difference is not significant. But consider the criteria of parsimony, we still exclude assistance from our model. In addition, block is also a variable that has a high p value. However, consider blocks is a important parameter in evaluating the defense level, it would be included in our model.</p>
+</div>
+<div id="cross-validation" class="section level3">
+<h3>Cross Validation</h3>
+<p>With respect to the above three models, we want to see which model has the best generalizability. So in this part, cross validation is used to compare candidate model</p>
+<pre class="r"><code>set.seed(1000)
+
+predict_cv_df = 
+  predict_df %&gt;% 
+  crossv_mc(100) %&gt;% 
+  mutate(train = map(train, as.tibble), 
+         test = map(test, as.tibble))
+
+predict_cv_df = 
+  predict_cv_df %&gt;% 
+  mutate(model1 = map(train, ~lm(wins_revised ~ pts_avg + ast_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + passes_made + poss_iso + poss_pr, data = .x)),  
+         model2 = map(train, ~lm(wins_revised ~ pts_avg + ast_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr, data = .x)), 
+         model3 = map(train, ~lm(wins_revised ~ pts_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr, data = .x))) %&gt;% 
+  mutate(rmse1 = map2_dbl(model1, test, ~rmse(model = .x, data = .y)), 
+         rmse2 = map2_dbl(model2, test, ~rmse(model = .x, data = .y)), 
+         rmse3 = map2_dbl(model3, test, ~rmse(model = .x, data = .y)))
+  
+
+predict_cv_df %&gt;% 
+  select(starts_with(&quot;rmse&quot;)) %&gt;% 
+  pivot_longer(everything(), 
+               names_to = &quot;model&quot;, 
+               names_prefix = &quot;rmse&quot;, 
+               values_to = &quot;rmse&quot;) %&gt;% 
+  ggplot(aes(x = model, y = rmse, fill = model)) + 
+  geom_boxplot(alpha = .6)</code></pre>
+<p><img src="MLR_nwins_files/figure-html/unnamed-chunk-5-1.png" width="90%" /> The resulted rmse distribution of the three model are very similar to each other, which indicates similar level of generalizability. Therefore, we still use the model3 for the final model.</p>
+</div>
+</div>
+<div id="final-mlr" class="section level2">
+<h2>Final MLR</h2>
+<p>As stated above, we decide to use Model 3 for predicting number of winings in NBA regular seasons:</p>
+<p><em>Wins ~ pts_avg + tov_avg + fg3_p + fg3_r + stl + blk + dreb + poss_trans + poss_iso + poss_pr</em></p>
+<div id="model-dignostics" class="section level3">
+<h3>Model Dignostics</h3>
+<p>We can see that Residuals vs Fitted is approximately normally distributed around 0. On the other hand, heteroscedasticity is not a problem in this model. And there is no out-lier that have big impact on the model fit.</p>
+<pre class="r"><code>par(mfrow=c(2,2))
+plot(model2, which = 1)
+plot(model2, which = 2)
+plot(model2, which = 3)
+plot(model2, which = 4)</code></pre>
+<p><img src="MLR_nwins_files/figure-html/unnamed-chunk-6-1.png" width="90%" /></p>
+</div>
+<div id="model-conclusion" class="section level3">
+<h3>Model Conclusion</h3>
+<p>All variables selected are significant in this linear regression model. Considering the unit of the predictors, it’s not easy for some variables to get improved a lot. Instead, just normal fluctuation of tov_avg, fg3_r, and dreb could influence the results.</p>
+<p>For each 1 additional average turnover, there will be 2 extra lose, which hurts badly. For each 1% additional increase in three points shooting rate, there will be 2.7 extra wins, which helps the team a lot. For each 1 additional average defensive rebound, there will be 3.34 extra wins! Protecting the defensive rebound well is critical.</p>
 </div>
 </div>
 
