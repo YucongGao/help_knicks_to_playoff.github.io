@@ -85,12 +85,12 @@ trans_df =
   rename(poss_trans = poss)
 ```
 
-* isolation_df: average isolation by team and season
-* transition_df: average transition by team and season
-* passing_df: average of passes each game
-* defensive_impact_df: contain **defensive** variables
-* pick_roll_baller_df: average pick and roll for ball handler by team and season
-* pick_roll_roller_df: average pick and roll for roll man by team and season
+* passing_df: average of passes each game.
+* defensive_impact_df: contain average defensive variables each game by team and season.
+* isolation_df: average isolation times each game by team and season.
+* transition_df: average transition times each game by team and season.
+* pick_roll_baller_df: average pick and roll for ball handler by team and season.
+* pick_roll_roller_df: average pick and roll for roll man by team and season.
 
 ### Huge wrangling to get avg_df, predict_df
 
@@ -151,23 +151,29 @@ predict_df =
   select(-poss_prr, -poss_prb, -wins, -games, -games_should, -fgm_total, -fga_total)
 ```
 
-Data wrangling process:
+The avg_df contains the number of wins by team and year in the last 20 years, which is used to analyse the distribution of threshold wins, and to further generate predict_df for regression.
+As data in box_score_all is documented by game, we need to summarise it into total and average stats. Detailed wrangling process:
 
 1).select the variables we are interested from box_score_all.
 
 2).define four new variables. 
-* `win`: 1 means winning and 0 means lost.
-* `game_num`: constant 1 used to sum the number of games.
-* `fg3a_p`: the percentage of 3 point field goal attempt.
-* `conference`: west or east
+* `win`: 1 means winning and 0 means lost.<br>
+* `game_num`: constant 1 used to sum the number of games.<br>
+* `fg3a_p`: the percentage of 3 point field goal attempt.<br>
+* `conference`: west or east<br>
 
-3).exploratory data analysis.
-* calculate total number of wins, total number of games, total number of field goal attempt, total number of field goal made, total number of 3 points field goal attempt and total number of 3 points field goal made by team and season.
-* calculate average number of points, average number of assists and average number of turnovers by team and season.
-* revised the number of wins in strike season and COVID-19 season.
-* locate key variables at the first.
-* arrange all data by season year and number of wins.
+3).
+* calculate total number of wins, total number of games, total number of field goal attempt, total number of field goal made, total number of 3 points field goal attempt and total number of 3 points field goal made by team and season.<br>
+* calculate average number of points, average number of assists and average number of turnovers by team and season.<br>
+* revised the number of wins in strike season and COVID-19 season.<br>
+* locate key variables at the first.<br>
+* arrange all data by season year and number of wins.<br>
+* calculate the rank in east or west conference by team and year<br>
+* marked whether or not a team entered into the playoff in that year<br>
 
+The predict_df contain the average performance data with total number of games won in the last 8 years, which is used to build models and predict the number of winnings.
+
+Not only do we include the fundamental average stats like points, steals, blocks and turnovers from avg_df, but also we want to include playtype data and defensive data in the model. Thus, we combine the avg_df with 6 other dataframes.
 
 ### Variable description
 
@@ -221,6 +227,10 @@ Then we are going to deep dive the factors associated with the number of wins pe
 ### EDA on average performance
 
 Is there any difference in three field goal percent, scores, block, steal, turnover, passing between regular season team and playoff season team in each game?
+
+This dataframe contains 23476 observations in the last 8 years which is mainly used for analyzing the tendency of different stats between playoff teams and non-playoff teams.
+
+To add the rank of a team, we joined it with the conf_rank in avg_df.
 ```{r, warning=FALSE}
 box_score_viz = 
   box_score_all %>% 
