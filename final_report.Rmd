@@ -335,8 +335,10 @@ eighth_wins =
 
 
 ggplot(data = eighth_wins,aes(x = wins_revised)) + 
-  geom_bar() + 
-  theme_bw() 
+  geom_bar(fill = "blue", alpha = .5) + 
+  theme_bw() +
+  labs(x = "Number of Wins in Regular Season", 
+       y = "Number of 8th Team in Past 20 Years")
 ```
 
 ```{r}
