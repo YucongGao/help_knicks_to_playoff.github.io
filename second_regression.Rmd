@@ -18,6 +18,10 @@ library(ggplot2)
 library(corrplot)
 library(stringr)
 library(caret)
+library(plotly)
+library(ggridges)
+library(GGally)
+library(modelr)
 ```
 
 ```{R}
@@ -85,163 +89,263 @@ regre_df =
   select(-ends_with("rank")) %>%
   mutate(wl = recode(wl, "W" = 1, "L" = 0),
          wl = as.factor(wl)) 
+```
+## Exploratory Analysis
+In this part, we explore each game in the past 20 years, try to find some important variables that might affect the result of the game. By this process, we also can get some insight on choosing potential parameters for model building.
+
+### Difference average scores
+
+Firstly, we take a look on the scores difference between the winning team and losing team in the past 20 years.
+
+We can see that if a team wants to win the game, the score they needs to achieve become much higher compared to the past years. The average score for the winning team has some up and down form 2001-2015 seasons, however, after entering the small ball revolution, the average score for winning keep increase and never fall down since 2015-16 season.
+
+So, it is obviously that if a team wants to win a game, they need to find a new techniques to earn more score. Next we will explore some factors we think might play a rule on the result of the game.
+
+```{r}
+lose_game=
+  box_score_all %>% 
+  filter(wl == "L") 
+
+  box_score_all %>% 
+  filter(wl == "W") %>% 
+  ggplot(aes(x = pts, y = season_year)) + 
+  geom_density_ridges(scale = .8, alpha = .5, fill = "blue", 
+                      quantile_lines = T, quantile_fun = mean) + 
+  geom_density_ridges(data = lose_game, aes(x = pts, y = season_year), 
+                      scale = .8, alpha = .5, fill = "salmon", 
+                      quantile_lines = T, quantile_fun = mean) + 
+  scale_fill_manual(name = "Team", values = cols) + 
+  xlim(65, 140) + 
+  labs(x = "Scores", 
+       y = "Season Year", 
+       title = "Score Distribution Win and Lose game")  
+
+```
+
+### Variables can affect the result of game {.tabset}
+
+As a team needs to gain more score for winning the game, to analyze the factors of game result, we first look at some variables that directly have influence on score. 
+We put both the plot of percentage and attempted together, so we can observe NBA's trend of scoring strategy in these 20 years.
+
+First, we can see that although the field goal attempted and percentage  didn't seems to  have much change through these 20 years,  the winning team have much stronger field goal percentage compare the team who lose. Also, we can see that the losing team have a slightly more field goal attempted than the winning team. 
+
+Secondly, we can see that the 3 point field goals's percentage didn't change much in these two decades.However, there is a really significant increase on the 3 point field goals attempted.
+After the small ball era at 2015, the 3 point field goals attempted grow up remarkably, also we can see that same pattern as field goal attempted, the losing team also have higher 3 point field goals attempted.
+
+Third, we can see that free throw attempted and percentage didn't have much change through these 20 years. The winning team have higher attempted and percentage.
+
+By inspect these variables, we can conclude that on the basketball field there are almost like a three points field goals fight after 2015, everyone throw as much as 3 points play as they can. 
+The most notable difference of attempted between winning team and losing team happened on the free throw attempted, this means that even that the free throw only contribute one point in the score, it still is a indicator of the game result.And the most outstanding difference of percentage between winning team and losing team happened on the field goal percentage,  this suggest that the to improve field goal percentage is one of the most critcal thing a team should consider if they want to win the game.
+
+So since 3 points field attempted become trend in every game,  we look up three of the most higher 3 points field attempted out liner on the plot. We find out it all made by Houston Rockets, so we took a look deeply, we find out in the top ten of the highest higher 3 points field in these 20 years, Houston Rockets occupy 8 of it and the other 2 is Atlanta Hawks.
 
 
-fgm_box = 
-  regre_df %>%
-  group_by(wl) %>%
-  mutate(fgm = as.numeric(fgm)) %>%
-  ggplot(aes(x = wl, y = fgm, group=wl)) + 
-  geom_boxplot() +
-  theme(axis.text.y = element_text(size=4))
-fga_box = 
-  regre_df %>%
-  group_by(wl) %>%
-  mutate(fga = as.numeric(fga)) %>%
-  ggplot(aes(x = wl, y = fga, group=wl)) + 
-  geom_boxplot() +
-  theme(axis.text.y = element_text(size=4))
-fgpct_box = 
-  regre_df %>%
-  group_by(wl) %>%
-  mutate(fg_pct = as.numeric(fg_pct)) %>%
-  ggplot(aes(x = wl, y = fg_pct, group=wl)) + 
-  geom_boxplot() +
-  theme(axis.text.y = element_text(size=4))
-fg3m_box = 
-  regre_df %>%
-  group_by(wl) %>%
-  mutate(fg3m = as.numeric(fg3m)) %>%
-  ggplot(aes(x = wl, y = fg3m, group=wl)) + 
-  geom_boxplot() +
-  theme(axis.text.y = element_text(size=4))
-fg3a_box = 
-  regre_df %>%
-  group_by(wl) %>%
-  mutate(fg3a = as.numeric(fg3a)) %>%
-  ggplot(aes(x = wl, y = fg3a, group=wl)) + 
-  geom_boxplot() +
-  theme(axis.text.y = element_text(size=4))
-fg3pct_box = 
-  regre_df %>%
-  group_by(wl) %>%
-  mutate(fg3_pct = as.numeric(fg3_pct)) %>%
-  ggplot(aes(x = wl, y = fg3_pct, group=wl)) + 
-  geom_boxplot() +
-  theme(axis.text.y = element_text(size=4))
-ftm_box = 
-  regre_df %>%
-  group_by(wl) %>%
-  mutate(ftm = as.numeric(ftm)) %>%
-  ggplot(aes(x = wl, y = ftm, group=wl)) + 
-  geom_boxplot() +
-  theme(axis.text.y = element_text(size=4))
-fta_box = 
-  regre_df %>%
-  group_by(wl) %>%
-  mutate(ftm = as.numeric(fta)) %>%
-  ggplot(aes(x = wl, y = fta, group=wl)) + 
-  geom_boxplot() +
-  theme(axis.text.y = element_text(size=4))
-ftpct_box = 
-  regre_df %>%
-  group_by(wl) %>%
-  mutate(ft_pct = as.numeric(ft_pct)) %>%
-  ggplot(aes(x = wl, y = ft_pct, group=wl)) + 
-  geom_boxplot() +
-  theme(axis.text.y = element_text(size=4))
-oreb_box = 
-  regre_df %>%
-  group_by(wl) %>%
-  mutate(oreb = as.numeric(oreb)) %>%
-  ggplot(aes(x = wl, y = oreb, group=wl)) + 
-  geom_boxplot() +
-  theme(axis.text.y = element_text(size=4))
-dreb_box = 
-  regre_df %>%
-  group_by(wl) %>%
-  mutate(dreb = as.numeric(dreb)) %>%
-  ggplot(aes(x = wl, y = dreb, group=wl)) + 
-  geom_boxplot() +
-  theme(axis.text.y = element_text(size=4))
-reb_box = 
-  regre_df %>%
-  group_by(wl) %>%
-  mutate(reb = as.numeric(reb)) %>%
-  ggplot(aes(x = wl, y = reb, group=wl)) + 
-  geom_boxplot() +
-  theme(axis.text.y = element_text(size=4))
-ast_box = 
-  regre_df %>%
-  group_by(wl) %>%
-  mutate(ast = as.numeric(ast)) %>%
-  ggplot(aes(x = wl, y = ast, group=wl)) + 
-  geom_boxplot() +
-  theme(axis.text.y = element_text(size=4))
-tov_box = 
-  regre_df %>%
-  group_by(wl) %>%
-  mutate(tov = as.numeric(tov)) %>%
-  ggplot(aes(x = wl, y = tov, group=wl)) + 
-  geom_boxplot() +
-  theme(axis.text.y = element_text(size=4))
-stl_box = 
-  regre_df %>%
-  group_by(wl) %>%
-  mutate(stl = as.numeric(stl)) %>%
-  ggplot(aes(x = wl, y = stl, group=wl)) + 
-  geom_boxplot() +
-  theme(axis.text.y = element_text(size=4))
-blk_box = 
-  regre_df %>%
-  group_by(wl) %>%
-  mutate(blk = as.numeric(blk)) %>%
-  ggplot(aes(x = wl, y = blk, group=wl)) + 
-  geom_boxplot() +
-  theme(axis.text.y = element_text(size=4))
-blka_box = 
-  regre_df %>%
-  group_by(wl) %>%
-  mutate(blka = as.numeric(blka)) %>%
-  ggplot(aes(x = wl, y = blka, group=wl)) + 
-  geom_boxplot() +
-  theme(axis.text.y = element_text(size=4))
-pf_box = 
-  regre_df %>%
-  group_by(wl) %>%
-  mutate(pf = as.numeric(pf)) %>%
-  ggplot(aes(x = wl, y = pf, group=wl)) + 
-  geom_boxplot() +
-  theme(axis.text.y = element_text(size=4))
-pfd_box = 
-  regre_df %>%
-  group_by(wl) %>%
-  mutate(pfd = as.numeric(pfd)) %>%
-  ggplot(aes(x = wl, y = pfd, group=wl)) + 
-  geom_boxplot() +
-  theme(axis.text.y = element_text(size=4))
-pts_box = 
-  regre_df %>%
-  group_by(wl) %>%
-  mutate(pts = as.numeric(pts)) %>%
-  ggplot(aes(x = wl, y = pts, group=wl)) + 
-  geom_boxplot() +
-  theme(axis.text.y = element_text(size=4))
-pm_box = 
-  regre_df %>%
-  group_by(wl) %>%
-  mutate(plus_minus = as.numeric(plus_minus)) %>%
-  ggplot(aes(x = wl, y = plus_minus, group=wl)) + 
-  geom_boxplot() +
-  theme(axis.text.y = element_text(size=4))
-(fgm_box + fga_box + fgpct_box) / (fg3m_box + fg3a_box + fg3pct_box)
-(ftm_box + fta_box + ftpct_box)/(oreb_box + dreb_box + reb_box)
-(ast_box + tov_box + stl_box) /(blk_box + blka_box + pf_box)
-pfd_box + pts_box + pm_box
+#### Field Goal 
+
+```{r,warning=FALSE}
+plot_ly( box_score_all, x = ~ season_year, y = ~ fga , color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Field Goal Attempted"))
+
+plot_ly( box_score_all, x = ~ season_year, y = ~ fg_pct, color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Field Goal Percentage"))
+```
+
+#### 3 Point Field Goals 
+```{r,warning=FALSE}
+plot_ly(box_score_all, x = ~ season_year, y = ~ fg3a, color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "3 Point Field Goals Attempted"))
+
+plot_ly(box_score_all, x = ~ season_year, y = ~ fg3_pct, color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "3 Point Field Goals Percentage"))
+```
+
+#### Free Throw 
+```{r,warning=FALSE}
+
+plot_ly(box_score_all, x = ~ season_year, y = ~ fta, color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Free Throw Attempted"))
+
+plot_ly(box_score_all, x = ~ season_year, y = ~ ft_pct, color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Free Throw Percent"))
 
 
 ```
-According to boxplots of winning and losing teams, we can find that there are some obvious difference in some aspects, like fg_pct, fg3_pct, pts and etc. 
+
+### New York Knicks 3 Point Field Goals {.tabset}
+
+```{r}
+nyk= 
+  box_score_all %>% 
+  filter(team_abbreviation =="NYK")
+```
+#### 3 Point Field Goals Attempted
+```{r}
+
+plot_ly(nyk, x = ~ season_year, y = ~ fg3a, color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "3 Point Field Goals Attempted"))
+```
+#### 3 Point Field Goals Percentage
+```{r}
+
+plot_ly(nyk, x = ~ season_year, y = ~ fg3_pct, color = ~ wl, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "3 Point Field Goals Percentage"))
+
+
+```
+
+
+### Offensive Level Parameters {.tabset}
+
+Next, we are going to explore the influence of some offensive strategies on the basketball field, to see what kind of techniques might play a role on the result of the game.
+
+The average offensive rebounds is slightly higher in the losing team. And in the average assists per game the winning team is significantly higher. 
+
+Average offensive rebounds are higher in the losing team seems like a same pattern as the attempted also higher in the losing team. We can hypothesize that when a team started to lose they will take more aggressive strategies compared to the team who keep leading .
+
+
+Average assists per games is significantly higher in the winning team might result from the assists is defined as scoring successfully, and more scoring means more possible to win.
+
+
+```{r, include=FALSE}
+offensive_df = 
+  box_score_all %>% 
+  select(season_year,wl, oreb, ast)
+```
+
+
+
+#### Average offensive rebounds per game
+
+
+```{r,warning=FALSE}
+offensive_df %>% 
+  group_by(season_year, wl) %>% 
+  summarise(oreb= mean(oreb)) %>% 
+  plot_ly(x = ~ season_year, y = ~ oreb, type = "bar",
+    color = ~wl, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Average offensive rebounds of each game"))
+```
+#### Aaverage assists per games
+
+```{r,warning=FALSE}
+offensive_df %>% 
+  group_by(season_year, wl) %>% 
+  summarise(ast= mean(ast)) %>% 
+  plot_ly(x = ~ season_year, y = ~ ast, type = "bar",
+    color = ~wl, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Aaverage assists of each game"))
+```
+
+
+
+
+### Defensive level Parameters {.tabset}
+
+In this part, we are going to explore the influence of some defensive level strategies on the basketball field, to see what kind of defensive techniques might play a role on the result of the game.
+
+Steals, Blocks, Defensive rebounds of each game is significantly higher in the winning team,  Personal foul and Turnovers of each game are slightly higher in the losig team.
+
+
+
+```{r, include=FALSE}
+defensive_df = 
+  box_score_all %>% 
+  select(season_year,wl,stl,blk,dreb,tov, pf)
+```
+
+
+#### Steals of each game
+
+
+```{r,warning=FALSE}
+box_score_all %>% 
+  group_by(season_year, wl) %>% 
+  summarise(stl= mean(stl)) %>% 
+  plot_ly(x = ~ season_year, y = ~ stl, type = "bar",
+    color = ~wl, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Aaverage steals of each game"))
+```
+
+#### Blocks of each game
+
+```{r,warning=FALSE}
+box_score_all %>% 
+  group_by(season_year, wl) %>% 
+  summarise(blk= mean(blk)) %>% 
+  plot_ly(x = ~ season_year, y = ~ blk, type = "bar",
+    color = ~wl, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Aaverage blocks of each game"))
+```
+
+#### Defensive rebounds of each game
+
+```{r,warning=FALSE}
+
+box_score_all %>% 
+  group_by(season_year, wl) %>% 
+  summarise(dreb= mean(dreb)) %>% 
+  plot_ly(x = ~ season_year, y = ~ dreb, type = "bar",
+    color = ~wl, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Aaverage defensive rebounds of each game"))
+
+```
+
+#### Turnovers of each game
+
+```{r,warning=FALSE}
+
+box_score_all %>% 
+  group_by(season_year, wl) %>% 
+  summarise(tov= mean(tov)) %>% 
+  plot_ly(x = ~ season_year, y = ~ tov, type = "bar",
+    color = ~wl, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Aaverage turnovers of each game"))
+
+```
+
+#### Personal foul of each game
+
+```{r,warning=FALSE}
+
+box_score_all %>% 
+  group_by(season_year, wl) %>% 
+  summarise(pf= mean(pf)) %>% 
+  plot_ly(x = ~ season_year, y = ~ pf, type = "bar",
+    color = ~wl, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Aaverage personal foul of each game"))
+
+```
+
 
 ## Corralation Map
 
