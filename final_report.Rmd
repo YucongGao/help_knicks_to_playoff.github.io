@@ -81,10 +81,6 @@ As I mentioned above, these data sets were scrapped from NBA website, the code t
 
 ### Data Wrangling
 
-First, the datasets in [NBA Stats](https://www.nba.com/stats/) don't have API, so we write a function to extract them using devtools.
-
-Then, apply the function to each dataset we want, select the variables we want and save all of them to local for tfurther use. Here is one example, box_score_all.
-
 We met with a huge problem at the very beginning that the most detailed NBA stats website do not have API for scrapping. [NBA Stats](https://www.nba.com/stats/). So we learned from a blogger to write a function to extract data using web devtools.[(link)](https://www.owenlhjphillips.com/new-blog/2020/6/25/how-to-make-nba-shots-charts-in-r)
 
 ```{r, eval=FALSE,message=FALSE,warning=FALSE}
@@ -138,9 +134,6 @@ box_score_all = tibble(
 
 write_csv(box_score_all, "./data2/box_score_all.csv")
 ```
-
-Next, we read them and select related variables. All the raw datasets are as following:
-
 
 We just need to read them and select related variables everytime we used them.
 
