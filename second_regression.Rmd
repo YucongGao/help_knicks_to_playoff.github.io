@@ -1,7 +1,6 @@
 ---
-title: "second_regression"
-date: "2021/11/15"
-output: github_document
+title: "Predict for Winning or Losing"
+output: html_document
 ---
 
 ## Section Introduction
@@ -423,6 +422,7 @@ The adjusted R square for the full model is 0.6916, that is to say 69.16% of var
 
 ### Model diagnostic
 
+
 1). to check if the error term is normally distributed with mean 0.
 ```{r}
 ggplot(data = ln_regre , aes(x = ln_regre$residuals)) + geom_histogram()
@@ -531,7 +531,7 @@ Using the logistic model of all variables we selected, the prediction accuracy i
 
 Our final model for predicting game result is showing below.
 
-$$Y_i=-25.150274 + 30.300719 (fg_pct)+4.300476(fg3_pct)+3.626952(ft_pct)+0.169106(oreb)+ 0.237543(dreb)-0.040846(ast)+0.263265(stl)+0.120397(blk)-0.177678(tov)-0.067135(pf)$$
+$$Y_i=-25.150274 + 30.300719 (fg_pct)+4.300476(fg3_pct)+3.626952(ft_pct)+0.169106(oreb)+\\ 0.237543(dreb)-0.040846(ast)+0.263265(stl)+0.120397(blk)-0.177678(tov)-0.067135(pf)$$
 
 * We have built both linear and logistic regression based on the NBA data. The adjusted R square for the linear regression model is 0.6916, which can explain the game score in a large extent. And the prediction of the logistic regression model is 0.8053523, which can help us to predict the result of a game more accurately. 
 
