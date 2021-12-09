@@ -783,6 +783,29 @@ $$GameResult_i=-25.150274 + 30.300719 (fg\_pct)+4.300476(fg3\_pct)+3.626952(ft\_
 0.237543(dreb)-0.040846(ast)+0.263265(stl)+0.120397(blk)-0.177678(tov)-0.067135(pf)\\
 i=win,lose  $$
 
+For logistic regression, we can explain variables from the perspective of odds.
+ 
+All variables selected are significant in this logistic regression model.
+
+For each additional 1 of proportion of field goals attempted, the odds of win over loss will become $e^{30.300719}$ times.
+ 
+For each additional 1 of proportion three points shooting, the odds of win over loss will become $e^{4.300476}$ times.
+
+For each additional 1 of proportion of free throw, the odds of win over loss will become $e^{3.626952}$times.
+ 
+For each additional 1 of offensive rebounds per game, the odds of win over loss will become $e^{0.169106}$ times.
+ 
+For each additional 1 of defensive rebounds per games, the odds of win over loss will become $e^{0.237543}$times.
+
+For each additional 1 of steals per game, the odds of win over loss will become $e^{0.263265}$ times.
+
+For each additional 1 of assists per game, the odds of win over loss will become $e^{-0.040846}$ times.
+
+For each additional 1 of blocks per game, the odds of win over loss will become $e^{0.120397}$ times.
+
+For each additional 1 of turnovers per game, the odds of win over loss will become $e^{-0.177678}$times.
+
+For each additional 1 of  personal foul per game, the odds of win over loss will become $e^{-0.067135}$ times.
 
 We have built both linear and logistic regression based on the NBA data. The adjusted R square for the linear regression model is 0.6916, which can explain the game score in a large extent. And the prediction of the logistic regression model is 0.8053523, which can help us to predict the result of a game more accurately. 
 There are some variables that can positively attribute to the winning of a game in both two models, like proportion of field goals attempted, proportion three points shooting and proportion of free throw, which can instruct the Knicks to pay more attention on these aspects in daily training.
