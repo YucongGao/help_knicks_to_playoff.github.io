@@ -1662,6 +1662,7 @@ ggdraw(rose_p) +
 
 
 
+
 ## Shiny App
 
 With all the data analysis and model exploration, we identified features that contribute to the number of winning in a season, game results and play scores. We think it's necessary for the fans to see how these feature changes in different seasons for different NBA teams, moreover, make comparisons between teams. Therefore, we created an interactive dashboard in Shiny app to achieve this purpose. 
