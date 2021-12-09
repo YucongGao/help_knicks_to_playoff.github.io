@@ -1,6 +1,14 @@
 data\_scrapping
 ================
 
+<style type="text/css">
+
+h1.title {
+  text-align: center;
+}
+
+</style>
+
 # Using function to scrap data from NBA.stats
 
 ## Scrapping function

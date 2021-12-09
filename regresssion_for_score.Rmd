@@ -2,6 +2,14 @@
 title: "Predict for Score"
 output: html_document
 ---
+<style type="text/css">
+
+h1.title {
+  text-align: center;
+}
+
+</style>
+
 ```{r,message=FALSE, warning=FALSE}
 library(tidyverse)
 library(hexbin)

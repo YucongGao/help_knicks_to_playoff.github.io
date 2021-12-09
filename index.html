@@ -11,12 +11,12 @@
 
 
 
-<title>index</title>
+<title>GO GO KNICKS!</title>
 
 <script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<link href="site_libs/bootstrap-3.3.5/css/journal.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
@@ -29,9 +29,6 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
-<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
-<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
-<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
@@ -227,69 +224,6 @@ $(document).ready(function () {
 
 
 
-<style type="text/css">
-
-#TOC {
-  margin: 25px 0px 20px 0px;
-}
-@media (max-width: 768px) {
-#TOC {
-  position: relative;
-  width: 100%;
-}
-}
-
-@media print {
-.toc-content {
-  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
-  float: right;
-}
-}
-
-.toc-content {
-  padding-left: 30px;
-  padding-right: 40px;
-}
-
-div.main-container {
-  max-width: 1200px;
-}
-
-div.tocify {
-  width: 20%;
-  max-width: 260px;
-  max-height: 85%;
-}
-
-@media (min-width: 768px) and (max-width: 991px) {
-  div.tocify {
-    width: 25%;
-  }
-}
-
-@media (max-width: 767px) {
-  div.tocify {
-    width: 100%;
-    max-width: none;
-  }
-}
-
-.tocify ul, .tocify li {
-  line-height: 20px;
-}
-
-.tocify-subheader .tocify-item {
-  font-size: 0.90em;
-}
-
-.tocify .list-group-item {
-  border-radius: 0px;
-}
-
-
-</style>
-
-
 
 </head>
 
@@ -297,16 +231,6 @@ div.tocify {
 
 
 <div class="container-fluid main-container">
-
-
-<!-- setup 3col/9col grid for toc_float and main content  -->
-<div class="row">
-<div class="col-xs-12 col-sm-4 col-md-3">
-<div id="TOC" class="tocify">
-</div>
-</div>
-
-<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -337,18 +261,24 @@ div.tocify {
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="test_here.html">Regression for playoff</a>
+      <a href="MLR_nwins.html">Regression for playoff</a>
     </li>
     <li>
       <a href="second_regression.html">Regression for win or lose</a>
     </li>
     <li>
-      <a href="second_regression.html">Regression for score</a>
+      <a href="regresssion_for_score.html">Regression for score</a>
     </li>
   </ul>
 </li>
 <li>
+  <a href="eda.html">Data Exploration</a>
+</li>
+<li>
   <a href="proposal.html">About</a>
+</li>
+<li>
+  <a href="https://jessiegao.shinyapps.io/shiny_app/">Shiny App</a>
 </li>
 <li>
   <a href="https://github.com/YucongGao/help_knicks_to_playoff.github.io">
@@ -379,17 +309,68 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">index</h1>
+<h1 class="title toc-ignore">GO GO KNICKS!</h1>
 
 </div>
 
 
+<style type="text/css">
 
+h1.title {
+  text-align: center;
+}
 
-
-
+</style>
+<style type="text/css">
+.container_video {
+    position: relative;
+    width: 90%;
+    height: 0;
+    padding-bottom: 56.25%;
+}
+.container_video iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+</style>
+<center>
+Jessie Gao, Sean Yang, Hazel Zheng, Peggy Lin
+</center>
+<center>
+<div class="container_video">
+<iframe src="https://www.youtube.com/embed/watch?v=K5_ffTgU28Q" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+</iframe>
 </div>
-</div>
+</center>
+<h2>
+<center>
+Project motivation
+</center>
+</h2>
+<p>As NBA fans, we are witnessing probably the greatest revolution ever on the court, which is called “Small ball era”. Teams tend to use small and faster players instead of traditional giants to accelerate moving speed and improve shooting efficiency.</p>
+<p>Last year, our favorite team Knicks returned to playoff season after eight years<a href="https://www.nytimes.com/2021/05/13/sports/basketball/knicks-playoffs.html">(News Report)</a>, which brought great joy to the fans. In order to make this performance long-lasting, we feel obligated to research the key variables that contribute to the winning so that help Knicks maintain existing strengths and make up for the shortages.</p>
+<h2>
+<center>
+What you’ll find here
+</center>
+</h2>
+<p>We used data from the <a href="https://www.nba.com/stats/">NBA.stats</a> to research the key variables that contribute to the winning so that help Knicks maintain existing strengths and make up for the shortages.</p>
+<p>In the Regression tab, you can observe:</p>
+<ul>
+<li>How a model is built to explore the association between multiple average indicators and the number of winnings in a season, and what indicators are essential to supply information for the prediction of winning numbers.</li>
+<li>How a model is built to explore the association between specific game indicators and the outcome(win or loss), and what indicators are essential to supply information for the prediction of the game outcome.</li>
+<li>How a model is built to explore the association between specific game indicators and the game score, and what indicators are essential to supply information for the prediction of the game score.</li>
+</ul>
+<p>In the <a href="eda.html">Data Exploration</a> tab, it helps you get some insight on how we choose potential parameters for model building.</p>
+<p>In the <a href="proposal.html">About</a> tab, it shows our original proposal for this exploration journey.</p>
+<p>In the <a href="Prediction%20Tool">Shiny APP</a> tab, we propose a model to predict whether your favorite team can go to the play-off season, with their game details prediction. Head to try it for yourself!</p>
+<p>In the <a href="final_report.html">Report</a> tab, it shows our final project report.</p>
+
+
+
 
 </div>
 
@@ -427,35 +408,6 @@ $(document).ready(function () {
 });
 </script>
 
-<script>
-$(document).ready(function ()  {
-
-    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
-    $('.unlisted.unnumbered').addClass('toc-ignore')
-
-    // move toc-ignore selectors from section div to header
-    $('div.section.toc-ignore')
-        .removeClass('toc-ignore')
-        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
-
-    // establish options
-    var options = {
-      selectors: "h1,h2,h3",
-      theme: "bootstrap3",
-      context: '.toc-content',
-      hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
-      },
-      ignoreSelector: ".toc-ignore",
-      scrollTo: 0
-    };
-    options.showAndHide = true;
-    options.smoothScroll = true;
-
-    // tocify
-    var toc = $("#TOC").tocify(options).data("toc-tocify");
-});
-</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

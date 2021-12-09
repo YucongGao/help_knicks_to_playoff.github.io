@@ -2,6 +2,13 @@
 title: "Predict Number of Winings"
 output: html_document
 ---
+<style type="text/css">
+
+h1.title {
+  text-align: center;
+}
+
+</style>
 
 ```{r setup, include=FALSE}
 library(tidyverse)

@@ -2,6 +2,13 @@
 title: "data_scrapping"
 output: github_document
 ---
+<style type="text/css">
+
+h1.title {
+  text-align: center;
+}
+
+</style>
 
 ```{r setup, include=FALSE}
 library(tidyverse)

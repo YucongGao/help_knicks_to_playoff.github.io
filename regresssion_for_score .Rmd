@@ -4,6 +4,14 @@ author: "Pei Hsin Lin"
 date: "12/8/2021"
 output: html_document
 ---
+<style type="text/css">
+
+h1.title {
+  text-align: center;
+}
+
+</style>
+
 ```{r, include=FALSE}
 library(tidyverse)
 library(hexbin)

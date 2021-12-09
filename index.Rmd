@@ -1,14 +1,65 @@
 ---
-title: "index"
+title: " GO GO KNICKS!"
 output: 
   html_document:
-    toc: true
-    toc_float: true
+    toc: false
+    toc_float: false
 ---
+<style type="text/css">
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+h1.title {
+  text-align: center;
+}
+
+</style>
+
+```{css echo = F}
+.container_video {
+    position: relative;
+    width: 90%;
+    height: 0;
+    padding-bottom: 56.25%;
+}
+.container_video iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
 ```
+
+<center>Jessie Gao, Sean Yang, Hazel Zheng, Peggy Lin</center>
+
+<center><div class="container_video">
+<iframe 
+src="https://www.youtube.com/embed/watch?v=K5_ffTgU28Q"
+frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div></center>
+
+<h2><center>Project motivation</center></h2>
+
+As NBA fans, we are witnessing probably the greatest revolution ever on the court, which is called "Small ball era". Teams tend to use small and faster players instead of traditional giants to accelerate moving speed and improve shooting efficiency. 
+
+Last year, our favorite team Knicks returned to playoff season after eight years[(News Report)](https://www.nytimes.com/2021/05/13/sports/basketball/knicks-playoffs.html), which brought great joy to the fans. In order to make this performance long-lasting, we feel obligated to research the key variables that contribute to the winning so that help Knicks maintain existing strengths and make up for the shortages. 
+
+<h2><center>What you'll find here</center></h2>
+
+We used data from the [NBA.stats](https://www.nba.com/stats/) to research the key variables that contribute to the winning so that help Knicks maintain existing strengths and make up for the shortages.
+
+In the Regression tab, you can observe:
+
+  * How a model is built to explore the association between multiple average indicators and the number of winnings in a season, and what indicators are essential to supply information for the prediction of winning numbers.
+  * How a model is built to explore the association between specific game indicators and the outcome(win or loss), and what indicators are essential to supply information for the prediction of the game outcome.
+  * How a model is built to explore the association between specific game indicators and the game score, and what indicators are essential to supply information for the prediction of the game score.
+
+In the [Data Exploration](eda.html) tab, it helps you get some insight on how we choose potential parameters for model building. 
+
+In the [About](proposal.html) tab, it shows our original proposal for this exploration journey.
+
+In the [Shiny APP](Prediction Tool) tab, we propose a model to predict whether your favorite team can go to the play-off season, with their game details prediction. Head to try it for yourself!
+
+In the [Report](final_report.html) tab, it shows our final project report. 
 
 
 
