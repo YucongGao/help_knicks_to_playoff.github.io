@@ -1,0 +1,368 @@
+---
+title: "Data Exploration"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(ggridges)
+library(plotly)
+
+knitr::opts_chunk$set(
+  fig.height = 6,
+  fig.width = 8,
+  message = F,
+  echo = T, 
+  warning = F, 
+  cache = F
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+```{r read data, include=FALSE}
+box_score_all = read_csv("./data2/box_score_all.csv") %>% 
+  janitor::clean_names() %>% 
+  select(-contains("rank"))
+
+pass_df = 
+  read_csv("./data2/pass_df.csv") %>% 
+  select(season_year, team_abbreviation, passes_made)
+
+isol_df = 
+  read_csv("./data2/isol_df.csv") %>% 
+  select(season_year, team_abbreviation, poss) %>% 
+  rename(poss_iso = poss)
+
+prbh_df = 
+  read_csv("./data2/prbh_df.csv") %>% 
+  select(season_year, team_abbreviation, poss) %>% 
+  rename(poss_prb = poss)
+
+prrm_df = 
+  read_csv("./data2/prrm_df.csv") %>% 
+  select(season_year, team_abbreviation, poss) %>% 
+  rename(poss_prr = poss)
+
+defend_df = 
+  read_csv("./data2/defensive_impact_df.csv") %>% 
+  select(season_year, team_abbreviation, stl, blk, dreb)
+
+trans_df = 
+  read_csv("./data2/transition_df.csv") %>% 
+  select(season_year, team_abbreviation, poss) %>% 
+  rename(poss_trans = poss)
+```
+
+```{r boxscore_all,message=FALSE, warning=FALSE, include=FALSE}
+avg_df = 
+  box_score_all %>% 
+  select(season_year, team_abbreviation, wl, pts, ast, tov, fgm, fga, fg3m, fg3a) %>%
+  mutate(
+    win = case_when(wl == "W" ~ 1, TRUE~0),
+    game_num = 1,
+    fg3a_p = round(fg3a/fga, digits = 3),
+    team_abbreviation = str_replace(team_abbreviation, "NOH", "NOP"), 
+    team_abbreviation = str_replace(team_abbreviation, "NJN", "BKN"),
+    conference = case_when(
+      team_abbreviation %in% c("UTA","PHX","LAC","DEN","DAL","LAL","POR","GSW","SAS","MEM","NOP","SAC","MIN","OKC","HOU","SEA","NOK","CHH")~"west",
+      team_abbreviation %in% c("PHI","BKN","MIL","ATL","NYK","MIA","BOS","IND","WAS","CHI","TOR","CLE","ORL","DET","CHA")~"east") # divide into east and west conference
+    ) %>% 
+  group_by(season_year, team_abbreviation, conference) %>% 
+  summarise(
+    wins = sum(win), 
+    games = sum(game_num), 
+    games_should = 82, 
+    pts_avg = round(mean(pts), digits = 1), 
+    ast_avg = round(mean(ast), digits = 1),
+    tov_avg = round(mean(tov), digits = 1),
+    fgm_total = sum(fgm), 
+    fga_total = sum(fga), 
+    fg3m_total = sum(fg3m), 
+    fg3a_total = sum(fg3a)
+    ) %>% 
+  mutate(wins_revised = round(wins/games*games_should,0)) %>% # due to labor negotiation in 2011-12, COVID-19.
+  relocate(season_year, team_abbreviation, conference, wins, wins_revised, everything()) %>% 
+  arrange(desc(season_year),desc(wins)) %>% 
+  mutate(fg3_p = fg3a_total/fga_total, fg3_r = fg3m_total/fg3a_total) %>% 
+  group_by(season_year,conference) %>% 
+  mutate(
+    conf_rank = row_number(),
+    play_off_team = case_when(
+           conf_rank <= 8 ~ "playoff", 
+           conf_rank > 8 ~ "non-playoff"
+         ), 
+         play_off_team = fct_relevel(play_off_team, c("playoff", "non-playoff")))
+```
+
+```{r prediction_df,message=FALSE, warning=FALSE, include=FALSE}
+predict_df = 
+  avg_df %>%
+  left_join(defend_df, by = c("season_year","team_abbreviation")) %>% 
+  left_join(prrm_df, by = c("season_year","team_abbreviation")) %>% 
+  left_join(prbh_df, by = c("season_year","team_abbreviation")) %>%
+  left_join(isol_df, by = c("season_year","team_abbreviation")) %>% 
+  left_join(pass_df, by = c("season_year","team_abbreviation")) %>%
+  left_join(trans_df, by = c("season_year","team_abbreviation")) %>% 
+  drop_na(poss_trans, passes_made, poss_iso, poss_prb, poss_prr, stl, blk, dreb) %>% 
+  mutate(
+    poss_pr = poss_prr + poss_prb
+  ) %>% 
+  select(-poss_prr, -poss_prb, -wins, -games, -games_should, -fgm_total, -fga_total)
+```
+
+```{r for viz,message=FALSE, warning=FALSE, include=FALSE}
+box_score_viz = 
+  box_score_all %>% 
+  filter(season_year %in% c("2011-12", "2012-13", "2013-14", "2014-15", "2015-16", "2016-17", "2017-18", "2018-19", "2019-20", "2020-21")) %>% 
+  mutate(team_abbreviation = str_replace(team_abbreviation, "NOH", "NOP"), 
+    team_abbreviation = str_replace(team_abbreviation, "NJN", "BKN")) %>% 
+  select(season_year, team_abbreviation, wl, pts, ast, tov, fgm, fga, fg3m, fg3a, stl, blk, dreb) %>%
+  mutate(
+    win = case_when(wl == "W" ~ 1, TRUE~0),
+    game_num = 1, 
+    conference = case_when(
+      team_abbreviation %in% c("UTA","PHX","LAC","DEN","DAL","LAL","POR","GSW","SAS","MEM","NOP","SAC","MIN","OKC","HOU","SEA","NOK","CHH")~"west",
+      team_abbreviation %in% c("PHI","BKN","MIL","ATL","NYK","MIA","BOS","IND","WAS","CHI","TOR","CLE","ORL","DET","CHA")~"east"), # divide into east and west conference
+    fg3a_p = round(fg3a/fga, digits = 3),
+    fg3_r = round(fg3m/fg3a, digits = 3)
+    ) %>% 
+  relocate(season_year, team_abbreviation, conference)
+
+conf_rank = 
+  avg_df %>% 
+  filter(season_year %in% c("2011-12", "2012-13", "2013-14", "2014-15", "2015-16", "2016-17", "2017-18", "2018-19", "2019-20", "2020-21")) %>% 
+  ungroup() %>% 
+  select(season_year, team_abbreviation, conference, conf_rank)
+
+
+#join the two table together
+box_score_viz = 
+  box_score_viz %>% 
+  left_join(conf_rank, by = c("season_year", "team_abbreviation", "conference")) %>% 
+  mutate(play_off_team = case_when(
+           conf_rank <= 8 ~ "playoff", 
+           conf_rank > 8 ~ "non-playoff"
+         ), 
+         play_off_team = fct_relevel(play_off_team, c("playoff", "non-playoff")), 
+         fg3p = fg3m / fg3a) %>% 
+  relocate(season_year, team_abbreviation, conference, play_off_team)
+```
+
+
+We want explore that on which variables, there would be difference between teams that get into play-off season and teams that not. In this way, we can get some insight on choosing potential parameters for model building. 
+
+### Difference in Average Scores
+Firstly, We wanted to look at how the scores of each play distributed in the last 10 seasons from the aspects of team which got into play-off season and team who didn't.
+```{r}
+non_play_off = 
+  box_score_viz %>% 
+  filter(play_off_team == "non-playoff") 
+
+box_score_viz %>% 
+  filter(play_off_team == "playoff") %>% 
+  ggplot(aes(x = pts, y = season_year)) + 
+  geom_density_ridges(scale = .8, alpha = .5, fill = "blue", 
+                      quantile_lines = T, quantile_fun = mean) + 
+  geom_density_ridges(data = non_play_off, aes(x = pts, y = season_year), 
+                      scale = .8, alpha = .5, fill = "salmon", 
+                      quantile_lines = T, quantile_fun = mean) + 
+  scale_fill_manual(name = "Team", values = cols) + 
+  xlim(65, 140) + 
+  labs(x = "Scores", 
+       y = "Season Year", 
+       title = "Score Distribution Between Playoff and Regular Season Team")  
+
+```
+
+From the above ridge plot, firstly, in the last 10 regular seasons, score of each play displays an increasing trend. Secondly, team who got into the playoff season have higher average scores compared to team who did not get into playoff season. 
+
+It's easy to understand that playoff teams outscore the non-plyoff teams because higher scores let them win more. As for the rising of average score for all NBA teams, that is due to the small ball revolution, in which teams are going to speed up, get more shooting chances and increase the percentage of three points shooting.
+
+### Three Point Parameters {.tabset}
+
+Next, we use the Boxscore data and team average data to deep dive potential variables that contribute to the wining of plays. 
+
+It is clear that the percentage of three point field goal attempt in all field goal attempt were increasing in the last 10 seasons, which corresponds to the phenomenon of "Small Ball Revolution" and our analysis that score of each play was increasing in last 10 regular seasons. On the other hand,  team who got into playoff season have more **three point shooting attempt** during a game, which means the percentage of three point shooting attempt might be a contributor to the number of game wins.
+
+Moreover, the three pointer rate is higher among playoff teams than non-playoff teams. That is because high shooting rate corresponds to higher scores of a game. Another tendency from this plot is that the variation of three point shooting rate has reduced, which reflects the fact that teams paid more attention to three point shooting. If players were trained more on shooting, their shooting would become more stable.
+
+#### Three Field Goal Attempt Percent
+
+```{r, three field goal attempt percent}
+plot_ly(box_score_viz, x = ~ season_year, y = ~ fg3a_p, color = ~ play_off_team, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Three Field Goal Attempt Percent"))
+```
+
+
+#### Three Point shooting Rate
+```{r, three pointer rate}
+plot_ly(box_score_viz, x = ~ season_year, y = ~ fg3p, color = ~ play_off_team, type = "box") %>% 
+  layout(boxmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Three Pointer Rate"))
+```
+
+### Offensive Play Type {.tabset}
+```{r, include=FALSE}
+play_tp_df = 
+  predict_df %>% 
+  select(season_year, team_abbreviation, conference, 
+         conf_rank, play_off_team, poss_iso, poss_trans, poss_pr)
+```
+
+Then, we want explore how offensive play type can influence the number of wins. If a playtype can apparently contribute to the number of wins of a team, we would suggest Knicks to design more offense in that type.
+
+
+The average isolations per game in playoff teams are almost equal from 2013-14 seasaon to now, while the average isolations per game for non-playoff teams tended to decrease overtime. "Super star group" might account for this phenomenon, because super stars are able to conduct more isolation offense. As super stars joined the playoff team, the isolation of non-playoff teams decreased.
+
+Pick and roll is a common offensive team work.The average pick and rolls per game tended to increase in the last 8 years for both type of teams. The number of play and roll for playoff teams was lower than that of non-playoff teams, which matched the phenomenon of isolation a lot.
+
+Transition means the defensive team immediately launches a fast break after getting the rebound or stealing the ball without waiting for the new defensive team to be seated. It is an important way to speed up and score easily and quickly. Average transitions rose gradually because it is more efficient. And non-playoff teams seemed to conduct more transitions than playoff teams. But that didn't mean more transitions less wins, instead it was likely that due to the team was non-playoff team, it has lower power in seated offense thus they tended to do more transitions. 
+
+
+
+#### Isolation
+```{r}
+play_tp_df %>% 
+  group_by(season_year, play_off_team) %>% 
+  summarise(iso_mean = mean(poss_iso)) %>% 
+  mutate(text_label = str_c("Team Type: ", play_off_team, 
+                            "\nAverage Isolation: ", round(iso_mean, 2))) %>% 
+  plot_ly(x = ~ season_year, y = ~ iso_mean, type = "bar",
+    color = ~ play_off_team, text = ~text_label, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Average Isolation"))
+```
+
+#### Pick and Roll
+```{r}
+play_tp_df %>% 
+  group_by(season_year, play_off_team) %>% 
+  summarise(pr_mean = mean(poss_pr)) %>% 
+  mutate(text_label = str_c("Team Type: ", play_off_team, 
+                            "\nAverage Pick and Roll: ", round(pr_mean, 2))) %>% 
+  plot_ly(x = ~ season_year, y = ~ pr_mean, type = "bar",
+    color = ~ play_off_team, text = ~text_label, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Average Pick and Roll"))
+```
+
+
+#### Transition
+```{r}
+play_tp_df %>% 
+  group_by(season_year, play_off_team) %>% 
+  summarise(trans_mean = mean(poss_trans)) %>% 
+  mutate(text_label = str_c("Team Type: ", play_off_team, 
+                            "\nAverage Transition: ", round(trans_mean, 2))) %>% 
+  plot_ly(x = ~ season_year, y = ~ trans_mean, type = "bar",
+    color = ~ play_off_team, text = ~text_label, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Average Transition"))
+```
+
+### Season Average Movement Parameters {.tabset}
+
+```{r, include=FALSE}
+avg_viz_df = 
+  predict_df %>% 
+  left_join(conf_rank, by = c("season_year", "team_abbreviation", "conference")) %>% 
+  ungroup()
+```
+
+Block is a key defense parameter. Higher blocks mean that your opponents have lower chance to score on you. Playoff teams played better on blocks than non-playoff teams.
+
+Steal is also a defense parameter, which is accompanied by turnovers of opponents. There was no apparent tendency in steal over time. 
+
+Too many turnovers would let a team lose a game. The turnover plot shows that the average turnovers in playoff teams were lower than the average turnovers in non-playoff teams.
+
+Defensive rebounds could prevent the opponent's second attack so that reduce its scores. As we can see, palyoff teams could grab more defensive rebounds than non-playoff teams.
+
+The number of passing per game reflect the offense fluency. Adequate number of passes could bring create good shooting opportunities, but no good shooting opportunity created after too many passes represents bad offense ability. From the passes plot, non-playoff teams had higher average passes per game than playoff teams.
+
+#### Block
+```{r}
+avg_viz_df %>% 
+  group_by(season_year, play_off_team) %>% 
+  summarise(blk_mean = mean(blk)) %>% 
+  mutate(text_label = str_c("Team Type: ", play_off_team, 
+                            "\nAverage Block: ", round(blk_mean, 2))) %>% 
+  plot_ly(x = ~ season_year, y = ~ blk_mean, type = "bar",
+    color = ~ play_off_team, text = ~text_label, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Average Steal"))
+```
+
+#### Steal
+```{r, Steal}
+avg_viz_df %>% 
+  group_by(season_year, play_off_team) %>% 
+  summarise(stl_mean = mean(stl)) %>% 
+  mutate(text_label = str_c("Team Type: ", play_off_team, 
+                            "\nAverage Steal: ", round(stl_mean, 2))) %>% 
+  plot_ly(x = ~ season_year, y = ~ stl_mean, type = "bar",
+    color = ~ play_off_team, text = ~text_label, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Average Steal"))
+
+```
+
+#### Turnover
+```{r}
+avg_viz_df %>% 
+  group_by(season_year, play_off_team) %>% 
+  summarise(tov_mean = mean(tov_avg)) %>% 
+  mutate(text_label = str_c("Team Type: ", play_off_team, 
+                            "\nAverage Turnover: ", round(tov_mean, 2))) %>% 
+  plot_ly(x = ~ season_year, y = ~ tov_mean, type = "bar",
+    color = ~ play_off_team, text = ~text_label, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Average Turnover"))
+```
+
+#### Defensive Rebound
+```{r}
+avg_viz_df %>% 
+  group_by(season_year, play_off_team) %>% 
+  summarise(dreb_mean = mean(dreb)) %>% 
+  mutate(text_label = str_c("Team Type: ", play_off_team, 
+                            "\nAverage Defensive Rebound: ", round(dreb_mean, 2))) %>% 
+  plot_ly(x = ~ season_year, y = ~ dreb_mean, type = "bar",
+    color = ~ play_off_team, text = ~text_label, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Average Turnover"))
+```
+
+#### Passes
+```{r}
+avg_viz_df %>% 
+  group_by(season_year, play_off_team) %>% 
+  summarise(passes_mean = mean(passes_made)) %>% 
+  mutate(text_label = str_c("Team Type: ", play_off_team, 
+                            "\nAverage Passes: ", round(passes_mean, 2))) %>% 
+  plot_ly(x = ~ season_year, y = ~ passes_mean, type = "bar",
+    color = ~ play_off_team, text = ~text_label, colors = "viridis") %>% 
+  layout(barmode = "group", 
+         xaxis = list(title = 'Season Year'),
+         yaxis = list(title = "Average Passes"))
+```
+
+

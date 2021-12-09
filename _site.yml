@@ -13,6 +13,8 @@ navbar:
           href: second_regression.html
         - text: 'Regression for score'
           href: regresssion_for_score.html
+    - text: "Data Exploration"
+      href: eda.html
     - text: "About"
       href: proposal.html
     - text: "Shiny App"
