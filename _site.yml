@@ -12,7 +12,7 @@ navbar:
         - text: 'Regression for win or lose'
           href: second_regression.html
         - text: 'Regression for score'
-          href: second_regression.html
+          href: regresssion_for_score.html
     - text: "About"
       href: proposal.html
     - text: "Shiny App"

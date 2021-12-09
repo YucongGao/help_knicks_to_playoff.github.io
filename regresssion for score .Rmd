@@ -1,0 +1,136 @@
+---
+title: "Regression for score"
+author: "Pei Hsin Lin"
+date: "12/8/2021"
+output: html_document
+---
+```{r, include=FALSE}
+library(tidyverse)
+library(hexbin)
+library(jsonlite)
+library(httr)
+library(patchwork)
+library(ggplot2)
+library(corrplot)
+library(stringr)
+library(caret)
+library(plotly)
+library(ggridges)
+library(GGally)
+library(modelr)
+```
+
+```{R}
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+## Data
+
+```{r}
+box_score_all = read_csv("./data2/box_score_all.csv")
+```
+
+```{r}
+regre_df = 
+  box_score_all %>%
+  select(-c(1:7)) %>%
+  select(-ends_with("rank")) %>%
+  mutate(wl = recode(wl, "W" = 1, "L" = 0),
+         wl = as.factor(wl)) 
+```
+## Linear Regression
+
+### Variable description
+
+After ruling out variables with strong correlation, we include variables as follow:
+Dependent variable is the score of each game, denoted by pts (points).
+Independent variables are selected from both **offensive** aspect and **defensive** aspect.
+
+For the offensive level, variables include:
+
+* fg3_pct: proportion of three points shooting
+* fg_pct: proportion of field goals attempted
+* fg_pct: proportion of free throw
+* oreb: average offensive rebounds per game
+* ast: average assists per games
+
+As for the defensive level, variables include:
+
+* stl: steals of each game
+* blk: blocks of each game
+* dreb: defensive rebounds of each game
+* tov: turnovers of each game
+* pf: personal foul of each game
+
+### Modelling
+
+Use step function to choose a model by AIC in a Stepwise algorithm.
+
+```{r}
+ln_regre = lm(pts ~fg_pct+fg3_pct+ft_pct+oreb+dreb+ast+stl+blk+tov+pf,data = regre_df)
+summary(ln_regre)
+linear.step = step(ln_regre,direction="both")
+summary(linear.step)
+```
+
+The adjusted R square for the full model is 0.6916, that is to say 69.16% of variances in the response variable can be explained by the predictors. 
+
+
+### Model diagnostic
+
+
+1). to check if the error term is normally distributed with mean 0.
+```{r}
+ggplot(data = ln_regre , aes(x = ln_regre$residuals)) + geom_histogram()
+```
+
+Condition 1 is met.
+
+2). to check if the error term is independent of the dependent variable.
+```{r}
+ggplot(data = ln_regre, aes(x = ln_regre$fitted.values, y = ln_regre$residuals)) + geom_point() + geom_smooth(method = "lm")
+```
+
+Condition 2 is met as we cannot see an obvious tendency of errors.
+
+### Interpretation of model coefficients
+
+According to model ln_regre,the equation will look like this.
+ ![](image/second_linear_regre.jpeg )
+ 
+All variables selected are significant in this linear regression model.
+
+For each additional 0.1 of proportion of field goals attempted, the points will increase 13.9.
+ 
+For each additional 0.1 of proportion three points shooting, the points will increase 1.45.
+
+For each additional 0.1 of proportion of free throw, the points will increase 2.43.
+ 
+For each additional 1 of offensive rebounds per game, the points will increase 0.8.
+ 
+For each additional 1 of defensive rebounds per games, the points will increase 0.56.
+
+For each additional 1 of steals per game, the points will increase 0.57.
+
+For each additional 1 of assists per game, the points will increase 0.45.
+
+For each additional 1 of blocks per game, the points will decrease 0.15.
+
+For each additional 1 of turnovers per game, the points will decrease 0.68.
+
+For each additional 1 of  personal foul per game, the points will decrease 0.4.
+
