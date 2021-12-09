@@ -5,8 +5,6 @@ navbar:
   right:
     - text: "Report"
       href: final_report.html
-    - text: "Data Scrapping"
-      href: scrapping_data.html
     - text: "Data Exploration"
       href: eda.html
     - text: "Regression"
