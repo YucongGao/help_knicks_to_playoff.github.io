@@ -2,7 +2,7 @@
 title: "Predict for Score"
 output: html_document
 ---
-```{r, include=FALSE}
+```{r,message=FALSE, warning=FALSE}
 library(tidyverse)
 library(hexbin)
 library(jsonlite)
@@ -16,9 +16,7 @@ library(plotly)
 library(ggridges)
 library(GGally)
 library(modelr)
-```
 
-```{R}
 knitr::opts_chunk$set(
   fig.width = 6,
   fig.asp = .6,
@@ -34,15 +32,9 @@ options(
 
 scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
-```
 
-## Data
-
-```{r}
 box_score_all = read_csv("./data2/box_score_all.csv")
-```
 
-```{r}
 regre_df = 
   box_score_all %>%
   select(-c(1:7)) %>%
@@ -50,9 +42,46 @@ regre_df =
   mutate(wl = recode(wl, "W" = 1, "L" = 0),
          wl = as.factor(wl)) 
 ```
-## Linear Regression
 
-### Variable description
+
+## Regression Exploration
+In this part, we explore each game in the past 20 years, try to find some important variables that might affect the result of the game. By this process, we also can get some insight on choosing potential parameters for model building. Since we use the smae data set as the data we use to build logistic regression, the Exploratory Analysis part can just click  [here](second_regression.html) to see the Exploratory Analysis.
+
+
+
+### Correlation Matrix 
+Further, we can draw a correlation map to exam correlation of variables to help us select variables when building model.
+```{r,message=FALSE, warning=FALSE}
+regre_df = 
+  regre_df %>%
+  mutate(
+    min = as.numeric(min),
+    fgm = as.numeric(fgm),
+    fga = as.numeric(fga),
+    fg_pct = as.numeric(fg_pct),
+    fg3m = as.numeric(fg3m),
+    fg3a = as.numeric(fg3a),
+    fg3_pct = as.numeric(fg3_pct),
+    ftm = as.numeric(ftm),
+    fta = as.numeric(fta),
+    ft_pct = as.numeric(ft_pct),
+    oreb = as.numeric(oreb),
+    dreb = as.numeric(dreb),
+    reb = as.numeric(reb),
+    ast = as.numeric(ast),
+    tov = as.numeric(tov),
+    stl = as.numeric(stl),
+    blk = as.numeric(blk),
+    blka = as.numeric(blka),
+    pf = as.numeric(pf),
+    pfd = as.numeric(pfd),
+    pts = as.numeric(pts),
+    plus_minus = as.numeric(plus_minus)
+  )
+corr <- cor(regre_df[-1])
+corrplot(corr, method = "square", order = "FPC")
+```
+
 
 After ruling out variables with strong correlation, we include variables as follow:
 Dependent variable is the score of each game, denoted by pts (points).
@@ -78,28 +107,36 @@ As for the defensive level, variables include:
 
 Use step function to choose a model by AIC in a Stepwise algorithm.
 
-```{r}
+```{r,message=FALSE, warning=FALSE}
 ln_regre = lm(pts ~fg_pct+fg3_pct+ft_pct+oreb+dreb+ast+stl+blk+tov+pf,data = regre_df)
 summary(ln_regre)
 linear.step = step(ln_regre,direction="both")
-summary(linear.step)
+linear.step  %>% broom::tidy() %>% knitr::kable()
 ```
 
 The adjusted R square for the full model is 0.6916, that is to say 69.16% of variances in the response variable can be explained by the predictors. 
+
+
+```{r,message=FALSE, warning=FALSE}
+ln_regre= lm(pts ~fg_pct+fg3_pct+ft_pct+oreb+dreb+ast+stl+blk+tov+pf,data = regre_df)
+summary(ln_regre)
+linear.step = step(ln_regre,direction="both")
+linear.step  %>% broom::tidy() %>% knitr::kable()
+```
 
 
 ### Model diagnostic
 
 
 1). to check if the error term is normally distributed with mean 0.
-```{r}
+```{r,message=FALSE, warning=FALSE}
 ggplot(data = ln_regre , aes(x = ln_regre$residuals)) + geom_histogram()
 ```
 
 Condition 1 is met.
 
 2). to check if the error term is independent of the dependent variable.
-```{r}
+```{r,message=FALSE, warning=FALSE}
 ggplot(data = ln_regre, aes(x = ln_regre$fitted.values, y = ln_regre$residuals)) + geom_point() + geom_smooth(method = "lm")
 ```
 
@@ -107,8 +144,9 @@ Condition 2 is met as we cannot see an obvious tendency of errors.
 
 ### Interpretation of model coefficients
 
-According to model ln_regre,the equation will look like this.
- ![](image/second_linear_regre.jpeg )
+Our final model for predicting game result is showing below.
+
+$$Score=-25.229423 + 138.594897(fg_pct)+14.564180(fg3_pct)+24.290515(ft_pct)+0.802525(oreb)+\\ 0.563889(dreb)-0.487421(ast)+0.565725(stl)-0.152531(blk)-0.682900(tov)+0.404912(pf)$$
  
 All variables selected are significant in this linear regression model.
 
@@ -132,3 +170,5 @@ For each additional 1 of turnovers per game, the points will decrease 0.68.
 
 For each additional 1 of  personal foul per game, the points will decrease 0.4.
 
+### Model Conclusion
+We have built a linear and logistic regression based on the NBA data. The adjusted R square for the linear regression model is 0.6916, which can explain the game score in a large extent and can help us to predict the result of a game more accurately. 

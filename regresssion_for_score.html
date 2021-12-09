@@ -9,7 +9,6 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Pei Hsin Lin" />
 
 
 <title>Predict for Score</title>
@@ -344,7 +343,7 @@ div.tocify {
       <a href="second_regression.html">Regression for win or lose</a>
     </li>
     <li>
-      <a href="regression_for_score.html">Regression for score</a>
+      <a href="regresssion_for_score.html">Regression for score</a>
     </li>
   </ul>
 </li>
@@ -384,13 +383,25 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Predict for Score</h1>
-<h4 class="author">Pei Hsin Lin</h4>
-<h4 class="date">12/8/2021</h4>
 
 </div>
 
 
-<pre class="r"><code>knitr::opts_chunk$set(
+<pre class="r"><code>library(tidyverse)
+library(hexbin)
+library(jsonlite)
+library(httr)
+library(patchwork)
+library(ggplot2)
+library(corrplot)
+library(stringr)
+library(caret)
+library(plotly)
+library(ggridges)
+library(GGally)
+library(modelr)
+
+knitr::opts_chunk$set(
   fig.width = 6,
   fig.asp = .6,
   out.width = &quot;90%&quot;
@@ -404,30 +415,51 @@ options(
 )
 
 scale_colour_discrete = scale_colour_viridis_d
-scale_fill_discrete = scale_fill_viridis_d</code></pre>
-<div id="data" class="section level2">
-<h2>Data</h2>
-<pre class="r"><code>box_score_all = read_csv(&quot;./data2/box_score_all.csv&quot;)</code></pre>
-<pre><code>## Rows: 47830 Columns: 30</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr   (6): season_year, team_abbreviation, team_name, game_id, matchup, wl
-## dbl  (23): team_id, min, fgm, fga, fg_pct, fg3m, fg3a, fg3_pct, ftm, fta, ft...
-## dttm  (1): game_date</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre class="r"><code>regre_df = 
+scale_fill_discrete = scale_fill_viridis_d
+
+box_score_all = read_csv(&quot;./data2/box_score_all.csv&quot;)
+
+regre_df = 
   box_score_all %&gt;%
   select(-c(1:7)) %&gt;%
   select(-ends_with(&quot;rank&quot;)) %&gt;%
   mutate(wl = recode(wl, &quot;W&quot; = 1, &quot;L&quot; = 0),
          wl = as.factor(wl)) </code></pre>
-</div>
-<div id="linear-regression" class="section level2">
-<h2>Linear Regression</h2>
-<div id="variable-description" class="section level3">
-<h3>Variable description</h3>
+<div id="regression-exploration" class="section level2">
+<h2>Regression Exploration</h2>
+<p>In this part, we explore each game in the past 20 years, try to find some important variables that might affect the result of the game. By this process, we also can get some insight on choosing potential parameters for model building. Since we use the smae data set as the data we use to build logistic regression, the Exploratory Analysis part can just click <a href="second_regression.html">here</a> to see the Exploratory Analysis.</p>
+<div id="correlation-matrix" class="section level3">
+<h3>Correlation Matrix</h3>
+<p>Further, we can draw a correlation map to exam correlation of variables to help us select variables when building model.</p>
+<pre class="r"><code>regre_df = 
+  regre_df %&gt;%
+  mutate(
+    min = as.numeric(min),
+    fgm = as.numeric(fgm),
+    fga = as.numeric(fga),
+    fg_pct = as.numeric(fg_pct),
+    fg3m = as.numeric(fg3m),
+    fg3a = as.numeric(fg3a),
+    fg3_pct = as.numeric(fg3_pct),
+    ftm = as.numeric(ftm),
+    fta = as.numeric(fta),
+    ft_pct = as.numeric(ft_pct),
+    oreb = as.numeric(oreb),
+    dreb = as.numeric(dreb),
+    reb = as.numeric(reb),
+    ast = as.numeric(ast),
+    tov = as.numeric(tov),
+    stl = as.numeric(stl),
+    blk = as.numeric(blk),
+    blka = as.numeric(blka),
+    pf = as.numeric(pf),
+    pfd = as.numeric(pfd),
+    pts = as.numeric(pts),
+    plus_minus = as.numeric(plus_minus)
+  )
+corr &lt;- cor(regre_df[-1])
+corrplot(corr, method = &quot;square&quot;, order = &quot;FPC&quot;)</code></pre>
+<p><img src="regresssion_for_score_files/figure-html/unnamed-chunk-2-1.png" width="90%" /></p>
 <p>After ruling out variables with strong correlation, we include variables as follow: Dependent variable is the score of each game, denoted by pts (points). Independent variables are selected from both <strong>offensive</strong> aspect and <strong>defensive</strong> aspect.</p>
 <p>For the offensive level, variables include:</p>
 <ul>
@@ -496,7 +528,100 @@ summary(ln_regre)</code></pre>
 ## - dreb     1    405789 2977877 197621
 ## - oreb     1    406778 2978867 197637
 ## - fg_pct   1   1601094 4173182 213762</code></pre>
-<pre class="r"><code>summary(linear.step)</code></pre>
+<pre class="r"><code>linear.step  %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std.error</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">-25.2294230</td>
+<td align="right">0.5159129</td>
+<td align="right">-48.90248</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">fg_pct</td>
+<td align="right">138.5948965</td>
+<td align="right">0.8033069</td>
+<td align="right">172.53044</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">fg3_pct</td>
+<td align="right">14.5641804</td>
+<td align="right">0.3258922</td>
+<td align="right">44.69017</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">ft_pct</td>
+<td align="right">24.2905146</td>
+<td align="right">0.3318872</td>
+<td align="right">73.18906</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">oreb</td>
+<td align="right">0.8025245</td>
+<td align="right">0.0092283</td>
+<td align="right">86.96336</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">dreb</td>
+<td align="right">0.5638889</td>
+<td align="right">0.0064921</td>
+<td align="right">86.85749</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">ast</td>
+<td align="right">0.4874214</td>
+<td align="right">0.0081360</td>
+<td align="right">59.90906</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">stl</td>
+<td align="right">0.5657252</td>
+<td align="right">0.0118704</td>
+<td align="right">47.65846</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">blk</td>
+<td align="right">-0.1525314</td>
+<td align="right">0.0133510</td>
+<td align="right">-11.42469</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">tov</td>
+<td align="right">-0.6829004</td>
+<td align="right">0.0088988</td>
+<td align="right">-76.74036</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">pf</td>
+<td align="right">0.4049123</td>
+<td align="right">0.0076670</td>
+<td align="right">52.81257</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p>The adjusted R square for the full model is 0.6916, that is to say 69.16% of variances in the response variable can be explained by the predictors.</p>
+<pre class="r"><code>ln_regre= lm(pts ~fg_pct+fg3_pct+ft_pct+oreb+dreb+ast+stl+blk+tov+pf,data = regre_df)
+summary(ln_regre)</code></pre>
 <pre><code>## 
 ## Call:
 ## lm(formula = pts ~ fg_pct + fg3_pct + ft_pct + oreb + dreb + 
@@ -525,24 +650,130 @@ summary(ln_regre)</code></pre>
 ## Residual standard error: 7.334 on 47819 degrees of freedom
 ## Multiple R-squared:  0.6916, Adjusted R-squared:  0.6916 
 ## F-statistic: 1.072e+04 on 10 and 47819 DF,  p-value: &lt; 2.2e-16</code></pre>
-<p>The adjusted R square for the full model is 0.6916, that is to say 69.16% of variances in the response variable can be explained by the predictors.</p>
+<pre class="r"><code>linear.step = step(ln_regre,direction=&quot;both&quot;)</code></pre>
+<pre><code>## Start:  AIC=190616
+## pts ~ fg_pct + fg3_pct + ft_pct + oreb + dreb + ast + stl + blk + 
+##     tov + pf
+## 
+##           Df Sum of Sq     RSS    AIC
+## &lt;none&gt;                 2572088 190616
+## - blk      1      7021 2579109 190744
+## - fg3_pct  1    107426 2679514 192571
+## - stl      1    122170 2694258 192834
+## - pf       1    150024 2722112 193325
+## - ast      1    193050 2765138 194076
+## - ft_pct   1    288123 2860211 195692
+## - tov      1    316762 2888850 196169
+## - dreb     1    405789 2977877 197621
+## - oreb     1    406778 2978867 197637
+## - fg_pct   1   1601094 4173182 213762</code></pre>
+<pre class="r"><code>linear.step  %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std.error</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">-25.2294230</td>
+<td align="right">0.5159129</td>
+<td align="right">-48.90248</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">fg_pct</td>
+<td align="right">138.5948965</td>
+<td align="right">0.8033069</td>
+<td align="right">172.53044</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">fg3_pct</td>
+<td align="right">14.5641804</td>
+<td align="right">0.3258922</td>
+<td align="right">44.69017</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">ft_pct</td>
+<td align="right">24.2905146</td>
+<td align="right">0.3318872</td>
+<td align="right">73.18906</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">oreb</td>
+<td align="right">0.8025245</td>
+<td align="right">0.0092283</td>
+<td align="right">86.96336</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">dreb</td>
+<td align="right">0.5638889</td>
+<td align="right">0.0064921</td>
+<td align="right">86.85749</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">ast</td>
+<td align="right">0.4874214</td>
+<td align="right">0.0081360</td>
+<td align="right">59.90906</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">stl</td>
+<td align="right">0.5657252</td>
+<td align="right">0.0118704</td>
+<td align="right">47.65846</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">blk</td>
+<td align="right">-0.1525314</td>
+<td align="right">0.0133510</td>
+<td align="right">-11.42469</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">tov</td>
+<td align="right">-0.6829004</td>
+<td align="right">0.0088988</td>
+<td align="right">-76.74036</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">pf</td>
+<td align="right">0.4049123</td>
+<td align="right">0.0076670</td>
+<td align="right">52.81257</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="model-diagnostic" class="section level3">
 <h3>Model diagnostic</h3>
 <p>1). to check if the error term is normally distributed with mean 0.</p>
 <pre class="r"><code>ggplot(data = ln_regre , aes(x = ln_regre$residuals)) + geom_histogram()</code></pre>
-<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-<p><img src="regresssion_for_score_files/figure-html/unnamed-chunk-6-1.png" width="90%" /></p>
+<p><img src="regresssion_for_score_files/figure-html/unnamed-chunk-5-1.png" width="90%" /></p>
 <p>Condition 1 is met.</p>
 <p>2). to check if the error term is independent of the dependent variable.</p>
 <pre class="r"><code>ggplot(data = ln_regre, aes(x = ln_regre$fitted.values, y = ln_regre$residuals)) + geom_point() + geom_smooth(method = &quot;lm&quot;)</code></pre>
-<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="regresssion_for_score_files/figure-html/unnamed-chunk-7-1.png" width="90%" /></p>
+<p><img src="regresssion_for_score_files/figure-html/unnamed-chunk-6-1.png" width="90%" /></p>
 <p>Condition 2 is met as we cannot see an obvious tendency of errors.</p>
 </div>
 <div id="interpretation-of-model-coefficients" class="section level3">
 <h3>Interpretation of model coefficients</h3>
-<p>According to model ln_regre,the equation will look like this. <img src="image/second_linear_regre.jpeg" /></p>
+<p>Our final model for predicting game result is showing below.</p>
+<p><span class="math display">\[Score=-25.229423 + 138.594897(fg_pct)+14.564180(fg3_pct)+24.290515(ft_pct)+0.802525(oreb)+\\ 0.563889(dreb)-0.487421(ast)+0.565725(stl)-0.152531(blk)-0.682900(tov)+0.404912(pf)\]</span></p>
 <p>All variables selected are significant in this linear regression model.</p>
 <p>For each additional 0.1 of proportion of field goals attempted, the points will increase 13.9.</p>
 <p>For each additional 0.1 of proportion three points shooting, the points will increase 1.45.</p>
@@ -554,6 +785,10 @@ summary(ln_regre)</code></pre>
 <p>For each additional 1 of blocks per game, the points will decrease 0.15.</p>
 <p>For each additional 1 of turnovers per game, the points will decrease 0.68.</p>
 <p>For each additional 1 of personal foul per game, the points will decrease 0.4.</p>
+</div>
+<div id="model-conclusion" class="section level3">
+<h3>Model Conclusion</h3>
+<p>We have built a linear and logistic regression based on the NBA data. The adjusted R square for the linear regression model is 0.6916, which can explain the game score in a large extent and can help us to predict the result of a game more accurately.</p>
 </div>
 </div>
 

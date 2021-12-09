@@ -23,7 +23,7 @@ library(GGally)
 library(modelr)
 ```
 
-```{R}
+```{R,message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(
   fig.width = 6,
   fig.asp = .6,
@@ -43,7 +43,7 @@ scale_fill_discrete = scale_fill_viridis_d
 
 ## Data
 
-```{r}
+```{r,message=FALSE, warning=FALSE}
 box_score_all = read_csv("./data2/box_score_all.csv")
 ```
 The box_score_all dataset contains `r nrow(box_score_all)` games' data from season 2012-2013 to season 2020-2021, which includes `r ncol(box_score_all)` variables. We are going to use some of them in the following exploratory data analysis.
@@ -81,7 +81,7 @@ These are some reasonable variables that should be added into the regression mod
 In order to build logistic regression model, we will replace win/loss with 1/0.
 Then draw boxplots of every variable to compare the characteristics of winning and losing teams.
 
-```{r}
+```{r,message=FALSE, warning=FALSE}
 regre_df = 
   box_score_all %>%
   select(-c(1:7)) %>%
@@ -100,7 +100,7 @@ We can see that if a team wants to win the game, the score they needs to achieve
 
 So, it is obviously that if a team wants to win a game, they need to find a new techniques to earn more score. Next we will explore some factors we think might play a rule on the result of the game.
 
-```{r}
+```{r,message=FALSE, warning=FALSE}
 lose_game=
   box_score_all %>% 
   filter(wl == "L") 
@@ -136,12 +136,12 @@ Third, we can see that free throw attempted and percentage didn't have much chan
 By inspect these variables, we can conclude that on the basketball field there are almost like a three points field goals fight after 2015, everyone throw as much as 3 points play as they can. 
 The most notable difference of attempted between winning team and losing team happened on the free throw attempted, this means that even that the free throw only contribute one point in the score, it still is a indicator of the game result.And the most outstanding difference of percentage between winning team and losing team happened on the field goal percentage,  this suggest that the to improve field goal percentage is one of the most critcal thing a team should consider if they want to win the game.
 
-So since 3 points field attempted become trend in every game,  we look up three of the most higher 3 points field attempted out liner on the plot. We find out it all made by Houston Rockets, so we took a look deeply, we find out in the top ten of the highest higher 3 points field in these 20 years, Houston Rockets occupy 8 of it and the other 2 is Atlanta Hawks.
+So since 3 points field attempted become trend in every game,  we look up three of the most higher 3 points field attempted out liner on the plot. We find out it all made by Houston Rockets, so we took a look deeply, we find out in the top ten of the highest 3 points field in these 20 years, Houston Rockets occupy 8 of it and the other 2 is Atlanta Hawks.
 
 
 #### Field Goal 
 
-```{r,warning=FALSE}
+```{r,message=FALSE, warning=FALSE}
 plot_ly( box_score_all, x = ~ season_year, y = ~ fga , color = ~ wl, type = "box") %>% 
   layout(boxmode = "group", 
          xaxis = list(title = 'Season Year'),
@@ -154,7 +154,7 @@ plot_ly( box_score_all, x = ~ season_year, y = ~ fg_pct, color = ~ wl, type = "b
 ```
 
 #### 3 Point Field Goals 
-```{r,warning=FALSE}
+```{r,message=FALSE, warning=FALSE}
 plot_ly(box_score_all, x = ~ season_year, y = ~ fg3a, color = ~ wl, type = "box") %>% 
   layout(boxmode = "group", 
          xaxis = list(title = 'Season Year'),
@@ -167,7 +167,7 @@ plot_ly(box_score_all, x = ~ season_year, y = ~ fg3_pct, color = ~ wl, type = "b
 ```
 
 #### Free Throw 
-```{r,warning=FALSE}
+```{r,message=FALSE, warning=FALSE}
 
 plot_ly(box_score_all, x = ~ season_year, y = ~ fta, color = ~ wl, type = "box") %>% 
   layout(boxmode = "group", 
@@ -182,15 +182,18 @@ plot_ly(box_score_all, x = ~ season_year, y = ~ ft_pct, color = ~ wl, type = "bo
 
 ```
 
+Since, in the previous part, we found out that highest 3 points field in these 20 years, Houston Rockets occupy 8 of it and the other 2 is Atlanta Hawks. It seems like there are some team really superior in 3 points, which is also seems like a important factor on winning the game.
+So we take a look of Knicks's 3 Point Field Goals and 3 Point Field Goals Attempted, we found out that even after the small ball era, there average of  3 Point Field Goals and Attempted didn't have much increase.
+
 ### New York Knicks 3 Point Field Goals {.tabset}
 
-```{r}
+```{r,message=FALSE, warning=FALSE}
 nyk= 
   box_score_all %>% 
   filter(team_abbreviation =="NYK")
 ```
 #### 3 Point Field Goals Attempted
-```{r}
+```{r,message=FALSE, warning=FALSE}
 
 plot_ly(nyk, x = ~ season_year, y = ~ fg3a, color = ~ wl, type = "box") %>% 
   layout(boxmode = "group", 
@@ -198,8 +201,7 @@ plot_ly(nyk, x = ~ season_year, y = ~ fg3a, color = ~ wl, type = "box") %>%
          yaxis = list(title = "3 Point Field Goals Attempted"))
 ```
 #### 3 Point Field Goals Percentage
-```{r}
-
+```{r,message=FALSE, warning=FALSE}
 plot_ly(nyk, x = ~ season_year, y = ~ fg3_pct, color = ~ wl, type = "box") %>% 
   layout(boxmode = "group", 
          xaxis = list(title = 'Season Year'),
@@ -221,7 +223,7 @@ Average offensive rebounds are higher in the losing team seems like a same patte
 Average assists per games is significantly higher in the winning team might result from the assists is defined as scoring successfully, and more scoring means more possible to win.
 
 
-```{r, include=FALSE}
+```{r,message=FALSE, warning=FALSE}
 offensive_df = 
   box_score_all %>% 
   select(season_year,wl, oreb, ast)
@@ -232,7 +234,7 @@ offensive_df =
 #### Average offensive rebounds per game
 
 
-```{r,warning=FALSE}
+```{r,message=FALSE, warning=FALSE}
 offensive_df %>% 
   group_by(season_year, wl) %>% 
   summarise(oreb= mean(oreb)) %>% 
@@ -244,7 +246,7 @@ offensive_df %>%
 ```
 #### Aaverage assists per games
 
-```{r,warning=FALSE}
+```{r,message=FALSE, warning=FALSE}
 offensive_df %>% 
   group_by(season_year, wl) %>% 
   summarise(ast= mean(ast)) %>% 
@@ -266,7 +268,7 @@ Steals, Blocks, Defensive rebounds of each game is significantly higher in the w
 
 
 
-```{r, include=FALSE}
+```{r,message=FALSE, warning=FALSE}
 defensive_df = 
   box_score_all %>% 
   select(season_year,wl,stl,blk,dreb,tov, pf)
@@ -276,7 +278,7 @@ defensive_df =
 #### Steals of each game
 
 
-```{r,warning=FALSE}
+```{r,message=FALSE, warning=FALSE}
 box_score_all %>% 
   group_by(season_year, wl) %>% 
   summarise(stl= mean(stl)) %>% 
@@ -289,7 +291,7 @@ box_score_all %>%
 
 #### Blocks of each game
 
-```{r,warning=FALSE}
+```{r,message=FALSE, warning=FALSE}
 box_score_all %>% 
   group_by(season_year, wl) %>% 
   summarise(blk= mean(blk)) %>% 
@@ -302,8 +304,7 @@ box_score_all %>%
 
 #### Defensive rebounds of each game
 
-```{r,warning=FALSE}
-
+```{r,message=FALSE, warning=FALSE}
 box_score_all %>% 
   group_by(season_year, wl) %>% 
   summarise(dreb= mean(dreb)) %>% 
@@ -317,7 +318,7 @@ box_score_all %>%
 
 #### Turnovers of each game
 
-```{r,warning=FALSE}
+```{r,message=FALSE, warning=FALSE}
 
 box_score_all %>% 
   group_by(season_year, wl) %>% 
@@ -332,7 +333,7 @@ box_score_all %>%
 
 #### Personal foul of each game
 
-```{r,warning=FALSE}
+```{r,message=FALSE, warning=FALSE}
 
 box_score_all %>% 
   group_by(season_year, wl) %>% 
@@ -349,7 +350,7 @@ box_score_all %>%
 ## Corralation Map
 
 Further, we can draw a correlation map to exam correlation of variables to help us select variables when building model.
-```{r}
+```{r,message=FALSE, warning=FALSE}
 regre_df = 
   regre_df %>%
   mutate(
@@ -382,93 +383,10 @@ corrplot(corr, method = "square", order = "FPC")
 
 Based on this plot, we can see that there are some strong correlation between some variables, like ftm and fta, dreb and reb. We will select one variable from a pair of variables that have correlation score which is more than 0.5. Therefore we can select variables which have no strong correlation with others.
 
-## Linear Regression
-
-### Variable description
-
-After ruling out variables with strong correlation, we include variables as follow:
-Dependent variable is the score of each game, denoted by pts (points).
-Independent variables are selected from both **offensive** aspect and **defensive** aspect.
-
-For the offensive level, variables include:
-
-* fg3_pct: proportion of three points shooting
-* fg_pct: proportion of field goals attempted
-* fg_pct: proportion of free throw
-* oreb: average offensive rebounds per game
-* ast: average assists per games
-
-As for the defensive level, variables include:
-
-* stl: steals of each game
-* blk: blocks of each game
-* dreb: defensive rebounds of each game
-* tov: turnovers of each game
-* pf: personal foul of each game
-
-### Modelling
-
-Use step function to choose a model by AIC in a Stepwise algorithm.
-
-```{r}
-ln_regre = lm(pts ~fg_pct+fg3_pct+ft_pct+oreb+dreb+ast+stl+blk+tov+pf,data = regre_df)
-summary(ln_regre)
-linear.step = step(ln_regre,direction="both")
-summary(linear.step)
-```
-
-The adjusted R square for the full model is 0.6916, that is to say 69.16% of variances in the response variable can be explained by the predictors. 
-
-
-### Model diagnostic
-
-
-1). to check if the error term is normally distributed with mean 0.
-```{r}
-ggplot(data = ln_regre , aes(x = ln_regre$residuals)) + geom_histogram()
-```
-
-Condition 1 is met.
-
-2). to check if the error term is independent of the dependent variable.
-```{r}
-ggplot(data = ln_regre, aes(x = ln_regre$fitted.values, y = ln_regre$residuals)) + geom_point() + geom_smooth(method = "lm")
-```
-
-Condition 2 is met as we cannot see an obvious tendency of errors.
-
-### Interpretation of model coefficients
-
-According to model ln_regre,the equation will look like this.
- ![](image/second_linear_regre.jpeg )
- 
-All variables selected are significant in this linear regression model.
-
-For each additional 0.1 of proportion of field goals attempted, the points will increase 13.9.
- 
-For each additional 0.1 of proportion three points shooting, the points will increase 1.45.
-
-For each additional 0.1 of proportion of free throw, the points will increase 2.43.
- 
-For each additional 1 of offensive rebounds per game, the points will increase 0.8.
- 
-For each additional 1 of defensive rebounds per games, the points will increase 0.56.
-
-For each additional 1 of steals per game, the points will increase 0.57.
-
-For each additional 1 of assists per game, the points will increase 0.45.
-
-For each additional 1 of blocks per game, the points will decrease 0.15.
-
-For each additional 1 of turnovers per game, the points will decrease 0.68.
-
-For each additional 1 of  personal foul per game, the points will decrease 0.4.
-
-
 ## Logistic Regression
 
 Separate data as 80% training data and 20% testing data for prediction.
-```{r}
+```{r,message=FALSE, warning=FALSE}
 set.seed(22)
 train.index <- sample(x=1:nrow( regre_df), size=ceiling(0.9*nrow(regre_df)))
 
@@ -479,7 +397,7 @@ test =regre_df[-train.index, ]
 ### Modelling
 
 Build logistic regression model with Step methods in both directions.
-```{r}
+```{r,message=FALSE, warning=FALSE}
 lg_regre<-glm(wl~fg_pct+fg3_pct+ft_pct+oreb+dreb+ast+stl+blk+tov+pf,data =train, family = "binomial",control = list(maxit=1000))
 summary(lg_regre)
 logit.step = step(lg_regre,direction="both")
@@ -514,7 +432,7 @@ For each additional 1 of turnovers per game, the odds of win over loss will beco
 For each additional 1 of  personal foul per game, the odds of win over loss will become e^(-0.067135) times.
 
 ### Calculate prediction accuracy.
-```{r}
+```{r,message=FALSE, warning=FALSE}
 probabilities <- lg_regre %>% predict(test, type = "response")
 head(probabilities)
 contrasts(test$wl)
@@ -532,9 +450,5 @@ Using the logistic model of all variables we selected, the prediction accuracy i
 Our final model for predicting game result is showing below.
 
 $$Y_i=-25.150274 + 30.300719 (fg_pct)+4.300476(fg3_pct)+3.626952(ft_pct)+0.169106(oreb)+\\ 0.237543(dreb)-0.040846(ast)+0.263265(stl)+0.120397(blk)-0.177678(tov)-0.067135(pf)$$
-
-* We have built both linear and logistic regression based on the NBA data. The adjusted R square for the linear regression model is 0.6916, which can explain the game score in a large extent. And the prediction of the logistic regression model is 0.8053523, which can help us to predict the result of a game more accurately. 
-
-* There are some variables that can positively attribute to the winning of a game in both two models, like proportion of field goals attempted, proportion three points shooting and proportion of free throw, which can instruct the Knicks to pay more attention on these aspects in daily training.
-
-* There is variable that can negatively attribute to the winning of a game in both two models, turnovers, which can instruct the Knicks to avoid this action in games.
+We have built a logistic regression based on the NBA data. The prediction of the logistic regression model is 0.8053523, which can help us to predict the result of a game more accurately. There are some variables that can positively attribute to the winning of a game, including proportion of field goals attempted, proportion three points shooting and proportion of free throw, which can instruct the Knicks to pay more attention on these aspects in daily training.
+There is variable that can negatively attribute to the winning of a game in both two models, turnovers, which can instruct the Knicks to avoid this action in games.
