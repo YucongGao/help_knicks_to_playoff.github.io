@@ -23,9 +23,17 @@ navbar:
       href: proposal.html
     - icon: fa-github fa-lg
       href: https://github.com/YucongGao/help_knicks_to_playoff.github.io
-    - icon: fa-envelope fa-lg
-      href: mailto:<pl2811@cumc.columbia.edu>
-
+    - icon: fab fa-linkedin
+      menu:
+        - text: 'Jessie Gao'
+          href: https://www.linkedin.com/in/yucong-gao/
+        - text: 'Sean Yang'
+          href: https://www.linkedin.com/in/seanyangds/
+        - text: 'Hazel Zheng'
+          href: https://www.linkedin.com/in/hao-zheng-606848225
+        - text: 'Peggy Lin'
+          href: https://www.linkedin.com/in/pei-hsin-lin-299aa821b
+          
 output:
   html_document:
     theme: journal
