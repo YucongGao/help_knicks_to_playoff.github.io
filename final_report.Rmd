@@ -36,7 +36,7 @@ scale_fill_discrete = scale_fill_viridis_d
 
 ## Motivation
 
-\ As NBA fans, we are witnessing probably the greatest revolution ever on the court, which is called "Small ball era". Teams tend to use small and faster players instead of traditional giants to accelerate moving speed and improve shooting efficiency. 
+As NBA fans, we are witnessing probably the greatest revolution ever on the court, which is called "Small ball era". Teams tend to use small and faster players instead of traditional giants to accelerate moving speed and improve shooting efficiency. 
 
 <img src="./pics/lillard.jpg" style="width:90%">
 
@@ -46,13 +46,7 @@ The most obvious feature of the "small ball era" is the lifting of speed and the
 
 ## Questions
 
-The condition for playoff is ranking top eight among the fifteen teams in either east or west conference, and the rank of teams is determined by the number of games that a team win in a regular season. In this way, we are going to explore how the number of games won by a team is associated with average performance factors and give suggestions on the improvement of these abilities.
-
-\ Last year, our favorite team Knicks returned to playoff season after eight years, which brought great joy to the fans. In order to make this performance long-lasting, we feel obligated to research the key variables that contribute to the winning so that help Knicks maintain existing strengths and make up for the disadvantages. The most obvious feature of the "small ball era" is the lifting of speed and the rise of 3 point shot attempt. In this way, we focus on offensive playtype and three-point related variables along with other factors to conduct our analysis.
-
-
-\ To ensure themselves into the playoff game, Knicks need to win enough games to become top eight in east conference. So at the very beginning, we are interested in exploring the distribution of the number of games won by NBA playoff teams to find the threshold number of wins to enter into the playoff. Then We want to figure out the contributors to total wins of a season and single win of a game. With the assumption that total wins are independent between each team and each year, and the result of a single game is independent of another, we used linear regression model to fit total wins with average performance predictors in both offensive and defensive parts. In addition, we would use our model to predict Knicks' performance in the new season of 2021-22 to see whether it can get into play-off season. Then according to the models we build, we analyzed the performance of Knicks on key predictors to see the gap between knicks and super teams. What's more, we deep dived these gaps from team level into player level and found how leading players should improve to get more wins. Finally, a detailed game and training strategy is proposed. 
-
+To get into playoff season, a team need to rank top eight among the fifteen teams in either east or west conference. The rank of team is determined by the number of games that a team win in a regular season. Therefore, we are going to explore how the number of games won by a team is associated with pamameters in evaluation average performance and give suggestions on the improvement of these abilities.
 
 1. What is the threshold number of wins to enter playoff? <br>
 At the very beginning, we are interested in exploring the distribution of the number of games won by NBA playoff teams to find the threshold number of wins to enter into the playoff. 
@@ -68,7 +62,6 @@ Then according to the regression results, we want to analyse the performance of 
 
 5. which specific players cause these shortages and how to improve the overall performance? <br>
 Finally, we deep dived these gaps from team level into player level and found how leading players should improve to get more wins. A detailed game and training strategy is proposed.
-
 
 ## Data 
 
