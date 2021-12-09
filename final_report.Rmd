@@ -89,7 +89,8 @@ As I mentioned above, these data sets were scrapped from NBA website, the code t
 ### Data Wrangling
 
 #### Data scrapping
-We met with a huge problem at the very beginning that the most detailed [NBA Stats](https://www.nba.com/stats/) website do not have API for scrapping. So we learned from a blogger to write a function to extract data using web devtools.[(link)](https://www.owenlhjphillips.com/new-blog/2020/6/25/how-to-make-nba-shots-charts-in-r) In the meantime, the last column of every dataset on that website is NA, so we exclude it.
+We met with a huge problem at the very beginning that the most detailed [NBA Stats](https://www.nba.com/stats/) website do not have API for scrapping. So we learned from 
+[Phillips' blog](https://www.owenlhjphillips.com/new-blog/2020/6/25/how-to-make-nba-shots-charts-in-r) to write a function to extract data using web devtools.The code we wrote can be found [here](scrapping_data.Rmd). In the meantime, the last column of every dataset on that website is NA, so we exclude it.
 ```{r, eval=FALSE,message=FALSE,warning=FALSE}
 scrapping_data = function(url) {
   headers = headers = c(
@@ -117,7 +118,7 @@ drop_last_column = function(df) {
 
 ```
 
-Next, because the knitting time is too long due to scrapping process, we extracted the datasets and variables we want and saved them to local for further use. Totally seven datasets were extracted.[scrapping](scrapping_data.Rmd)<br> Here is one example datasets, box_score_all.
+Next, because the knitting time is too long due to scrapping process, we extracted the datasets and variables we want and saved them to local for further use. There were seven datasets extracted in total. Here is one example datasets, box_score_all.
 ```{r, eval=FALSE, message=FALSE, warning=FALSE}
 
 season_years = c("2020-21", "2019-20", 
