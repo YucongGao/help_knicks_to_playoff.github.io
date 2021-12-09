@@ -115,10 +115,12 @@ As for the defensive level, variables include:
 
 Use step function to choose a model by AIC in a Stepwise algorithm.
 
-```{r,message=FALSE, warning=FALSE}
+```{r,message=FALSE, warning=FALSE,results='hide'}
 ln_regre = lm(pts ~fg_pct+fg3_pct+ft_pct+oreb+dreb+ast+stl+blk+tov+pf,data = regre_df)
 summary(ln_regre)
 linear.step = step(ln_regre,direction="both")
+```
+```{r}
 linear.step  %>% broom::tidy() %>% knitr::kable()
 ```
 

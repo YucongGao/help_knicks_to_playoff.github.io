@@ -404,12 +404,17 @@ test =regre_df[-train.index, ]
 ### Modelling
 
 Build logistic regression model with Step methods in both directions.
-```{r,message=FALSE, warning=FALSE}
+```{r,message=FALSE, warning=FALSE,results='hide'}
 lg_regre<-glm(wl~fg_pct+fg3_pct+ft_pct+oreb+dreb+ast+stl+blk+tov+pf,data =train, family = "binomial",control = list(maxit=1000))
-summary(lg_regre)
+
 logit.step = step(lg_regre,direction="both")
-summary(logit.step)
+
 ```
+
+```{r}
+logit.step  %>% broom::tidy() %>% knitr::kable()
+```
+
 
 
 ### Interpretation of model coefficients
@@ -439,12 +444,15 @@ For each additional 1 of turnovers per game, the odds of win over loss will beco
 For each additional 1 of  personal foul per game, the odds of win over loss will become e^(-0.067135) times.
 
 ### Calculate prediction accuracy.
-```{r,message=FALSE, warning=FALSE}
+```{r,message=FALSE, warning=FALSE,results='hide'}
 probabilities <- lg_regre %>% predict(test, type = "response")
 head(probabilities)
 contrasts(test$wl)
 predicted.classes <- ifelse(probabilities > 0.5, "1", "0")
 head(predicted.classes)
+```
+
+```{r}
 mean(predicted.classes == test$wl)
 ```
 

@@ -492,52 +492,8 @@ corrplot(corr, method = &quot;square&quot;, order = &quot;FPC&quot;)</code></pre
 <h3>Modelling</h3>
 <p>Use step function to choose a model by AIC in a Stepwise algorithm.</p>
 <pre class="r"><code>ln_regre = lm(pts ~fg_pct+fg3_pct+ft_pct+oreb+dreb+ast+stl+blk+tov+pf,data = regre_df)
-summary(ln_regre)</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = pts ~ fg_pct + fg3_pct + ft_pct + oreb + dreb + 
-##     ast + stl + blk + tov + pf, data = regre_df)
-## 
-## Residuals:
-##     Min      1Q  Median      3Q     Max 
-## -25.617  -5.038  -0.342   4.710  46.223 
-## 
-## Coefficients:
-##               Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept) -25.229423   0.515913  -48.90   &lt;2e-16 ***
-## fg_pct      138.594897   0.803307  172.53   &lt;2e-16 ***
-## fg3_pct      14.564180   0.325892   44.69   &lt;2e-16 ***
-## ft_pct       24.290515   0.331887   73.19   &lt;2e-16 ***
-## oreb          0.802525   0.009228   86.96   &lt;2e-16 ***
-## dreb          0.563889   0.006492   86.86   &lt;2e-16 ***
-## ast           0.487421   0.008136   59.91   &lt;2e-16 ***
-## stl           0.565725   0.011870   47.66   &lt;2e-16 ***
-## blk          -0.152531   0.013351  -11.43   &lt;2e-16 ***
-## tov          -0.682900   0.008899  -76.74   &lt;2e-16 ***
-## pf            0.404912   0.007667   52.81   &lt;2e-16 ***
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Residual standard error: 7.334 on 47819 degrees of freedom
-## Multiple R-squared:  0.6916, Adjusted R-squared:  0.6916 
-## F-statistic: 1.072e+04 on 10 and 47819 DF,  p-value: &lt; 2.2e-16</code></pre>
-<pre class="r"><code>linear.step = step(ln_regre,direction=&quot;both&quot;)</code></pre>
-<pre><code>## Start:  AIC=190616
-## pts ~ fg_pct + fg3_pct + ft_pct + oreb + dreb + ast + stl + blk + 
-##     tov + pf
-## 
-##           Df Sum of Sq     RSS    AIC
-## &lt;none&gt;                 2572088 190616
-## - blk      1      7021 2579109 190744
-## - fg3_pct  1    107426 2679514 192571
-## - stl      1    122170 2694258 192834
-## - pf       1    150024 2722112 193325
-## - ast      1    193050 2765138 194076
-## - ft_pct   1    288123 2860211 195692
-## - tov      1    316762 2888850 196169
-## - dreb     1    405789 2977877 197621
-## - oreb     1    406778 2978867 197637
-## - fg_pct   1   1601094 4173182 213762</code></pre>
+summary(ln_regre)
+linear.step = step(ln_regre,direction=&quot;both&quot;)</code></pre>
 <pre class="r"><code>linear.step  %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
 <table>
 <thead>
@@ -773,11 +729,11 @@ summary(ln_regre)</code></pre>
 <h3>Model diagnostic</h3>
 <p>1). to check if the error term is normally distributed with mean 0.</p>
 <pre class="r"><code>ggplot(data = ln_regre , aes(x = ln_regre$residuals)) + geom_histogram()</code></pre>
-<p><img src="regresssion_for_score_files/figure-html/unnamed-chunk-5-1.png" width="90%" /></p>
+<p><img src="regresssion_for_score_files/figure-html/unnamed-chunk-6-1.png" width="90%" /></p>
 <p>Condition 1 is met.</p>
 <p>2). to check if the error term is independent of the dependent variable.</p>
 <pre class="r"><code>ggplot(data = ln_regre, aes(x = ln_regre$fitted.values, y = ln_regre$residuals)) + geom_point() + geom_smooth(method = &quot;lm&quot;)</code></pre>
-<p><img src="regresssion_for_score_files/figure-html/unnamed-chunk-6-1.png" width="90%" /></p>
+<p><img src="regresssion_for_score_files/figure-html/unnamed-chunk-7-1.png" width="90%" /></p>
 <p>Condition 2 is met as we cannot see an obvious tendency of errors.</p>
 </div>
 <div id="interpretation-of-model-coefficients" class="section level3">
