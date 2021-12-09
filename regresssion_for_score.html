@@ -319,7 +319,7 @@ div.tocify {
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="index.html">Go Go Knicks!</a>
+      <a class="navbar-brand" href="index.html">Home</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
@@ -328,6 +328,9 @@ div.tocify {
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="final_report.html">Report</a>
+</li>
+<li>
+  <a href="eda.html">Data Exploration</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -348,13 +351,10 @@ div.tocify {
   </ul>
 </li>
 <li>
-  <a href="eda.html">Data Exploration</a>
+  <a href="https://jessiegao.shinyapps.io/shiny_app/">Shiny App</a>
 </li>
 <li>
   <a href="proposal.html">About</a>
-</li>
-<li>
-  <a href="https://jessiegao.shinyapps.io/shiny_app/">Shiny App</a>
 </li>
 <li>
   <a href="https://github.com/YucongGao/help_knicks_to_playoff.github.io">
@@ -362,11 +362,27 @@ div.tocify {
      
   </a>
 </li>
-<li>
-  <a href="mailto:&lt;pl2811@cumc.columbia.edu&gt;">
-    <span class="fa fa-envelope fa-lg"></span>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    <span class="fab fa-linkedin"></span>
      
+     
+    <span class="caret"></span>
   </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://www.linkedin.com/in/yucong-gao/">Jessie Gao</a>
+    </li>
+    <li>
+      <a href="https://www.linkedin.com/in/seanyangds/">Sean Yang</a>
+    </li>
+    <li>
+      <a href="https://www.linkedin.com/in/hao-zheng-606848225">Hazel Zheng</a>
+    </li>
+    <li>
+      <a href="https://www.linkedin.com/in/pei-hsin-lin-299aa821b">Peggy Lin</a>
+    </li>
+  </ul>
 </li>
       </ul>
     </div><!--/.nav-collapse -->
@@ -494,7 +510,7 @@ corrplot(corr, method = &quot;square&quot;, order = &quot;FPC&quot;)</code></pre
 <pre class="r"><code>ln_regre = lm(pts ~fg_pct+fg3_pct+ft_pct+oreb+dreb+ast+stl+blk+tov+pf,data = regre_df)
 summary(ln_regre)
 linear.step = step(ln_regre,direction=&quot;both&quot;)</code></pre>
-<pre class="r"><code>linear.step  %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
+<pre class="r"><code>ln_regre %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
 <table>
 <thead>
 <tr class="header">
@@ -586,154 +602,16 @@ linear.step = step(ln_regre,direction=&quot;both&quot;)</code></pre>
 </tbody>
 </table>
 <p>The adjusted R square for the full model is 0.6916, that is to say 69.16% of variances in the response variable can be explained by the predictors.</p>
-<pre class="r"><code>ln_regre= lm(pts ~fg_pct+fg3_pct+ft_pct+oreb+dreb+ast+stl+blk+tov+pf,data = regre_df)
-summary(ln_regre)</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = pts ~ fg_pct + fg3_pct + ft_pct + oreb + dreb + 
-##     ast + stl + blk + tov + pf, data = regre_df)
-## 
-## Residuals:
-##     Min      1Q  Median      3Q     Max 
-## -25.617  -5.038  -0.342   4.710  46.223 
-## 
-## Coefficients:
-##               Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept) -25.229423   0.515913  -48.90   &lt;2e-16 ***
-## fg_pct      138.594897   0.803307  172.53   &lt;2e-16 ***
-## fg3_pct      14.564180   0.325892   44.69   &lt;2e-16 ***
-## ft_pct       24.290515   0.331887   73.19   &lt;2e-16 ***
-## oreb          0.802525   0.009228   86.96   &lt;2e-16 ***
-## dreb          0.563889   0.006492   86.86   &lt;2e-16 ***
-## ast           0.487421   0.008136   59.91   &lt;2e-16 ***
-## stl           0.565725   0.011870   47.66   &lt;2e-16 ***
-## blk          -0.152531   0.013351  -11.43   &lt;2e-16 ***
-## tov          -0.682900   0.008899  -76.74   &lt;2e-16 ***
-## pf            0.404912   0.007667   52.81   &lt;2e-16 ***
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Residual standard error: 7.334 on 47819 degrees of freedom
-## Multiple R-squared:  0.6916, Adjusted R-squared:  0.6916 
-## F-statistic: 1.072e+04 on 10 and 47819 DF,  p-value: &lt; 2.2e-16</code></pre>
-<pre class="r"><code>linear.step = step(ln_regre,direction=&quot;both&quot;)</code></pre>
-<pre><code>## Start:  AIC=190616
-## pts ~ fg_pct + fg3_pct + ft_pct + oreb + dreb + ast + stl + blk + 
-##     tov + pf
-## 
-##           Df Sum of Sq     RSS    AIC
-## &lt;none&gt;                 2572088 190616
-## - blk      1      7021 2579109 190744
-## - fg3_pct  1    107426 2679514 192571
-## - stl      1    122170 2694258 192834
-## - pf       1    150024 2722112 193325
-## - ast      1    193050 2765138 194076
-## - ft_pct   1    288123 2860211 195692
-## - tov      1    316762 2888850 196169
-## - dreb     1    405789 2977877 197621
-## - oreb     1    406778 2978867 197637
-## - fg_pct   1   1601094 4173182 213762</code></pre>
-<pre class="r"><code>linear.step  %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th align="left">term</th>
-<th align="right">estimate</th>
-<th align="right">std.error</th>
-<th align="right">statistic</th>
-<th align="right">p.value</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">(Intercept)</td>
-<td align="right">-25.2294230</td>
-<td align="right">0.5159129</td>
-<td align="right">-48.90248</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">fg_pct</td>
-<td align="right">138.5948965</td>
-<td align="right">0.8033069</td>
-<td align="right">172.53044</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="left">fg3_pct</td>
-<td align="right">14.5641804</td>
-<td align="right">0.3258922</td>
-<td align="right">44.69017</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">ft_pct</td>
-<td align="right">24.2905146</td>
-<td align="right">0.3318872</td>
-<td align="right">73.18906</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="left">oreb</td>
-<td align="right">0.8025245</td>
-<td align="right">0.0092283</td>
-<td align="right">86.96336</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">dreb</td>
-<td align="right">0.5638889</td>
-<td align="right">0.0064921</td>
-<td align="right">86.85749</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="left">ast</td>
-<td align="right">0.4874214</td>
-<td align="right">0.0081360</td>
-<td align="right">59.90906</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">stl</td>
-<td align="right">0.5657252</td>
-<td align="right">0.0118704</td>
-<td align="right">47.65846</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="left">blk</td>
-<td align="right">-0.1525314</td>
-<td align="right">0.0133510</td>
-<td align="right">-11.42469</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">tov</td>
-<td align="right">-0.6829004</td>
-<td align="right">0.0088988</td>
-<td align="right">-76.74036</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="left">pf</td>
-<td align="right">0.4049123</td>
-<td align="right">0.0076670</td>
-<td align="right">52.81257</td>
-<td align="right">0</td>
-</tr>
-</tbody>
-</table>
 </div>
 <div id="model-diagnostic" class="section level3">
 <h3>Model diagnostic</h3>
 <p>1). to check if the error term is normally distributed with mean 0.</p>
 <pre class="r"><code>ggplot(data = ln_regre , aes(x = ln_regre$residuals)) + geom_histogram()</code></pre>
-<p><img src="regresssion_for_score_files/figure-html/unnamed-chunk-6-1.png" width="90%" /></p>
+<p><img src="regresssion_for_score_files/figure-html/unnamed-chunk-5-1.png" width="90%" /></p>
 <p>Condition 1 is met.</p>
 <p>2). to check if the error term is independent of the dependent variable.</p>
 <pre class="r"><code>ggplot(data = ln_regre, aes(x = ln_regre$fitted.values, y = ln_regre$residuals)) + geom_point() + geom_smooth(method = &quot;lm&quot;)</code></pre>
-<p><img src="regresssion_for_score_files/figure-html/unnamed-chunk-7-1.png" width="90%" /></p>
+<p><img src="regresssion_for_score_files/figure-html/unnamed-chunk-6-1.png" width="90%" /></p>
 <p>Condition 2 is met as we cannot see an obvious tendency of errors.</p>
 </div>
 <div id="interpretation-of-model-coefficients" class="section level3">

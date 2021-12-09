@@ -120,19 +120,12 @@ ln_regre = lm(pts ~fg_pct+fg3_pct+ft_pct+oreb+dreb+ast+stl+blk+tov+pf,data = reg
 summary(ln_regre)
 linear.step = step(ln_regre,direction="both")
 ```
+
 ```{r}
-linear.step  %>% broom::tidy() %>% knitr::kable()
+ln_regre %>% broom::tidy() %>% knitr::kable()
 ```
 
 The adjusted R square for the full model is 0.6916, that is to say 69.16% of variances in the response variable can be explained by the predictors. 
-
-
-```{r,message=FALSE, warning=FALSE}
-ln_regre= lm(pts ~fg_pct+fg3_pct+ft_pct+oreb+dreb+ast+stl+blk+tov+pf,data = regre_df)
-summary(ln_regre)
-linear.step = step(ln_regre,direction="both")
-linear.step  %>% broom::tidy() %>% knitr::kable()
-```
 
 
 ### Model diagnostic

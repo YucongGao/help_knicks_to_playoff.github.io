@@ -412,9 +412,8 @@ logit.step = step(lg_regre,direction="both")
 ```
 
 ```{r}
-logit.step  %>% broom::tidy() %>% knitr::kable()
+lg_regre %>% broom::tidy() %>% knitr::kable()
 ```
-
 
 
 ### Interpretation of model coefficients

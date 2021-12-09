@@ -744,11 +744,13 @@ test = regre_df[-train.index, ]
 ```
 
 Based on the correlation plot above, we choose the variables we are interested and build logistic regression model with Step methods in both directions.
-```{r}
+```{r,results='hide'}
 lg_regre <- glm(wl~fg_pct+fg3_pct+ft_pct+oreb+dreb+ast+stl+blk+tov+pf,data = train, family = "binomial",control = list(maxit = 1000))
 logit.step = step(lg_regre,direction = "both")
-logit.step %>% broom::tidy() %>% knitr::kable()
-logit.step %>% broom::glance() %>% knitr::kable()
+```
+
+```{r}
+lg_regre %>% broom::tidy() %>% knitr::kable()
 ```
 We obtain a model with variabls contain fg_pct,fg3_pct,ft_pct,oreb,dreb,ast,stl,blk,tov,pf.
 Next we will done some model diagnostic to make sure this is a suitable model.
@@ -757,12 +759,14 @@ Next we will done some model diagnostic to make sure this is a suitable model.
 
 To evaluate the predict accuracy of this logistic regression, we now use the 20% of original data to do testing.
 
-```{r}
+```{r,results='hide'}
 probabilities <- lg_regre %>% predict(test, type = "response")
 # head(probabilities)
 contrasts(test$wl)
 predicted.classes <- ifelse(probabilities > 0.5, "1", "0")
 # head(predicted.classes)
+```
+```{r}
 mean(predicted.classes == test$wl)
 ```
 
