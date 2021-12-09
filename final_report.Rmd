@@ -742,48 +742,26 @@ train = regre_df[train.index, ]
 test = regre_df[-train.index, ]
 ```
 
-<<<<<<< HEAD
 Based on the correlation plot above, we choose the variables we are interested and build logistic regression model with Step methods in both directions.
 ```{r}
 lg_regre <- glm(wl~fg_pct+fg3_pct+ft_pct+oreb+dreb+ast+stl+blk+tov+pf,data = train, family = "binomial",control = list(maxit = 1000))
 logit.step = step(lg_regre,direction = "both")
 logit.step %>% broom::tidy() %>% knitr::kable()
 logit.step %>% broom::glance() %>% knitr::kable()
-=======
-
-Based on the correlation plot above, we choose the variabls we are intereting and build logistic regression model with Step methods in both directions.
-
-```{r, results='hide'}
-lg_regre<-glm(wl~fg_pct+fg3_pct+ft_pct+oreb+dreb+ast+stl+blk+tov+pf,data =train, family = "binomial",control = list(maxit=1000))
-summary(lg_regre)
-logit.step = step(lg_regre,direction="both")
->>>>>>> 50f7909a20397655eff30d31e8d6a5fbca231d17
 ```
-```{r}
-logit.step  %>% broom::tidy() %>% knitr::kable()
-```
-We obtain a model with variables contain fg_pct,fg3_pct,ft_pct,oreb,dreb,ast,stl,blk,tov,pf.
+We obtain a model with variabls contain fg_pct,fg3_pct,ft_pct,oreb,dreb,ast,stl,blk,tov,pf.
 Next we will done some model diagnostic to make sure this is a suitable model.
 
 ### Model accuracy 
 
 To evaluate the predict accuracy of this logistic regression, we now use the 20% of original data to do testing.
 
-```{r,results='hide'}
+```{r}
 probabilities <- lg_regre %>% predict(test, type = "response")
 # head(probabilities)
 contrasts(test$wl)
 predicted.classes <- ifelse(probabilities > 0.5, "1", "0")
-<<<<<<< HEAD
 # head(predicted.classes)
-=======
-head(predicted.classes)
-
-
-```
-
-```{r}
->>>>>>> 50f7909a20397655eff30d31e8d6a5fbca231d17
 mean(predicted.classes == test$wl)
 ```
 
@@ -791,11 +769,7 @@ Using the logistic model of all variables we selected, the prediction accuracy i
 
 ### Interpretation of model coefficients
 ```{r}
-<<<<<<< HEAD
 lg_regre %>% broom::tidy() %>% knitr::kable()
-=======
-logit.step %>% broom::tidy() %>% knitr::kable()
->>>>>>> 50f7909a20397655eff30d31e8d6a5fbca231d17
 ```
 
 Our final model for predicting game result is showing below.
