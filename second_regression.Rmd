@@ -426,25 +426,25 @@ For logistic regression, we can explain variables from the perspective of odds.
  
 All variables selected are significant in this logistic regression model.
 
-For each additional 1 of proportion of field goals attempted, the odds of win over loss will become e^30.300719 times.
+For each additional 1 of proportion of field goals attempted, the odds of win over loss will become $e^{30.300719}$ times.
  
-For each additional 1 of proportion three points shooting, the odds of win over loss will become e^4.300476 times.
+For each additional 1 of proportion three points shooting, the odds of win over loss will become $e^{4.300476}$ times.
 
-For each additional 1 of proportion of free throw, the odds of win over loss will become e^3.626952 times.
+For each additional 1 of proportion of free throw, the odds of win over loss will become $e^{3.626952}$times.
  
-For each additional 1 of offensive rebounds per game, the odds of win over loss will become e^0.169106 times.
+For each additional 1 of offensive rebounds per game, the odds of win over loss will become $e^{0.169106}$ times.
  
-For each additional 1 of defensive rebounds per games, the odds of win over loss will become e^0.237543 times.
+For each additional 1 of defensive rebounds per games, the odds of win over loss will become $e^{0.237543}$times.
 
-For each additional 1 of steals per game, the odds of win over loss will become e^0.263265 times.
+For each additional 1 of steals per game, the odds of win over loss will become $e^{0.263265}$ times.
 
-For each additional 1 of assists per game, the odds of win over loss will become e^(-0.040846) times.
+For each additional 1 of assists per game, the odds of win over loss will become $e^{-0.040846}$ times.
 
-For each additional 1 of blocks per game, the odds of win over loss will become e^0.120397 times.
+For each additional 1 of blocks per game, the odds of win over loss will become $e^{0.120397}$ times.
 
-For each additional 1 of turnovers per game, the odds of win over loss will become e^(-0.177678) times.
+For each additional 1 of turnovers per game, the odds of win over loss will become $e^{-0.177678}$times.
 
-For each additional 1 of  personal foul per game, the odds of win over loss will become e^(-0.067135) times.
+For each additional 1 of  personal foul per game, the odds of win over loss will become $e^{-0.067135}$ times.
 
 ### Calculate prediction accuracy.
 ```{r,message=FALSE, warning=FALSE,results='hide'}
