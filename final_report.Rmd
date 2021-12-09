@@ -296,21 +296,22 @@ Dependent variable is the number of wins by team and season, denoted by wins_rev
 Independent variables are selected from both offensive aspect and defensive part.
 
 The typical attributes of "small ball era" is more three points shooting and quicker speed. So we select the following variables representing offensive level of a team:
-* fg3_p: proportion of three points shooting
-* fg3_r: three points shooting rate
-* pts_avg: average points per game
-* tov_avg: average number of turnovers per game
-* ast_avg: average number of assists per game
-* poss_trans: average number of transitions
-* passes_made: average number of passes per game
-* poss_iso: average number of isolations per game 
-* poss_pr: average number of pick and rolls
+
+* fg3_p: proportion of three points shooting <br>
+* fg3_r: three points shooting rate <br>
+* pts_avg: average points per game <br>
+* tov_avg: average number of turnovers per game <br>
+* ast_avg: average number of assists per game <br>
+* poss_trans: average number of transitions <br>
+* passes_made: average number of passes per game <br>
+* poss_iso: average number of isolations per game <br>
+* poss_pr: average number of pick and rolls <br>
 
 As for the defensive level, variables include:
 
-* stl: average steals per game
-* blk: average blocks per game
-* dreb: average defensive rebounds per game
+* stl: average steals per game <br>
+* blk: average blocks per game <br>
+* dreb: average defensive rebounds per game <br>
 
 2.Variables to predict the win or lose of a single game can be viewed [here](second_regression.html)
 
@@ -368,7 +369,7 @@ box_score_viz %>%
 
 From the above ridge plot, firstly, in the last 10 regular seasons, score of each play displays an increasing trend. Secondly, team who got into the playoff season have higher average scores compared to team who did not get into playoff season. 
 
-Its easy to understand the second tendency that playoff teams outscore the non-plyoff ones because higher scores let them win more. As for the rising of average score for all NBA teams, that is due to the small ball revolution, in which teams are going to speed up, get more shooting chances and increase the percentage of three points shooting.
+It's easy to understand that playoff teams outscore the non-plyoff teams because higher scores let them win more. As for the rising of average score for all NBA teams, that is due to the small ball revolution, in which teams are going to speed up, get more shooting chances and increase the percentage of three points shooting.
 
 ### Three Point Parameters {.tabset}
 
@@ -647,12 +648,20 @@ _wins_revised = -185 + 0.33pts_avg – 2.06tov_avg – 22.3fg3_p + 270fg3_r + 5.
 model3 %>% broom::tidy()
 ```
 
-All variables selected are significant in this linear regression model.
-Considering the unit of the predictors, it’s not easy for some variables to get improved a lot. Instead, just normal fluctuation of tov_avg, fg3_r, and dreb could influence the results.
+All variables selected are significant in this linear regression model. Frome the estimation result, we can conclude that a small progress in the number of turnover, three pointer rate and defensive rebound can improve the number of wins in regular season. 
 
-For each 1 additional average turnover, there will be 2 extra lose, which hurts badly. <br>
-For each 1% additional increase in three points shooting rate, there will be 2.7 extra wins, which helps the team a lot.<br>
-For each 1 additional average defensive rebound, there will be 3.34 extra wins! Protecting the defensive rebound well is critical.<br>
+If a team has one more _turnover_ in each play on average, the team can have two more loss in the regular season, which hurts badly. <br>
+
+If a team can increase its _three pointer rate_ by one percent, there will be 2.7 extra wins in the regular season, which helps the team a lot. <br>
+
+For each 1 additional average _defensive rebound_, there will be 3.34 extra wins! Protecting the defensive rebound well is critical.<br>
+
+What is beyond expectation is that the _percentage of three field goal attempt_ is negatively associated with the number of result. The explanation behind this result could be that usually the three pointer rate is below 50%. Shooting more means that more chance would fall at the hand of opposite team. That is to say, more three point shots not necessarily means more wins. 
+
+For other variables such as steal, the occurrence of them in a game is very few, which is to say, it is difficult to make an improvement
+
+
+
 
 
 ### Logistic Regression exploration
