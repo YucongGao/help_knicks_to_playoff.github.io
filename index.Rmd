@@ -1,5 +1,5 @@
 ---
-title: " GO GO KNICKS!"
+title: " How New York Knicks can enter into the Playoff?"
 output: 
   html_document:
     toc: false
