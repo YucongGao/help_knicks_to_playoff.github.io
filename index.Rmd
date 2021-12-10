@@ -60,7 +60,6 @@ In the [Shiny APP](Prediction Tool) tab, we propose a model to predict whether y
 
 In the [Report](final_report.html) tab, it shows our final project report. 
 
-![]("https://www.youtube.com/watch?v=UesH--gsUZA")
 
 
 
