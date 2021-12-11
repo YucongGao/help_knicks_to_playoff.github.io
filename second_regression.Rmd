@@ -57,7 +57,7 @@ The box_score_all dataset contains `r nrow(box_score_all)` games' data from seas
 
 ## Descriptive Statistics
 
-We should delete some variables which are not applicable for regression analysis, like season_year, team_id and some rank variables.Then select the reasonable variables to analyze to create a data set called "regre_df", and use regre_df to draw boxplots of comparison of winning team and losing team.
+We should delete some variables which are not applicable for regression analysis, like season_year, team_id and some rank variables.Then select the reasonable variables to analyze to create a data set called "regre_df"
 
 These are some reasonable variables that should be added into the regression model:
 
@@ -103,9 +103,9 @@ In this part, we explore each game in the past 20 years, try to find some import
 
 Firstly, we take a look on the scores difference between the winning team and losing team in the past 20 years.
 
-We can see that if a team wants to win the game, the score they needs to achieve become much higher compared to the past years. The average score for the winning team has some up and down form 2001-2015 seasons, however, after entering the small ball revolution, the average score for winning keep increase and never fall down since 2015-16 season.
+We can see that if a team wants to win the game, the score they needs to achieve become much higher compared to the past years. The average score for the winning team has comes up and down from 2001-2015 seasons, however, after entering the small ball revolution, the average score for winning keep increase and never fall down since 2015-16 season.
 
-So, it is obviously that if a team wants to win a game, they need to find a new techniques to earn more score. Next we will explore some factors we think might play a rule on the result of the game.
+So, it is obviously that if a team wants to win a game, they need to find a new techniques to earn more score. Next we will explore some factors we think might play a big rule on the result of the game.
 
 ```{r,message=FALSE, warning=FALSE}
 lose_game=
@@ -133,17 +133,17 @@ lose_game=
 As a team needs to gain more score for winning the game, to analyze the factors of game result, we first look at some variables that directly have influence on score. 
 We put both the plot of percentage and attempted together, so we can observe NBA's trend of scoring strategy in these 20 years.
 
-First, we can see that although the field goal attempted and percentage  didn't seems to  have much change through these 20 years,  the winning team have much stronger field goal percentage compare the team who lose. Also, we can see that the losing team have a slightly more field goal attempted than the winning team. 
+First, we can see that although the field goal attempted and percentage didn't seems to have much change through these 20 years,the winning team have much stronger field goal percentage compare the team who lose. Also, we can see that the losing team have a slightly more field goal attempted than the winning team. 
 
-Secondly, we can see that the 3 point field goals's percentage didn't change much in these two decades.However, there is a really significant increase on the 3 point field goals attempted.
-After the small ball era at 2015, the 3 point field goals attempted grow up remarkably, also we can see that same pattern as field goal attempted, the losing team also have higher 3 point field goals attempted.
+Secondly, we can see that the 3 point field goals' percentage didn't change much in these two decades.However, there is a really significant increase on the 3 point field goals attempted.
+After the small ball era at 2015, the 3 point field goals attempted grow up remarkably, also we can see the same pattern as field goal attempted, the losing team have a higher 3 point field goals attempted.
 
-Third, we can see that free throw attempted and percentage didn't have much change through these 20 years. The winning team have higher attempted and percentage.
+Third, we can see that free throw attempted and percentage didn't have much change through these 20 years. And the winning teams have higher attempted and percentage.
 
-By inspect these variables, we can conclude that on the basketball field there are almost like a three points field goals fight after 2015, everyone throw as much as 3 points play as they can. 
-The most notable difference of attempted between winning team and losing team happened on the free throw attempted, this means that even that the free throw only contribute one point in the score, it still is a indicator of the game result.And the most outstanding difference of percentage between winning team and losing team happened on the field goal percentage,  this suggest that the to improve field goal percentage is one of the most critcal thing a team should consider if they want to win the game.
+By inspect these variables, we can conclude that on the basketball field, there are almost like a three points field goals fight after 2015, everyone throw as much as 3 points play as they can. 
+The most notable difference of attempted between winning team and losing team happened on the free throw attempted, this means that even that the free throw only contribute one point in the score, it still is an indicator of the game result. And the most outstanding difference of percentage between winning team and losing team happened on the field goal percentage, this suggest that to improve field goal percentage is one of the most critical thing a team should consider if they want to win the game.
 
-So since 3 points field attempted become trend in every game,  we look up three of the most higher 3 points field attempted out liner on the plot. We find out it all made by Houston Rockets, so we took a look deeply, we find out in the top ten of the highest 3 points field in these 20 years, Houston Rockets occupy 8 of it and the other 2 is Atlanta Hawks.
+So since 3 points field attempted become trend in every game,  we look up three of the most higher 3 points field attempted outliers on the plot. We find out it all made by Houston Rockets, so we took a look deeply, we find out in the top ten of the highest 3 points field in these 20 years, Houston Rockets occupy 8 and the other 2 is Atlanta Hawks.
 
 
 #### Field Goal 
@@ -194,8 +194,8 @@ plot_ly(box_score_all, x = ~ season_year, y = ~ ft_pct, color = ~ wl, type = "bo
 ### New York Knicks 3 Point Field Goals {.tabset}
 
 
-Since, in the previous part, we found out that highest 3 points field in these 20 years, Houston Rockets occupy 8 of it and the other 2 is Atlanta Hawks. It seems like there are some team really superior in 3 points, which is also seems like a important factor on winning the game.
-So we take a look of Knicks's 3 Point Field Goals and 3 Point Field Goals Attempted, we found out that even after the small ball era, there average of  3 Point Field Goals and Attempted didn't have much increase.
+Since, in the previous part, we found out that highest 3 points field in these 20 years, Houston Rockets occupy 8 of it and the other 2 is Atlanta Hawks. It seems like there are some team really superior in 3 points.
+So we take a look of Knicks's 3 Point Field Goals and 3 Point Field Goals Attempted, we found out that even after the small ball era, Knicks's average of 3 Point Field Goals and Attempted didn't have much increase.
 
 
 ```{r,message=FALSE, warning=FALSE}
@@ -224,14 +224,14 @@ plot_ly(nyk, x = ~ season_year, y = ~ fg3_pct, color = ~ wl, type = "box") %>%
 
 ### Offensive Level Parameters {.tabset}
 
-Next, we are going to explore the influence of some offensive strategies on the basketball field, to see what kind of techniques might play a role on the result of the game.
+Next, we are going to explore the influence of some offensive strategies on the basketball field, to see what kind of techniques might play a big role on the result of the game.
 
-The average offensive rebounds is slightly higher in the losing team. And in the average assists per game the winning team is significantly higher. 
+The average offensive rebounds is slightly higher in the losing team. And on the average assists per game, winning team is significantly higher than losing team. 
 
-Average offensive rebounds are higher in the losing team seems like a same pattern as the attempted also higher in the losing team. We can hypothesize that when a team started to lose they will take more aggressive strategies compared to the team who keep leading .
+Average offensive rebounds are higher in the losing team seems like a same pattern as the attempted also higher in the losing team. We can hypothesize that when a team starting to lose,  they will take more aggressive strategies compared to the team that keep leading .
 
 
-Average assists per games is significantly higher in the winning team might result from the assists is defined as scoring successfully, and more scoring means more possible to win.
+Average assists per games is significantly higher in the winning team, this might result from the assists is defined as scoring successfully, and more scoring means more possible to win.
 
 
 ```{r,message=FALSE, warning=FALSE}
@@ -275,7 +275,7 @@ offensive_df %>%
 
 In this part, we are going to explore the influence of some defensive level strategies on the basketball field, to see what kind of defensive techniques might play a role on the result of the game.
 
-Steals, Blocks, Defensive rebounds of each game is significantly higher in the winning team,  Personal foul and Turnovers of each game are slightly higher in the losig team.
+Steals, Blocks, Defensive rebounds of each game is significantly higher in the winning team,  Personal foul and Turnovers of each game are slightly higher in the losing team.
 
 
 
@@ -360,7 +360,7 @@ box_score_all %>%
 
 ## Corralation Map
 
-Further, we can draw a correlation map to exam correlation of variables to help us select variables when building model.
+Further, we draw a correlation map to exam correlation of each variables, this process can help us select variables for building our logistic model.
 ```{r,message=FALSE, warning=FALSE}
 regre_df = 
   regre_df %>%
@@ -392,7 +392,7 @@ corr <- cor(regre_df[-1])
 corrplot(corr, method = "square", order = "FPC")
 ```
 
-Based on this plot, we can see that there are some strong correlation between some variables, like ftm and fta, dreb and reb. We will select one variable from a pair of variables that have correlation score which is more than 0.5. Therefore we can select variables which have no strong correlation with others.
+Based on this plot, we can see that there are strong correlation between some variables, like ftm and fta, dreb and reb. We will select one variable from a pair of variables that have strong  correlation (which is more than 0.5). And we can select variables which have no strong correlation with others.
 
 ## Logistic Regression
 
@@ -407,7 +407,8 @@ test =regre_df[-train.index, ]
 
 ### Modelling
 
-Build logistic regression model with Step methods in both directions.
+Based on the correlation plot above, we choose the variables we are interested and build logistic regression model using stepwise regression.
+
 ```{r,message=FALSE, warning=FALSE,results='hide'}
 lg_regre<-glm(wl~fg_pct+fg3_pct+ft_pct+oreb+dreb+ast+stl+blk+tov+pf,data =train, family = "binomial",control = list(maxit=1000))
 
@@ -468,5 +469,6 @@ Using the logistic model of all variables we selected, the prediction accuracy i
 Our final model for predicting game result is showing below.
 
 $$Y_i=-25.150274 + 30.300719 (fg_pct)+4.300476(fg3_pct)+3.626952(ft_pct)+0.169106(oreb)+\\ 0.237543(dreb)-0.040846(ast)+0.263265(stl)+0.120397(blk)-0.177678(tov)-0.067135(pf)$$
-We have built a logistic regression based on the NBA data. The prediction of the logistic regression model is 0.8053523, which can help us to predict the result of a game more accurately. There are some variables that can positively attribute to the winning of a game, including proportion of field goals attempted, proportion three points shooting and proportion of free throw, which can instruct the Knicks to pay more attention on these aspects in daily training.
+We have built both linear and logistic regression based on the NBA data. The adjusted R square for the linear regression model is 0.6916, which can explain the game score in a large extent. And the prediction of the logistic regression model is 0.8053523, which can help us to predict the result of the game correctly. 
+There are some variables that can positively attribute to the winning of a game in both two models, like proportion of field goals attempted, proportion three points shooting and proportion of free throw, which can instruct the Knicks to pay more attention on these aspects in daily training.
 There is variable that can negatively attribute to the winning of a game in both two models, turnovers, which can instruct the Knicks to avoid this action in games.
