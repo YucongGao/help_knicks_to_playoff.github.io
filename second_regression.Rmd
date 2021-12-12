@@ -128,7 +128,7 @@ lose_game=
 
 ```
 
-### Variables can affect the result of game {.tabset}
+### Variables that can affect the result of game {.tabset}
 
 As a team needs to gain more score for winning the game, to analyze the factors of game result, we first look at some variables that directly have influence on score. 
 We put both the plot of percentage and attempted together, so we can observe NBA's trend of scoring strategy in these 20 years.
@@ -194,7 +194,7 @@ plot_ly(box_score_all, x = ~ season_year, y = ~ ft_pct, color = ~ wl, type = "bo
 ### New York Knicks 3 Point Field Goals {.tabset}
 
 
-Since, in the previous part, we found out that highest 3 points field in these 20 years, Houston Rockets occupy 8 of it and the other 2 is Atlanta Hawks. It seems like there are some team really superior in 3 points.
+Since, in the previous part, we found out that top ten of highest 3 points field in these 20 years, Houston Rockets occupy 8 of it and the other 2 is Atlanta Hawks. It seems like there are some team really superior in 3 points.
 So we take a look of Knicks's 3 Point Field Goals and 3 Point Field Goals Attempted, we found out that even after the small ball era, Knicks's average of 3 Point Field Goals and Attempted didn't have much increase.
 
 
