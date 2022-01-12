@@ -693,13 +693,13 @@ For other variables such as steal, the occurrence of them in a game is very few,
 
 ### Logistic Regression exploration
 
-The box_score_all dataset contains 47830 games’ data from season 2012-2013 to season 2020-2021, which includes 30 variables. We are going to use some of them to build a logistics regression to see that what king of variables will affect the game result.
+The box_score_all dataset contains 47830 games’ data from season 2012-2013 to season 2020-2021, which includes 30 variables. We are going to use some of them to build a logistics regression to see that what kind of variables will affect the game result.
 In addition we also use this data to do a linear regression for predicting the score.click [here](MLR_nwins.html) to see the regression results.
 
 
 #### Correlation Matrix
 
-First, we draw a correlation map to exam correlation of variables to help us select variables when building model.
+First, we draw a correlation map to exam correlation of each variables, this process can help us select variables for building our logistic model.
 ```{r}
 regre_df = 
   regre_df %>%
@@ -730,7 +730,10 @@ regre_df =
 corr <- cor(regre_df[-1])
 corrplot(corr, method = "square", order = "FPC")
 ```
-Based on this plot, we can see that there are some strong correlation between some variables, like ftm and fta, dreb and reb. We will select one variable from a pair of variables that have correlation score which is more than 0.5. Therefore we can select variables which have no strong correlation with others.
+
+
+
+Based on this plot, we can see that there are strong correlation between some variables, like ftm and fta, dreb and reb. We will select one variable from a pair of variables that have strong  correlation (which is more than 0.5). And we can select variables which have no strong correlation with others.
 
 ### Modelling
 
@@ -743,7 +746,7 @@ train = regre_df[train.index, ]
 test = regre_df[-train.index, ]
 ```
 
-Based on the correlation plot above, we choose the variables we are interested and build logistic regression model with Step methods in both directions.
+Based on the correlation plot above, we choose the variables we are interested and build logistic regression model using stepwise regression.
 ```{r,results='hide'}
 lg_regre <- glm(wl~fg_pct+fg3_pct+ft_pct+oreb+dreb+ast+stl+blk+tov+pf,data = train, family = "binomial",control = list(maxit = 1000))
 logit.step = step(lg_regre,direction = "both")
@@ -752,8 +755,7 @@ logit.step = step(lg_regre,direction = "both")
 ```{r}
 lg_regre %>% broom::tidy() %>% knitr::kable()
 ```
-We obtain a model with variabls contain fg_pct,fg3_pct,ft_pct,oreb,dreb,ast,stl,blk,tov,pf.
-Next we will done some model diagnostic to make sure this is a suitable model.
+We obtain a model with variables contain fg_pct,fg3_pct,ft_pct,oreb,dreb,ast,stl,blk,tov,pf.
 
 ### Model accuracy 
 
@@ -807,7 +809,7 @@ For each additional 1 of turnovers per game, the odds of win over loss will beco
 
 For each additional 1 of  personal foul per game, the odds of win over loss will become $e^{-0.067135}$ times.
 
-We have built both linear and logistic regression based on the NBA data. The adjusted R square for the linear regression model is 0.6916, which can explain the game score in a large extent. And the prediction of the logistic regression model is 0.8053523, which can help us to predict the result of a game more accurately. 
+We have built both linear and logistic regression based on the NBA data. The adjusted R square for the linear regression model is 0.6916, which can explain the game score in a large extent. And the prediction of the logistic regression model is 0.8053523, which can help us to predict the result of the game correctly. 
 There are some variables that can positively attribute to the winning of a game in both two models, like proportion of field goals attempted, proportion three points shooting and proportion of free throw, which can instruct the Knicks to pay more attention on these aspects in daily training.
 There is variable that can negatively attribute to the winning of a game in both two models, turnovers, which can instruct the Knicks to avoid this action in games.
 
