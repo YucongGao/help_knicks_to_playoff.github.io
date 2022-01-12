@@ -1,12 +1,10 @@
 # help_knicks_to_playoff.github.io
 
-```{r setup, include=FALSE}
-library(tidyverse)
-```
+
 
 ## Group Members
-Xuehan Yang, xy2517 <br>
 Yucong Gao, yg2834 <br>
+Xuehan Yang, xy2517 <br>
 Hao Zheng, hz2772 <br>
 Pei Hsin Lin, pl2811 <br>
 
@@ -29,7 +27,7 @@ These websites contains up-to-date NBA box scores for each team per game and Pla
 
 ## Analysis/Visualizations
 
-### Intended Data Analysis 
+### Data Analysis 
 
 Our analysis contains three parts, all of which are based on data from last 5 NBA regular seasons, from 2015-2016 season to 2020-2021 season.
 
@@ -39,14 +37,14 @@ The second analysis is descriptive analysis, focusing on how to improve three po
 
 The third analysis gives suggestions to a specific NBA team, New York Knicks. The advice mainly cover three point shooting strategy on the court and three points training strategy according to the results from the first two analysis.
  
-### Intended Data Visualization
+### Data Visualization
 
 * A line plot of the average team three point shooting attempts trend over time<br>
 * A parallel coordinates of three point attempt rate trend overtime breakdown by playoff teams and other teams<br>
 * A hex plot that shows the three points shooting rate of a team on different position<br> 
 * A panel plot shows characteristics difference between playoff teams and other teams<br>
 
-## Anticipated Challenges
+## Challenges
 
 * There is no direct API from NBA official website about shooting log data, how to use scrapper to get the data is a big challenge.
 
